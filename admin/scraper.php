@@ -118,8 +118,6 @@ function scrapeMatchesFromSeries($seriesId) {
     $seriesId_from_url = isset($seriesSlugMatch[1]) ? $seriesSlugMatch[1] : '';
     $seriesSlug = isset($seriesSlugMatch[2]) ? $seriesSlugMatch[2] : '';
     
-    $teamCodes = extractTeamCodes($series['series_name']);
-    
     $slugParts = preg_split('/[-_]/', $seriesSlug);
     $keyParts = array_filter($slugParts, function($p) {
         return strlen($p) > 2 && !preg_match('/^\d{4}$/', $p);
@@ -128,11 +126,11 @@ function scrapeMatchesFromSeries($seriesId) {
     $scraperApiKey = getenv('SCRAPER_API_KEY');
     
     if(!empty($scraperApiKey)) {
-        $apiUrl = "https://api.scraperapi.com/?api_key=" . $scraperApiKey . "&url=" . urlencode($url) . "&render=true&wait_for_selector=.cb-series-matches";
+        $apiUrl = "https://api.scraperapi.com/?api_key=" . $scraperApiKey . "&url=" . urlencode($url) . "&render=true";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         $html = curl_exec($ch);
         curl_close($ch);
@@ -148,10 +146,11 @@ function scrapeMatchesFromSeries($seriesId) {
     }
     
     if(empty($html)) {
-        return ['success' => false, 'message' => 'Empty response from website'];
+        return ['success' => false, 'message' => 'Empty response from website. API Key: ' . (!empty($scraperApiKey) ? 'Yes' : 'No')];
     }
     
     $matchCount = 0;
+    $debugInfo = 'HTML: ' . strlen($html) . ' bytes, Slug: ' . $seriesSlug;
     
     $datePattern = '/<a[^>]*title="([A-Za-z]{3},\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4})"[^>]*>.*?<span>([^<]+)<\/span>/is';
     preg_match_all($datePattern, $html, $dateMatches, PREG_OFFSET_CAPTURE);
@@ -254,7 +253,7 @@ function scrapeMatchesFromSeries($seriesId) {
         }
     }
     
-    return ['success' => true, 'message' => "Successfully scraped $matchCount new matches"];
+    return ['success' => true, 'message' => "Successfully scraped $matchCount new matches. $debugInfo"];
 }
 
 function scrapeAllMatches() {
