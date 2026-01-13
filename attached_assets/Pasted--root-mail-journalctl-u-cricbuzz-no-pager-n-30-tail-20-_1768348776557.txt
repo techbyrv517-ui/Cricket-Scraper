@@ -1,0 +1,23 @@
+
+root@mail:~# journalctl -u cricbuzz --no-pager -n 30 | tail -20
+Jan 14 00:57:20 mail.digitalcash24.com gunicorn[3996019]: psycopg2.errors.UndefinedColumn: column "slug" of relation "matches" does not exist
+Jan 14 00:57:20 mail.digitalcash24.com gunicorn[3996019]: LINE 1: ...id, match_id, match_title, match_url, match_date, slug) VALU...
+Jan 14 00:57:20 mail.digitalcash24.com gunicorn[3996019]:                                                              ^
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]: [2026-01-14 00:57:40,050] ERROR in app: Exception on /cricket-teams [GET]
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]: Traceback (most recent call last):
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:     response = self.full_dispatch_request()
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:     rv = self.handle_user_exception(e)
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:     rv = self.dispatch_request()
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 1843, in teams_page
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:     cur.execute('''SELECT * FROM teams WHERE is_published = TRUE
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:     return super().execute(query, vars)
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]: psycopg2.errors.UndefinedColumn: column "rank" does not exist
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]: LINE 2:                    ORDER BY team_type, rank, name
+Jan 14 00:57:40 mail.digitalcash24.com gunicorn[3996017]:                                                ^
+root@mail:~#
