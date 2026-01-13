@@ -4,17 +4,8 @@
 {% block meta_description %}{% if scorecard %}{{ scorecard.match_title }} - {{ scorecard.match_status }}{% else %}Match scorecard and live scores{% endif %}{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <div class="container">
-        <h1>{% if match %}{{ match.match_title }}{% elif scorecard %}{{ scorecard.match_title }}{% else %}Match Score{% endif %}</h1>
-        {% if scorecard %}
-        <p class="match-status">{{ scorecard.match_status }}</p>
-        {% endif %}
-    </div>
-</div>
-
 <div class="container">
-    <div style="padding: 40px 0;">
+    <div style="padding: 30px 0;">
         
         <div style="margin-bottom: 20px;">
             <a href="javascript:history.back()" class="back-link">&larr; Back</a>
@@ -71,6 +62,7 @@
     .scorecard-container .match-header {
         background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
         padding: 30px 25px;
+        margin-bottom: 15px;
         text-align: center;
         position: relative;
         overflow: hidden;
