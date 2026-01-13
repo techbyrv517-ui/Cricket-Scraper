@@ -22,10 +22,10 @@
         <h2 class="section-title">Matches ({{ matches|length }})</h2>
         <div class="matches-list">
             {% for match in matches %}
-            <div class="match-card">
+            <a href="/match-score/{{ match.match_id }}" class="match-card">
                 <div class="match-title">{{ match.match_title }}</div>
                 <div class="match-date">{{ match.match_date }}</div>
-            </div>
+            </a>
             {% endfor %}
         </div>
         {% else %}
@@ -71,6 +71,7 @@
         align-items: center;
         border-left: 4px solid #046a38;
         transition: transform 0.2s;
+        text-decoration: none;
     }
     
     .match-card:hover {

@@ -781,6 +781,23 @@ def series_detail_page(series_id):
     settings = get_site_settings()
     return render_template('frontend/series_detail.html', series=series, matches=matches, settings=settings)
 
+@app.route('/match-score/<int:match_id>')
+def match_score_page(match_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM scorecards WHERE match_id = %s', (str(match_id),))
+    scorecard = cur.fetchone()
+    
+    cur.execute('SELECT * FROM matches WHERE match_id = %s', (str(match_id),))
+    match = cur.fetchone()
+    
+    cur.close()
+    conn.close()
+    
+    settings = get_site_settings()
+    return render_template('frontend/match_score.html', scorecard=scorecard, match=match, settings=settings)
+
 @app.route('/robots.txt')
 def robots():
     content = """User-agent: *
