@@ -1,0 +1,18 @@
+
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# journalctl -u cricbuzz --no-pager -n 20 | tail -15
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]: [2026-01-14 00:43:33,017] ERROR in app: Exception on / [GET]
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]: Traceback (most recent call last):
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:     response = self.full_dispatch_request()
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:     rv = self.handle_user_exception(e)
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:     rv = self.dispatch_request()
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 555, in index
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:     cur.execute('SELECT * FROM matchups WHERE is_published = TRUE ORDER BY display_order ASC, id ASC')
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]:     return super().execute(query, vars)
+Jan 14 00:43:33 mail.digitalcash24.com gunicorn[3995941]: psycopg2.errors.InsufficientPrivilege: permission denied for table matchups
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com#
