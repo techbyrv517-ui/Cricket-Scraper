@@ -76,6 +76,18 @@ A full-featured cricket data website with Cricbuzz-style frontend, admin panel w
 ### Scorecards Table
 - id, match_id, match_title, match_status, scorecard_html, scraped_at
 
+### Posts Table (Sidebar)
+- id: Auto-increment primary key
+- title: Post title
+- slug: URL slug (auto-generated, unique)
+- featured_image: Image URL
+- excerpt: Short description for sidebar
+- content: Full post content (HTML)
+- category: Post category
+- meta_title, meta_description: SEO meta tags
+- is_published: Published status
+- created_at, updated_at: Timestamps
+
 ## Features
 
 ### Frontend (Public)
