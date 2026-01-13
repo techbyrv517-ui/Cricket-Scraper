@@ -146,11 +146,10 @@ function scrapeMatchesFromSeries($seriesId) {
     }
     
     if(empty($html)) {
-        return ['success' => false, 'message' => 'Empty response from website. API Key: ' . (!empty($scraperApiKey) ? 'Yes' : 'No')];
+        return ['success' => false, 'message' => 'Empty response from website'];
     }
     
     $matchCount = 0;
-    $debugInfo = 'HTML: ' . strlen($html) . ' bytes, Slug: ' . $seriesSlug;
     
     $datePattern = '/<a[^>]*title="([A-Za-z]{3},\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4})"[^>]*>.*?<span>([^<]+)<\/span>/is';
     preg_match_all($datePattern, $html, $dateMatches, PREG_OFFSET_CAPTURE);
@@ -181,45 +180,41 @@ function scrapeMatchesFromSeries($seriesId) {
             $matchBelongsToSeries = true;
         }
         
-        if(!$matchBelongsToSeries && !empty($keyParts)) {
-            $matchCount_parts = 0;
-            foreach($keyParts as $part) {
-                if(stripos($matchUrlPath, $part) !== false) {
-                    $matchCount_parts++;
-                }
-            }
-            $minRequired = max(2, ceil(count($keyParts) * 0.6));
-            if($matchCount_parts >= $minRequired) {
-                $matchBelongsToSeries = true;
-            }
-        }
-        
         if(!$matchBelongsToSeries) {
-            $seriesNameWords = preg_split('/[\s-]+/', $series['series_name']);
-            $abbreviation = '';
-            foreach($seriesNameWords as $w) {
-                if(preg_match('/^[A-Z]/', $w) && !preg_match('/^\d/', $w)) {
-                    $abbreviation .= strtolower(substr($w, 0, 1));
-                }
-            }
-            if(strlen($abbreviation) >= 2 && stripos($matchUrlPath, $abbreviation . '-') !== false) {
-                $matchBelongsToSeries = true;
-            }
-        }
-        
-        if(!$matchBelongsToSeries) {
-            preg_match('/\d+\/([^\/]+)-\d{4}/', $matchUrlPath, $matchSlugParts);
-            if(isset($matchSlugParts[1])) {
-                $seriesNameLower = strtolower($series['series_name']);
-                $matchSlugLower = strtolower($matchSlugParts[1]);
-                $words = preg_split('/[-\s]+/', $seriesNameLower);
-                $matchWords = 0;
-                foreach($words as $word) {
-                    if(strlen($word) > 2 && strpos($matchSlugLower, $word) !== false) {
-                        $matchWords++;
+            $countryAbbrevs = [
+                'india' => 'ind', 'new zealand' => 'nz', 'australia' => 'aus',
+                'england' => 'eng', 'pakistan' => 'pak', 'south africa' => 'sa',
+                'sri lanka' => 'sl', 'bangladesh' => 'ban', 'west indies' => 'wi',
+                'afghanistan' => 'afg', 'zimbabwe' => 'zim', 'ireland' => 'ire'
+            ];
+            
+            $seriesNameLower = strtolower($series['series_name']);
+            $matchUrlLower = strtolower($matchUrlPath);
+            
+            $teamsFound = 0;
+            $yearMatch = false;
+            
+            foreach($countryAbbrevs as $full => $abbr) {
+                if(strpos($seriesNameLower, $full) !== false) {
+                    if(strpos($matchUrlLower, $abbr . '-') !== false || 
+                       strpos($matchUrlLower, '-' . $abbr . '-') !== false ||
+                       strpos($matchUrlLower, '-' . $abbr) !== false) {
+                        $teamsFound++;
                     }
                 }
-                if($matchWords >= 2) {
+            }
+            
+            preg_match('/(\d{4})/', $seriesSlug, $yearFromSlug);
+            if(isset($yearFromSlug[1]) && strpos($matchUrlPath, $yearFromSlug[1]) !== false) {
+                $yearMatch = true;
+            }
+            
+            if($teamsFound >= 2 && $yearMatch) {
+                $matchBelongsToSeries = true;
+            }
+            
+            if(!$matchBelongsToSeries && strpos($seriesNameLower, 'tour') !== false) {
+                if(strpos($matchUrlLower, 'tour') !== false && $yearMatch && $teamsFound >= 1) {
                     $matchBelongsToSeries = true;
                 }
             }
@@ -253,7 +248,7 @@ function scrapeMatchesFromSeries($seriesId) {
         }
     }
     
-    return ['success' => true, 'message' => "Successfully scraped $matchCount new matches. $debugInfo"];
+    return ['success' => true, 'message' => "Successfully scraped $matchCount new matches"];
 }
 
 function scrapeAllMatches() {

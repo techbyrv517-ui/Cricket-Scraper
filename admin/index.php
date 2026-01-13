@@ -62,31 +62,12 @@ $series = $pdo->query("SELECT * FROM series ORDER BY year ASC,
                         <td><a href="<?= htmlspecialchars($s['series_url']) ?>" target="_blank">View</a></td>
                         <td>
                             <button class="btn btn-small scrape-matches" data-id="<?= $s['id'] ?>">Scrape Matches</button>
-                            <button class="btn btn-small btn-upload" data-id="<?= $s['id'] ?>" data-name="<?= htmlspecialchars($s['series_name']) ?>">Upload HTML</button>
                             <a href="matches.php?series_id=<?= $s['id'] ?>" class="btn btn-small btn-secondary">View Matches</a>
                         </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-        </div>
-    </div>
-        
-        <div id="uploadModal" class="modal" style="display:none;">
-            <div class="modal-content">
-                <h3>Upload Rendered HTML</h3>
-                <p id="uploadSeriesName"></p>
-                <p class="help-text">Browser me series page kholo, Right Click > "Save Page As" > HTML Only save karo, phir yahan upload karo.</p>
-                <form id="uploadForm" enctype="multipart/form-data">
-                    <input type="hidden" id="uploadSeriesId" name="series_id">
-                    <input type="file" name="html_file" id="htmlFile" accept=".html,.htm" required>
-                    <div class="modal-actions">
-                        <button type="submit" class="btn btn-primary">Parse Matches</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    </div>
-                </form>
-                <div id="uploadStatus"></div>
-            </div>
         </div>
     </div>
     
@@ -175,52 +156,6 @@ $series = $pdo->query("SELECT * FROM series ORDER BY year ASC,
                     button.disabled = false;
                     button.textContent = 'Scrape Matches';
                 });
-            });
-        });
-        
-        function closeModal() {
-            document.getElementById('uploadModal').style.display = 'none';
-        }
-        
-        document.querySelectorAll('.btn-upload').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const seriesId = this.dataset.id;
-                const seriesName = this.dataset.name;
-                document.getElementById('uploadSeriesId').value = seriesId;
-                document.getElementById('uploadSeriesName').textContent = 'Series: ' + seriesName;
-                document.getElementById('uploadModal').style.display = 'flex';
-                document.getElementById('uploadStatus').textContent = '';
-                document.getElementById('htmlFile').value = '';
-            });
-        });
-        
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const formData = new FormData(this);
-            formData.append('action', 'parse_uploaded_html');
-            
-            const status = document.getElementById('uploadStatus');
-            status.textContent = 'Processing...';
-            status.className = '';
-            
-            fetch('scraper.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                status.textContent = data.message;
-                status.className = data.success ? 'success' : 'error';
-                if(data.success) {
-                    setTimeout(() => {
-                        closeModal();
-                        location.reload();
-                    }, 1500);
-                }
-            })
-            .catch(error => {
-                status.textContent = 'Error: ' + error;
-                status.className = 'error';
             });
         });
     </script>
