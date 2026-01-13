@@ -318,6 +318,22 @@ def parse_match_date(date_str):
         pass
     return None
 
+def parse_team_names(match_title):
+    """Extract team names from match title like 'Sri Lanka vs Pakistan, 3rd T20I'"""
+    if not match_title:
+        return None, None, None
+    
+    parts = match_title.split(',')
+    teams_part = parts[0].strip()
+    match_info = parts[1].strip() if len(parts) > 1 else ''
+    
+    if ' vs ' in teams_part:
+        teams = teams_part.split(' vs ')
+        team1 = teams[0].strip()
+        team2 = teams[1].strip()
+        return team1, team2, match_info
+    return None, None, match_info
+
 @app.route('/')
 def index():
     from datetime import datetime
@@ -346,6 +362,11 @@ def index():
         match['team1_score'] = t1_score
         match['team2_code'] = t2_code
         match['team2_score'] = t2_score
+        
+        team1_name, team2_name, match_info = parse_team_names(row.get('match_title'))
+        match['team1_name'] = team1_name
+        match['team2_name'] = team2_name
+        match['match_info'] = match_info
         
         if match_date and match_date < today:
             if len(recent_matches) < 15:

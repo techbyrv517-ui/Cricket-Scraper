@@ -71,20 +71,18 @@
                         </div>
                         <div class="card-body">
                             <div class="match-meta">
-                                <span class="match-info-text">{{ match.match_title }}</span>
-                            </div>
-                            {% if match.team1_code %}
-                            <div class="team-row">
-                                <div class="team-flag {{ match.team1_code|lower }}"></div>
-                                <span class="team-name">{{ match.team1_code }}</span>
-                                <span class="team-score">{{ match.team1_score }}</span>
+                                <span class="match-info-text">{{ match.match_info or '' }}{% if match.match_date %} • {{ match.match_date }}{% endif %}</span>
                             </div>
                             <div class="team-row">
-                                <div class="team-flag {{ match.team2_code|lower }}"></div>
-                                <span class="team-name">{{ match.team2_code }}</span>
-                                <span class="team-score bold">{{ match.team2_score }}</span>
+                                <div class="team-flag {{ match.team1_name|lower|replace(' ', '-') if match.team1_name else 'default' }}"></div>
+                                <span class="team-name">{{ match.team1_name or 'Team 1' }}</span>
+                                <span class="team-score">{{ match.team1_score or '' }}</span>
                             </div>
-                            {% endif %}
+                            <div class="team-row">
+                                <div class="team-flag {{ match.team2_name|lower|replace(' ', '-') if match.team2_name else 'default' }}"></div>
+                                <span class="team-name">{{ match.team2_name or 'Team 2' }}</span>
+                                <span class="team-score bold">{{ match.team2_score or '' }}</span>
+                            </div>
                             {% if match.result %}
                             <div class="match-result">{{ match.result }}</div>
                             {% endif %}
@@ -360,16 +358,16 @@ function showMatchTab(tabId) {
         background-position: center;
     }
     
-    .team-flag.ind { background: linear-gradient(180deg, #FF9933 33%, #fff 33%, #fff 66%, #138808 66%); }
-    .team-flag.nz { background: linear-gradient(135deg, #000 40%, #fff 40%); }
-    .team-flag.aus { background: linear-gradient(135deg, #00008B 50%, #FFD700 50%); }
-    .team-flag.eng { background: linear-gradient(to right, #fff 45%, #C8102E 45%, #C8102E 55%, #fff 55%); }
-    .team-flag.pak { background: linear-gradient(90deg, #fff 25%, #01411C 25%); }
-    .team-flag.sa { background: linear-gradient(135deg, #007A4D 50%, #FFB612 50%); }
-    .team-flag.sl { background: linear-gradient(135deg, #8B0000 50%, #FFD700 50%); }
-    .team-flag.ban { background: linear-gradient(135deg, #006A4E 60%, #F42A41 60%); }
-    .team-flag.afg { background: linear-gradient(180deg, #000 33%, #C8102E 33%, #C8102E 66%, #009E49 66%); }
-    .team-flag.wi { background: linear-gradient(135deg, #7B0041 50%, #FFC72C 50%); }
+    .team-flag.ind, .team-flag.india { background: linear-gradient(180deg, #FF9933 33%, #fff 33%, #fff 66%, #138808 66%); }
+    .team-flag.nz, .team-flag.new-zealand { background: linear-gradient(135deg, #000 40%, #fff 40%); }
+    .team-flag.aus, .team-flag.australia { background: linear-gradient(135deg, #00008B 50%, #FFD700 50%); }
+    .team-flag.eng, .team-flag.england { background: linear-gradient(to right, #fff 45%, #C8102E 45%, #C8102E 55%, #fff 55%); }
+    .team-flag.pak, .team-flag.pakistan { background: linear-gradient(90deg, #fff 25%, #01411C 25%); }
+    .team-flag.sa, .team-flag.south-africa { background: linear-gradient(135deg, #007A4D 50%, #FFB612 50%); }
+    .team-flag.sl, .team-flag.sri-lanka { background: linear-gradient(135deg, #8B0000 50%, #FFD700 50%); }
+    .team-flag.ban, .team-flag.bangladesh { background: linear-gradient(135deg, #006A4E 60%, #F42A41 60%); }
+    .team-flag.afg, .team-flag.afghanistan { background: linear-gradient(180deg, #000 33%, #C8102E 33%, #C8102E 66%, #009E49 66%); }
+    .team-flag.wi, .team-flag.west-indies { background: linear-gradient(135deg, #7B0041 50%, #FFC72C 50%); }
     .team-flag.default { background: #ddd; }
     
     .team-name {
