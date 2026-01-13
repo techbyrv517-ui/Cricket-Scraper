@@ -1,0 +1,160 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Cricket Series - {{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}
+{% block meta_description %}Browse all cricket series and tournaments. Get schedules, fixtures, and match details.{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>Cricket Series</h1>
+        <p>Browse all cricket series and tournaments</p>
+    </div>
+</div>
+
+<div class="container">
+    <div style="padding: 40px 0;">
+        
+        {% if series_by_year %}
+        <div class="year-tabs">
+            {% for year in series_by_year.keys()|sort(reverse=true) %}
+            <button class="year-btn {% if loop.first %}active{% endif %}" onclick="showYear('{{ year }}')">{{ year }}</button>
+            {% endfor %}
+        </div>
+        
+        {% for year, series_list in series_by_year.items()|sort(reverse=true) %}
+        <div id="year-{{ year }}" class="year-section {% if loop.first %}active{% endif %}">
+            <div class="series-grid">
+                {% for series in series_list %}
+                <a href="/series/{{ series.series_id }}" class="series-card">
+                    <div class="series-name">{{ series.series_name }}</div>
+                    <div class="series-date">{{ series.date_range }}</div>
+                    <div class="series-month">{{ series.month }} {{ series.year }}</div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="text-align: center; padding: 60px 20px; color: #666;">
+            <h3>No series available</h3>
+            <p>Series will appear here once scraped from admin panel.</p>
+        </div>
+        {% endif %}
+        
+    </div>
+</div>
+
+<script>
+function showYear(year) {
+    document.querySelectorAll('.year-section').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.year-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById('year-' + year).classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .year-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .year-btn {
+        padding: 10px 25px;
+        border: none;
+        background: #e9ecef;
+        color: #333;
+        font-size: 15px;
+        font-weight: 600;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .year-btn:hover {
+        background: #dee2e6;
+    }
+    
+    .year-btn.active {
+        background: #046a38;
+        color: #fff;
+    }
+    
+    .year-section {
+        display: none;
+    }
+    
+    .year-section.active {
+        display: block;
+    }
+    
+    .series-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+    }
+    
+    .series-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        text-decoration: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-left: 4px solid #046a38;
+    }
+    
+    .series-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+    
+    .series-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a2e;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .series-date {
+        font-size: 14px;
+        color: #046a38;
+        margin-bottom: 5px;
+    }
+    
+    .series-month {
+        font-size: 13px;
+        color: #888;
+    }
+    
+    @media (max-width: 768px) {
+        .year-tabs {
+            justify-content: center;
+        }
+        
+        .year-btn {
+            padding: 8px 18px;
+            font-size: 13px;
+        }
+        
+        .series-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .series-card {
+            padding: 15px;
+        }
+        
+        .series-name {
+            font-size: 14px;
+        }
+    }
+</style>
+{% endblock %}

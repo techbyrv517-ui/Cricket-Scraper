@@ -740,6 +740,25 @@ def teams_page():
     settings = get_site_settings()
     return render_template('frontend/teams.html', teams_by_type=teams_by_type, settings=settings)
 
+@app.route('/series')
+def series_page():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM series ORDER BY year DESC, month DESC, series_name')
+    all_series = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    series_by_year = {}
+    for s in all_series:
+        year = s.get('year', 'Other')
+        if year not in series_by_year:
+            series_by_year[year] = []
+        series_by_year[year].append(s)
+    
+    settings = get_site_settings()
+    return render_template('frontend/series.html', series_by_year=series_by_year, settings=settings)
+
 @app.route('/robots.txt')
 def robots():
     content = """User-agent: *
