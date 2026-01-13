@@ -859,23 +859,114 @@ td a:hover {
     font-size: 1rem;
 }
 
-.selector-group label {
-    color: var(--admin-primary);
+.selector-group {
+    margin-bottom: 20px;
 }
 
-.selector-group select {
-    background: #fff;
+.selector-group label {
+    display: block;
+    color: var(--admin-primary);
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.selector-group select,
+.series-selector select,
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23046a38' d='M6 8L1 3h10z'/%3E%3C/svg%3E") no-repeat right 15px center;
+    background-size: 12px;
     color: #333;
+    padding: 14px 45px 14px 18px;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 250px;
+    font-family: inherit;
+}
+
+.selector-group select:hover,
+.series-selector select:hover,
+select:hover {
+    border-color: #d0d0d0;
+    background-color: #fafafa;
+}
+
+.selector-group select:focus,
+.series-selector select:focus,
+select:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 4px rgba(4,106,56,0.1);
+    background-color: #fff;
+}
+
+.selector-row {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.series-selector {
+    margin-bottom: 25px;
+}
+
+.series-selector label {
+    display: inline-block;
+    color: var(--admin-primary);
+    font-weight: 600;
+    margin-right: 15px;
+    font-size: 0.95rem;
+}
+
+.url-input-group {
+    margin-bottom: 20px;
 }
 
 .url-input-group label {
+    display: block;
     color: var(--admin-primary);
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+}
+
+.url-input-wrapper {
+    display: flex;
+    gap: 15px;
+    align-items: center;
 }
 
 .url-input-wrapper input {
-    background: #fff;
+    flex: 1;
+    background: #fafafa;
     color: #333;
-    border: 1px solid #ddd;
+    padding: 14px 18px;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.url-input-wrapper input:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(4,106,56,0.1);
+}
+
+.scorecard-selectors {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    border: 1px solid #eee;
 }
 
 .scorecard-result {
