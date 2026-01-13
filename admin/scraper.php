@@ -31,22 +31,51 @@ function scrapeSeriesData() {
     }
     
     $seriesCount = 0;
+    $currentMonth = '';
+    $currentYear = '';
     
-    preg_match_all('/<a[^>]*href="(\/cricket-series\/\d+\/[^"]+)"[^>]*>([^<]+)<\/a>/i', $html, $matches, PREG_SET_ORDER);
+    $pattern = '/<div[^>]*class="[^"]*w-4\/12[^"]*font-bold[^"]*"[^>]*>([^<]+)<\/div>/i';
+    preg_match_all($pattern, $html, $monthMatches, PREG_OFFSET_CAPTURE);
     
-    $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    preg_match_all('/(' . implode('|', $months) . ')\s+(\d{4})/', $html, $monthMatches);
+    $seriesPattern = '/<a[^>]*href="(\/cricket-series\/\d+\/[^"]+)"[^>]*title="([^"]+)"[^>]*>.*?<div[^>]*class="[^"]*text-ellipsis[^"]*"[^>]*>([^<]+)<\/div>.*?<div[^>]*class="[^"]*text-cbTxtSec[^"]*"[^>]*>([^<]*(?:<!--[^>]*-->)?[^<]*(?:<!--[^>]*-->)?[^<]*)<\/div>/is';
+    preg_match_all($seriesPattern, $html, $seriesMatches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
     
-    $currentMonth = !empty($monthMatches[1]) ? $monthMatches[1][0] : date('F');
-    $currentYear = !empty($monthMatches[2]) ? $monthMatches[2][0] : date('Y');
+    $monthPositions = [];
+    foreach($monthMatches[1] as $m) {
+        $monthText = trim($m[0]);
+        $parts = explode(' ', $monthText);
+        if(count($parts) >= 2) {
+            $monthPositions[] = [
+                'position' => $m[1],
+                'month' => ucfirst($parts[0]),
+                'year' => $parts[1]
+            ];
+        }
+    }
     
     $processedUrls = [];
     
-    foreach($matches as $m) {
-        $seriesUrlPath = $m[1];
-        $seriesName = trim($m[2]);
+    foreach($seriesMatches as $match) {
+        $seriesUrlPath = $match[1][0];
+        $seriesTitle = $match[2][0];
+        $seriesName = trim($match[3][0]);
+        $dateRangeRaw = $match[4][0];
+        $seriesPosition = $match[0][1];
         
-        if(empty($seriesName) || strlen($seriesName) < 3) continue;
+        $dateRange = preg_replace('/<!--[^>]*-->/', '', $dateRangeRaw);
+        $dateRange = trim(preg_replace('/\s+/', ' ', $dateRange));
+        
+        $seriesMonth = 'January';
+        $seriesYear = date('Y');
+        
+        foreach($monthPositions as $mp) {
+            if($mp['position'] < $seriesPosition) {
+                $seriesMonth = $mp['month'];
+                $seriesYear = $mp['year'];
+            } else {
+                break;
+            }
+        }
         
         $baseUrl = preg_replace('/\/matches$/', '', $seriesUrlPath);
         if(isset($processedUrls[$baseUrl])) continue;
@@ -57,15 +86,15 @@ function scrapeSeriesData() {
             $seriesUrl = rtrim($seriesUrl, '/') . '/matches';
         }
         
-        $dateRange = '';
-        
-        $checkStmt = $pdo->prepare("SELECT id FROM series WHERE series_name = ?");
-        $checkStmt->execute([$seriesName]);
-        
-        if($checkStmt->rowCount() == 0) {
-            $stmt = $pdo->prepare("INSERT INTO series (month, year, series_name, date_range, series_url) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$currentMonth, $currentYear, $seriesName, $dateRange, $seriesUrl]);
-            $seriesCount++;
+        if(!empty($seriesName)) {
+            $checkStmt = $pdo->prepare("SELECT id FROM series WHERE series_url = ?");
+            $checkStmt->execute([$seriesUrl]);
+            
+            if($checkStmt->rowCount() == 0) {
+                $stmt = $pdo->prepare("INSERT INTO series (month, year, series_name, date_range, series_url) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$seriesMonth, $seriesYear, $seriesName, $dateRange, $seriesUrl]);
+                $seriesCount++;
+            }
         }
     }
     
