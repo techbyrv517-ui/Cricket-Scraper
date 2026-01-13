@@ -15,20 +15,38 @@
 <div class="container">
     <section class="matches-section">
         <div class="match-tabs">
-            <button class="match-tab active" onclick="showMatchTab('live')">Live</button>
-            <button class="match-tab" onclick="showMatchTab('recent')">Recent</button>
+            <button class="match-tab" onclick="showMatchTab('live')">Live</button>
+            <button class="match-tab active" onclick="showMatchTab('recent')">Recent</button>
             <button class="match-tab" onclick="showMatchTab('upcoming')">Upcoming</button>
         </div>
         
-        <div id="live" class="match-tab-content active">
-            <div class="matches-grid">
+        <div id="live" class="match-tab-content">
+            <div class="matches-list">
                 {% if live_matches %}
                     {% for match in live_matches %}
-                    <a href="/cricket-match/{{ match.slug }}" class="live-match-card">
-                        <div class="match-status live">LIVE</div>
-                        <div class="match-info">
-                            <div class="match-title">{{ match.match_title }}</div>
-                            <div class="match-series">{{ match.series_name or '' }}</div>
+                    <a href="/cricket-match/{{ match.slug }}" class="cricbuzz-card">
+                        <div class="card-header">
+                            <span class="series-name">{{ match.series_name|upper }}</span>
+                            <span class="chevron">›</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="match-meta">
+                                <span class="live-dot"></span>
+                                <span class="match-info-text">{{ match.match_title }}</span>
+                            </div>
+                            <div class="team-row">
+                                <div class="team-flag {{ match.team1_code|lower if match.team1_code else 'default' }}"></div>
+                                <span class="team-name">{{ match.team1_code or 'Team 1' }}</span>
+                                <span class="team-score">{{ match.team1_score or '' }}</span>
+                            </div>
+                            <div class="team-row">
+                                <div class="team-flag {{ match.team2_code|lower if match.team2_code else 'default' }}"></div>
+                                <span class="team-name">{{ match.team2_code or 'Team 2' }}</span>
+                                <span class="team-score">{{ match.team2_score or '' }}</span>
+                            </div>
+                            {% if match.result %}
+                            <div class="match-result">{{ match.result }}</div>
+                            {% endif %}
                         </div>
                     </a>
                     {% endfor %}
@@ -42,15 +60,34 @@
             </div>
         </div>
         
-        <div id="recent" class="match-tab-content">
-            <div class="matches-grid">
+        <div id="recent" class="match-tab-content active">
+            <div class="matches-list">
                 {% if recent_matches %}
                     {% for match in recent_matches %}
-                    <a href="/cricket-match/{{ match.slug }}" class="live-match-card">
-                        <div class="match-status recent">COMPLETED</div>
-                        <div class="match-info">
-                            <div class="match-title">{{ match.match_title }}</div>
-                            <div class="match-date">{{ match.match_date }}</div>
+                    <a href="/cricket-match/{{ match.slug }}" class="cricbuzz-card">
+                        <div class="card-header">
+                            <span class="series-name">{{ match.series_name|upper if match.series_name else 'CRICKET MATCH' }}</span>
+                            <span class="chevron">›</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="match-meta">
+                                <span class="match-info-text">{{ match.match_title }}</span>
+                            </div>
+                            {% if match.team1_code %}
+                            <div class="team-row">
+                                <div class="team-flag {{ match.team1_code|lower }}"></div>
+                                <span class="team-name">{{ match.team1_code }}</span>
+                                <span class="team-score">{{ match.team1_score }}</span>
+                            </div>
+                            <div class="team-row">
+                                <div class="team-flag {{ match.team2_code|lower }}"></div>
+                                <span class="team-name">{{ match.team2_code }}</span>
+                                <span class="team-score bold">{{ match.team2_score }}</span>
+                            </div>
+                            {% endif %}
+                            {% if match.result %}
+                            <div class="match-result">{{ match.result }}</div>
+                            {% endif %}
                         </div>
                     </a>
                     {% endfor %}
@@ -65,14 +102,21 @@
         </div>
         
         <div id="upcoming" class="match-tab-content">
-            <div class="matches-grid">
+            <div class="matches-list">
                 {% if upcoming_matches %}
                     {% for match in upcoming_matches %}
-                    <a href="/cricket-match/{{ match.slug }}" class="live-match-card">
-                        <div class="match-status upcoming">UPCOMING</div>
-                        <div class="match-info">
-                            <div class="match-title">{{ match.match_title }}</div>
-                            <div class="match-date">{{ match.match_date }}</div>
+                    <a href="/cricket-match/{{ match.slug }}" class="cricbuzz-card upcoming">
+                        <div class="card-header">
+                            <span class="series-name">{{ match.series_name|upper if match.series_name else 'UPCOMING MATCH' }}</span>
+                            <span class="chevron">›</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="match-meta">
+                                <span class="match-info-text">{{ match.match_title }}</span>
+                            </div>
+                            <div class="upcoming-info">
+                                <span class="upcoming-date">{{ match.match_date }}</span>
+                            </div>
                         </div>
                     </a>
                     {% endfor %}
@@ -224,73 +268,143 @@ function showMatchTab(tabId) {
         display: block;
     }
     
-    .matches-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 15px;
-    }
-    
-    .live-match-card {
+    .matches-list {
         display: flex;
-        align-items: center;
+        flex-direction: column;
         gap: 15px;
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 10px;
+    }
+    
+    .cricbuzz-card {
+        display: block;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
         text-decoration: none;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
         transition: all 0.3s;
-        border-left: 4px solid #046a38;
+        border: 1px solid #e9ecef;
     }
     
-    .live-match-card:hover {
-        background: #e8f5e9;
-        transform: translateX(5px);
+    .cricbuzz-card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
     }
     
-    .match-status {
-        padding: 5px 12px;
-        border-radius: 15px;
-        font-size: 11px;
-        font-weight: 700;
+    .card-header {
+        background: linear-gradient(135deg, #1a5f4c, #2d7a5e);
+        color: #fff;
+        padding: 12px 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .series-name {
+        font-size: 13px;
+        font-weight: 600;
         letter-spacing: 0.5px;
     }
     
-    .match-status.live {
+    .chevron {
+        font-size: 20px;
+        opacity: 0.8;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    .match-meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 12px;
+    }
+    
+    .live-dot {
+        width: 8px;
+        height: 8px;
         background: #ff4444;
-        color: #fff;
+        border-radius: 50%;
         animation: pulse 1.5s infinite;
-    }
-    
-    .match-status.recent {
-        background: #666;
-        color: #fff;
-    }
-    
-    .match-status.upcoming {
-        background: #2196F3;
-        color: #fff;
     }
     
     @keyframes pulse {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+        50% { opacity: 0.5; }
     }
     
-    .match-info {
+    .match-info-text {
+        color: #555;
+    }
+    
+    .team-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .team-row:last-of-type {
+        border-bottom: none;
+    }
+    
+    .team-flag {
+        width: 24px;
+        height: 16px;
+        border-radius: 2px;
+        background-size: cover;
+        background-position: center;
+    }
+    
+    .team-flag.ind { background: linear-gradient(180deg, #FF9933 33%, #fff 33%, #fff 66%, #138808 66%); }
+    .team-flag.nz { background: linear-gradient(135deg, #000 40%, #fff 40%); }
+    .team-flag.aus { background: linear-gradient(135deg, #00008B 50%, #FFD700 50%); }
+    .team-flag.eng { background: linear-gradient(to right, #fff 45%, #C8102E 45%, #C8102E 55%, #fff 55%); }
+    .team-flag.pak { background: linear-gradient(90deg, #fff 25%, #01411C 25%); }
+    .team-flag.sa { background: linear-gradient(135deg, #007A4D 50%, #FFB612 50%); }
+    .team-flag.sl { background: linear-gradient(135deg, #8B0000 50%, #FFD700 50%); }
+    .team-flag.ban { background: linear-gradient(135deg, #006A4E 60%, #F42A41 60%); }
+    .team-flag.afg { background: linear-gradient(180deg, #000 33%, #C8102E 33%, #C8102E 66%, #009E49 66%); }
+    .team-flag.wi { background: linear-gradient(135deg, #7B0041 50%, #FFC72C 50%); }
+    .team-flag.default { background: #ddd; }
+    
+    .team-name {
         flex: 1;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
     }
     
-    .match-info .match-title {
+    .team-score {
         font-size: 14px;
         font-weight: 600;
-        color: #1a1a2e;
-        margin-bottom: 3px;
+        color: #333;
     }
     
-    .match-info .match-series,
-    .match-info .match-date {
-        font-size: 12px;
-        color: #888;
+    .team-score.bold {
+        font-weight: 700;
+    }
+    
+    .match-result {
+        margin-top: 10px;
+        font-size: 13px;
+        color: #046a38;
+        font-weight: 500;
+    }
+    
+    .upcoming-info {
+        padding: 10px 0;
+        text-align: center;
+    }
+    
+    .upcoming-date {
+        font-size: 14px;
+        color: #2196F3;
+        font-weight: 500;
     }
     
     .no-matches {
@@ -325,8 +439,12 @@ function showMatchTab(tabId) {
             font-size: 13px;
         }
         
-        .matches-grid {
-            grid-template-columns: 1fr;
+        .card-header {
+            padding: 10px 12px;
+        }
+        
+        .series-name {
+            font-size: 11px;
         }
     }
 </style>

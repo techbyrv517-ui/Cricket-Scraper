@@ -280,6 +280,29 @@ def seed_defaults():
     cur.close()
     conn.close()
 
+def parse_match_scores(scorecard_html):
+    """Parse scorecard HTML to extract team scores"""
+    if not scorecard_html:
+        return None, None, None, None
+    
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(scorecard_html, 'html.parser')
+    
+    innings = soup.find_all('div', class_='innings-header')
+    teams = []
+    for inn in innings[:2]:
+        text = inn.get_text(strip=True)
+        parts = text.split()
+        if parts:
+            team_code = parts[0]
+            score = ' '.join(parts[1:]) if len(parts) > 1 else ''
+            teams.append({'code': team_code, 'score': score})
+    
+    team1 = teams[0] if len(teams) > 0 else {'code': '', 'score': ''}
+    team2 = teams[1] if len(teams) > 1 else {'code': '', 'score': ''}
+    
+    return team1['code'], team1['score'], team2['code'], team2['score']
+
 @app.route('/')
 def index():
     settings = get_site_settings()
@@ -287,15 +310,29 @@ def index():
     conn = get_db()
     cur = conn.cursor()
     
-    cur.execute('''SELECT m.*, s.series_name FROM matches m 
+    cur.execute('''SELECT m.*, s.series_name, sc.match_status as result, sc.scorecard_html
+                   FROM matches m 
                    LEFT JOIN series s ON m.series_id = s.id 
+                   LEFT JOIN scorecards sc ON m.match_id = sc.match_id
                    ORDER BY m.id DESC LIMIT 10''')
-    recent_matches = cur.fetchall()
+    recent_rows = cur.fetchall()
+    
+    recent_matches = []
+    for row in recent_rows:
+        match = dict(row)
+        t1_code, t1_score, t2_code, t2_score = parse_match_scores(row.get('scorecard_html'))
+        match['team1_code'] = t1_code
+        match['team1_score'] = t1_score
+        match['team2_code'] = t2_code
+        match['team2_score'] = t2_score
+        recent_matches.append(match)
     
     cur.execute('''SELECT m.*, s.series_name FROM matches m 
                    LEFT JOIN series s ON m.series_id = s.id 
+                   LEFT JOIN scorecards sc ON m.match_id = sc.match_id
+                   WHERE sc.id IS NULL
                    ORDER BY m.id ASC LIMIT 10''')
-    upcoming_matches = cur.fetchall()
+    upcoming_matches = [dict(row) for row in cur.fetchall()]
     
     cur.close()
     conn.close()
