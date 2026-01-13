@@ -2,8 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="theme-color" content="#046A38">
+    <meta name="msapplication-TileColor" content="#046A38">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    
+    <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon.svg">
+    <link rel="apple-touch-icon" href="/static/favicon.svg">
+    <link rel="manifest" href="/static/site.webmanifest">
     
     {% if settings.get('google_analytics_enabled') == 'true' and settings.get('google_analytics_id') %}
     <script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.get('google_analytics_id') }}"></script>
@@ -29,12 +40,18 @@
     <meta name="keywords" content="{{ settings.get('meta_keywords', 'cricket, live score, India vs Pakistan') }}">
     
     <meta property="og:title" content="{% block og_title %}{{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}">
-    <meta property="og:description" content="{{ settings.get('site_tagline', 'Live Cricket Scores') }}">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}">
+    <meta property="og:description" content="{% block og_description %}{{ settings.get('site_tagline', 'Live Cricket Scores, Match Updates & News') }}{% endblock %}">
+    <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+    <meta property="og:url" content="{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}{% block og_path %}{% endblock %}">
+    <meta property="og:site_name" content="{{ settings.get('site_name', 'Cricbuzz Live Score') }}">
+    <meta property="og:locale" content="en_US">
+    {% block og_image %}<meta property="og:image" content="{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}/static/favicon.svg">{% endblock %}
     
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ settings.get('site_name', 'Cricbuzz Live Score') }}">
+    <meta name="twitter:site" content="@cricbuzzlive">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}">
+    <meta name="twitter:description" content="{{ settings.get('site_tagline', 'Live Cricket Scores, Match Updates & News') }}">
+    <meta name="twitter:image" content="{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}/static/favicon.svg">
     
     <link rel="canonical" href="{{ settings.get('site_url', '') }}{% block canonical_path %}{% endblock %}">
     
@@ -44,9 +61,23 @@
         "@type": "WebSite",
         "name": "{{ settings.get('site_name', 'Cricbuzz Live Score') }}",
         "url": "{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}",
-        "description": "{{ settings.get('site_tagline', 'Live Cricket Scores') }}"
+        "description": "{{ settings.get('site_tagline', 'Live Cricket Scores, Match Updates & News') }}",
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ settings.get('site_name', 'Cricbuzz Live Score') }}",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}/static/favicon.svg"
+            }
+        },
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}/search?q={search_term_string}",
+            "query-input": "required name=search_term_string"
+        }
     }
     </script>
+    {% block extra_schema %}{% endblock %}
     
     <style>
         :root {

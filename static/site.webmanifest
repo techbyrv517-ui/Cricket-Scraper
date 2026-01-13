@@ -1,0 +1,16 @@
+{
+  "name": "Cricbuzz Live Score",
+  "short_name": "CLS",
+  "description": "Live Cricket Scores, Match Updates & News",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f5f5",
+  "theme_color": "#046A38",
+  "icons": [
+    {
+      "src": "/static/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
