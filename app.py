@@ -1981,21 +1981,13 @@ def sitemap():
     pages = [
         ('/', '1.0', 'daily'),
         ('/cricket-series', '0.9', 'daily'),
+        ('/cricket-teams', '0.9', 'weekly'),
         ('/players', '0.9', 'daily'),
         ('/page/about', '0.8', 'monthly'),
         ('/page/contact', '0.8', 'monthly'),
         ('/page/privacy-policy', '0.6', 'monthly'),
         ('/page/disclaimer', '0.6', 'monthly'),
         ('/page/terms', '0.6', 'monthly'),
-        ('/match/india-vs-pakistan', '0.9', 'daily'),
-        ('/match/india-vs-australia', '0.9', 'daily'),
-        ('/match/india-vs-england', '0.9', 'daily'),
-        ('/match/india-vs-new-zealand', '0.9', 'daily'),
-        ('/match/india-vs-south-africa', '0.9', 'daily'),
-        ('/match/india-vs-sri-lanka', '0.9', 'daily'),
-        ('/match/india-vs-bangladesh', '0.9', 'daily'),
-        ('/match/india-vs-afghanistan', '0.9', 'daily'),
-        ('/match/india-vs-west-indies', '0.9', 'daily'),
     ]
     
     try:
@@ -2006,6 +1998,10 @@ def sitemap():
         cur.execute('SELECT slug FROM matches WHERE slug IS NOT NULL AND slug != %s', ('',))
         for m in cur.fetchall():
             pages.append((f"/cricket-match/{m['slug']}", '0.7', 'daily'))
+        
+        cur.execute('SELECT slug FROM teams WHERE slug IS NOT NULL AND slug != %s', ('',))
+        for t in cur.fetchall():
+            pages.append((f"/team/{t['slug']}", '0.8', 'weekly'))
         
         cur.execute('SELECT slug FROM players WHERE slug IS NOT NULL AND slug != %s', ('',))
         for p in cur.fetchall():
@@ -2018,6 +2014,10 @@ def sitemap():
         cur.execute('SELECT slug FROM post_categories WHERE is_published = true AND slug IS NOT NULL')
         for cat in cur.fetchall():
             pages.append((f"/category/{cat['slug']}", '0.8', 'weekly'))
+        
+        cur.execute('SELECT slug FROM matchups WHERE is_published = true AND slug IS NOT NULL')
+        for mu in cur.fetchall():
+            pages.append((f"/match/{mu['slug']}", '0.9', 'daily'))
     except:
         pass
     
