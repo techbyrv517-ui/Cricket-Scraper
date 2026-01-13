@@ -13,32 +13,16 @@
                 <h2>Cricket Scraper</h2>
             </div>
             
-            <div class="sidebar-stats">
-                <div class="stat-item">
-                    <span class="stat-number">{{ sidebar.total_series }}</span>
-                    <span class="stat-label">Series</span>
+            <div class="sidebar-series-list">
+                <h3>Series ({{ sidebar.total_series }})</h3>
+                <div class="series-scroll">
+                    {% for s in sidebar.recent_series %}
+                    <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item">
+                        <span class="series-name">{{ s.series_name[:35] }}{% if s.series_name|length > 35 %}...{% endif %}</span>
+                        <span class="series-badge">{{ s.match_count }}</span>
+                    </a>
+                    {% endfor %}
                 </div>
-                <div class="stat-item">
-                    <span class="stat-number">{{ sidebar.total_matches }}</span>
-                    <span class="stat-label">Matches</span>
-                </div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <a href="{{ url_for('admin') }}" class="nav-item active">
-                    <span class="nav-icon">📋</span>
-                    <span>All Series</span>
-                </a>
-            </nav>
-            
-            <div class="sidebar-series">
-                <h3>Recent Series</h3>
-                {% for s in sidebar.recent_series %}
-                <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item">
-                    <span class="series-name">{{ s.series_name[:30] }}{% if s.series_name|length > 30 %}...{% endif %}</span>
-                    <span class="series-badge">{{ s.match_count }}</span>
-                </a>
-                {% endfor %}
             </div>
             
             <div class="sidebar-actions">

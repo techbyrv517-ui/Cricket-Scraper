@@ -22,7 +22,7 @@ def get_sidebar_data():
         LEFT JOIN matches m ON s.id = m.series_id 
         GROUP BY s.id, s.series_name, s.year 
         ORDER BY s.year DESC, s.series_name ASC 
-        LIMIT 10
+        LIMIT 50
     ''')
     recent_series = cur.fetchall()
     

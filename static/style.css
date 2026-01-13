@@ -66,6 +66,26 @@ body {
     margin-bottom: 15px;
 }
 
+.sidebar-series-list {
+    flex: 1;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-series-list h3 {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.series-scroll {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 350px;
+}
+
 .sidebar-series {
     margin-bottom: 20px;
     max-height: 200px;
