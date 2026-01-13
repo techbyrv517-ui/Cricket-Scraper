@@ -104,7 +104,7 @@ function scrapeSeriesData() {
 function scrapeMatchesFromSeries($seriesId) {
     global $pdo;
     
-    $stmt = $pdo->prepare("SELECT series_url FROM series WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT series_url, series_name FROM series WHERE id = ?");
     $stmt->execute([$seriesId]);
     $series = $stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -113,6 +113,9 @@ function scrapeMatchesFromSeries($seriesId) {
     }
     
     $url = $series['series_url'];
+    
+    preg_match('/cricket-series\/\d+\/([^\/]+)/', $url, $seriesSlugMatch);
+    $seriesSlug = isset($seriesSlugMatch[1]) ? $seriesSlugMatch[1] : '';
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -141,16 +144,21 @@ function scrapeMatchesFromSeries($seriesId) {
         ];
     }
     
-    $matchPattern = '/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*class="[^"]*"[^>]*title="([^"]+)"[^>]*>/i';
+    $matchPattern = '/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*title="([^"]+)"[^>]*>/i';
     preg_match_all($matchPattern, $html, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
     
     $processedMatchIds = [];
     
     foreach($matches as $m) {
-        $matchUrl = "https://www.cricbuzz.com" . $m[1][0];
+        $matchUrlPath = $m[1][0];
+        $matchUrl = "https://www.cricbuzz.com" . $matchUrlPath;
         $matchId = $m[2][0];
         $matchTitle = trim($m[3][0]);
         $matchPosition = $m[0][1];
+        
+        if(!empty($seriesSlug) && strpos($matchUrlPath, $seriesSlug) === false) {
+            continue;
+        }
         
         $matchDate = '';
         foreach($datePositions as $dp) {
