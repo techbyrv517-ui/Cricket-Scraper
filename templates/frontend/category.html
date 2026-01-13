@@ -65,7 +65,7 @@
 
 <div class="category-container">
     <div class="main-content">
-        <div class="posts-section">
+        <div class="posts-container">
             <h2>Latest {{ category.name }} News & Updates</h2>
             
             {% if posts %}
@@ -209,6 +209,20 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 40px 40px;
+}
+.posts-container {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    margin-bottom: 25px;
+}
+.posts-container h2 {
+    font-size: 1.3rem;
+    color: #1a1a2e;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-color, #046a38);
 }
 .seo-main-box {
     background: #fff;
@@ -455,7 +469,7 @@
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    .seo-main-box {
+    .seo-main-box, .posts-container {
         padding: 20px;
     }
     .category-sidebar {
