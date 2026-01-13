@@ -10,7 +10,7 @@
 </div>
 
 <div class="card">
-    <form method="POST" class="post-form">
+    <form method="POST" enctype="multipart/form-data" class="post-form">
         <div class="form-section">
             <h3>Basic Information</h3>
             <div class="form-grid">
@@ -30,11 +30,27 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="featured_image">Featured Image URL</label>
-                    <input type="url" id="featured_image" name="featured_image" value="{{ post.featured_image or '' }}" placeholder="https://example.com/image.jpg">
-                    {% if post.featured_image %}
-                    <img src="{{ post.featured_image }}" alt="Preview" style="max-width: 200px; margin-top: 10px; border-radius: 4px;">
-                    {% endif %}
+                    <label>Featured Image</label>
+                    <div class="image-upload-options">
+                        <div class="upload-tabs">
+                            <button type="button" class="tab-btn active" data-tab="upload">Upload New</button>
+                            <button type="button" class="tab-btn" data-tab="url">Image URL</button>
+                        </div>
+                        <div class="tab-content" id="upload-tab">
+                            <input type="file" id="featured_image_file" name="featured_image_file" accept="image/*" class="file-input">
+                            <small>Max size: 16MB. Formats: JPG, PNG, GIF, WebP</small>
+                        </div>
+                        <div class="tab-content" id="url-tab" style="display: none;">
+                            <input type="url" id="featured_image" name="featured_image" value="{{ post.featured_image or '' }}" placeholder="https://example.com/image.jpg">
+                            <small>Enter external image URL</small>
+                        </div>
+                        <div id="image-preview" class="image-preview">
+                            {% if post.featured_image %}
+                            <img src="{{ post.featured_image }}" alt="Current image">
+                            <small>Current featured image</small>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group full-width">
@@ -101,6 +117,8 @@
     </form>
 </div>
 
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+
 <style>
 .post-form {
     max-width: 100%;
@@ -165,6 +183,44 @@
     display: flex;
     gap: 10px;
 }
+.image-upload-options {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+}
+.upload-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.tab-btn {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    background: #f8f9fa;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+.tab-btn.active {
+    background: #046a38;
+    color: white;
+    border-color: #046a38;
+}
+.file-input {
+    padding: 10px;
+    border: 2px dashed #ddd;
+    border-radius: 4px;
+    background: #f8f9fa;
+}
+.image-preview {
+    margin-top: 10px;
+}
+.image-preview img {
+    max-width: 200px;
+    max-height: 150px;
+    border-radius: 4px;
+    object-fit: cover;
+}
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
@@ -173,6 +229,68 @@
 </style>
 
 <script>
+tinymce.init({
+    selector: '#content',
+    height: 400,
+    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+    menubar: 'file edit view insert format tools table',
+    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }',
+    images_upload_url: '/api/upload-image',
+    automatic_uploads: true,
+    images_upload_handler: function (blobInfo, progress) {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('file', blobInfo.blob(), blobInfo.filename());
+            
+            fetch('/api/upload-image', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    resolve(result.url);
+                } else {
+                    reject(result.error);
+                }
+            })
+            .catch(error => {
+                reject('Image upload failed: ' + error);
+            });
+        });
+    }
+});
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        
+        const tab = this.dataset.tab;
+        document.getElementById('upload-tab').style.display = tab === 'upload' ? 'block' : 'none';
+        document.getElementById('url-tab').style.display = tab === 'url' ? 'block' : 'none';
+    });
+});
+
+document.getElementById('featured_image_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('image-preview').innerHTML = '<img src="' + e.target.result + '" alt="Preview"><small>New image selected</small>';
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('featured_image').addEventListener('input', function() {
+    const url = this.value;
+    if (url) {
+        document.getElementById('image-preview').innerHTML = '<img src="' + url + '" alt="Preview" onerror="this.style.display=\'none\'"><small>Image from URL</small>';
+    }
+});
+
 document.getElementById('meta_title').addEventListener('input', function() {
     document.getElementById('meta_title_count').textContent = this.value.length + '/70 characters';
 });

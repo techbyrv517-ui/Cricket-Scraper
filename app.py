@@ -1,11 +1,13 @@
 import os
 import re
+import uuid
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from functools import wraps
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -85,6 +87,14 @@ def slugify(text):
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def login_required(f):
     @wraps(f)
@@ -804,6 +814,30 @@ def api_get_matches(series_id):
     conn.close()
     return jsonify({'series': dict(series) if series else None, 'matches': [dict(m) for m in matches]})
 
+@app.route('/api/upload-image', methods=['POST'])
+@login_required
+def api_upload_image():
+    if 'file' not in request.files:
+        return jsonify({'success': False, 'error': 'No file uploaded'})
+    
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'success': False, 'error': 'No file selected'})
+    
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+        
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+        
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+        file.save(filepath)
+        
+        file_url = f"/static/uploads/{unique_filename}"
+        return jsonify({'success': True, 'url': file_url, 'filename': unique_filename})
+    
+    return jsonify({'success': False, 'error': 'File type not allowed. Use PNG, JPG, GIF, or WebP.'})
+
 @app.route('/admin/matches/<int:series_id>')
 def view_matches(series_id):
     conn = get_db()
@@ -1149,6 +1183,16 @@ def admin_add_post():
         og_image = request.form.get('og_image')
         is_published = request.form.get('is_published') == 'on'
         
+        if 'featured_image_file' in request.files:
+            file = request.files['featured_image_file']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                file.save(filepath)
+                featured_image = f"/static/uploads/{unique_filename}"
+        
         slug = base_slug
         counter = 1
         while True:
@@ -1193,6 +1237,16 @@ def admin_edit_post(post_id):
         canonical_url = request.form.get('canonical_url')
         og_image = request.form.get('og_image')
         is_published = request.form.get('is_published') == 'on'
+        
+        if 'featured_image_file' in request.files:
+            file = request.files['featured_image_file']
+            if file and file.filename and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                unique_filename = f"{uuid.uuid4().hex}_{filename}"
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+                file.save(filepath)
+                featured_image = f"/static/uploads/{unique_filename}"
         
         cur.execute('''
             UPDATE posts SET title=%s, featured_image=%s, excerpt=%s, content=%s, category_id=%s, 
