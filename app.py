@@ -303,9 +303,26 @@ def parse_match_scores(scorecard_html):
     
     return team1['code'], team1['score'], team2['code'], team2['score']
 
+def parse_match_date(date_str):
+    """Parse match date string to datetime"""
+    from datetime import datetime
+    if not date_str:
+        return None
+    try:
+        clean_date = date_str.replace(',', '').strip()
+        parts = clean_date.split()
+        if len(parts) >= 3:
+            month_day_year = ' '.join(parts[1:])
+            return datetime.strptime(month_day_year, '%b %d %Y')
+    except:
+        pass
+    return None
+
 @app.route('/')
 def index():
+    from datetime import datetime
     settings = get_site_settings()
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     
     conn = get_db()
     cur = conn.cursor()
@@ -314,25 +331,28 @@ def index():
                    FROM matches m 
                    LEFT JOIN series s ON m.series_id = s.id 
                    LEFT JOIN scorecards sc ON m.match_id = sc.match_id
-                   ORDER BY m.id DESC LIMIT 10''')
-    recent_rows = cur.fetchall()
+                   ORDER BY m.id DESC''')
+    all_matches = cur.fetchall()
     
     recent_matches = []
-    for row in recent_rows:
+    upcoming_matches = []
+    
+    for row in all_matches:
         match = dict(row)
+        match_date = parse_match_date(row.get('match_date'))
+        
         t1_code, t1_score, t2_code, t2_score = parse_match_scores(row.get('scorecard_html'))
         match['team1_code'] = t1_code
         match['team1_score'] = t1_score
         match['team2_code'] = t2_code
         match['team2_score'] = t2_score
-        recent_matches.append(match)
-    
-    cur.execute('''SELECT m.*, s.series_name FROM matches m 
-                   LEFT JOIN series s ON m.series_id = s.id 
-                   LEFT JOIN scorecards sc ON m.match_id = sc.match_id
-                   WHERE sc.id IS NULL
-                   ORDER BY m.id ASC LIMIT 10''')
-    upcoming_matches = [dict(row) for row in cur.fetchall()]
+        
+        if match_date and match_date < today:
+            if len(recent_matches) < 15:
+                recent_matches.append(match)
+        else:
+            if len(upcoming_matches) < 15:
+                upcoming_matches.append(match)
     
     cur.close()
     conn.close()
