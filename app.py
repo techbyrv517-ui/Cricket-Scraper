@@ -391,8 +391,9 @@ def index():
     recent_matches.sort(key=lambda x: (x.get('result') is None, -(x['parsed_date'] or datetime.min).timestamp()))
     upcoming_matches.sort(key=lambda x: x['parsed_date'] or datetime.max)
     
-    recent_matches = recent_matches[:15]
+    initial_recent = recent_matches[:10]
     upcoming_matches = upcoming_matches[:15]
+    has_more_recent = len(recent_matches) > 10
     
     cur.close()
     conn.close()
@@ -402,8 +403,9 @@ def index():
     return render_template('frontend/home.html', 
                           settings=settings,
                           live_matches=live_matches,
-                          recent_matches=recent_matches,
-                          upcoming_matches=upcoming_matches)
+                          recent_matches=initial_recent,
+                          upcoming_matches=upcoming_matches,
+                          has_more_recent=has_more_recent)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -474,6 +476,77 @@ def scorecard():
     conn.close()
     sidebar = get_sidebar_data()
     return render_template('scorecard.html', all_series=all_series, sidebar=sidebar)
+
+@app.route('/api/recent-matches')
+def api_recent_matches():
+    from datetime import datetime
+    offset = request.args.get('offset', 0, type=int)
+    limit = request.args.get('limit', 10, type=int)
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''SELECT m.*, s.series_name, sc.match_status as result, sc.scorecard_html, sc.final_score
+                   FROM matches m 
+                   LEFT JOIN series s ON m.series_id = s.id 
+                   LEFT JOIN scorecards sc ON m.match_id = sc.match_id
+                   ORDER BY m.id DESC''')
+    all_matches = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    recent_matches = []
+    for row in all_matches:
+        match = dict(row)
+        match_date = parse_match_date(row.get('match_date'))
+        match['parsed_date'] = match_date
+        
+        final_score = row.get('final_score', '')
+        if final_score and ' vs ' in final_score:
+            score_parts = final_score.split(' vs ')
+            if len(score_parts) >= 2:
+                t1_parts = score_parts[0].strip().rsplit(' ', 1)
+                t2_parts = score_parts[1].strip().rsplit(' ', 1)
+                match['team1_score'] = t1_parts[1] if len(t1_parts) > 1 else ''
+                match['team2_score'] = t2_parts[1] if len(t2_parts) > 1 else ''
+            else:
+                match['team1_score'] = ''
+                match['team2_score'] = ''
+        else:
+            t1_code, t1_score, t2_code, t2_score = parse_match_scores(row.get('scorecard_html'))
+            match['team1_score'] = t1_score
+            match['team2_score'] = t2_score
+        
+        team1_name, team2_name, match_info = parse_team_names(row.get('match_title'))
+        match['team1_name'] = team1_name
+        match['team2_name'] = team2_name
+        match['match_info'] = match_info
+        
+        if match_date and match_date < today:
+            recent_matches.append(match)
+    
+    recent_matches.sort(key=lambda x: (x.get('result') is None, -(x['parsed_date'] or datetime.min).timestamp()))
+    
+    paginated = recent_matches[offset:offset + limit]
+    has_more = len(recent_matches) > offset + limit
+    
+    matches_data = []
+    for m in paginated:
+        matches_data.append({
+            'match_id': m.get('match_id'),
+            'match_title': m.get('match_title'),
+            'series_name': m.get('series_name', 'CRICKET MATCH'),
+            'match_info': m.get('match_info', ''),
+            'match_date': m.get('match_date', ''),
+            'team1_name': m.get('team1_name', ''),
+            'team2_name': m.get('team2_name', ''),
+            'team1_score': m.get('team1_score', ''),
+            'team2_score': m.get('team2_score', ''),
+            'result': m.get('result', '')
+        })
+    
+    return jsonify({'matches': matches_data, 'has_more': has_more})
 
 @app.route('/api/scrape-scorecard', methods=['POST'])
 def api_scrape_scorecard():

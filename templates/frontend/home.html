@@ -61,7 +61,7 @@
         </div>
         
         <div id="recent" class="match-tab-content active">
-            <div class="matches-list">
+            <div class="matches-list" id="recent-matches-list">
                 {% if recent_matches %}
                     {% for match in recent_matches %}
                     <a href="/match-score/{{ match.match_id }}" class="cricbuzz-card">
@@ -97,6 +97,12 @@
                 </div>
                 {% endif %}
             </div>
+            {% if has_more_recent %}
+            <div id="load-more-container" style="text-align: center; padding: 20px;">
+                <button id="load-more-btn" onclick="loadMoreMatches()" style="background: linear-gradient(135deg, #046a38 0%, #034d29 100%); color: #fff; border: none; padding: 12px 30px; border-radius: 25px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 15px rgba(4,106,56,0.3);">Load More Matches</button>
+                <div id="loading-spinner" style="display: none; color: #046a38;">Loading...</div>
+            </div>
+            {% endif %}
         </div>
         
         <div id="upcoming" class="match-tab-content">
@@ -445,5 +451,84 @@ function showMatchTab(tabId) {
             font-size: 11px;
         }
     }
+    
+    #load-more-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(4,106,56,0.4);
+    }
 </style>
+
+<script>
+let currentOffset = 10;
+let isLoading = false;
+let hasMore = {{ 'true' if has_more_recent else 'false' }};
+
+function loadMoreMatches() {
+    if (isLoading || !hasMore) return;
+    
+    isLoading = true;
+    const btn = document.getElementById('load-more-btn');
+    const spinner = document.getElementById('loading-spinner');
+    
+    btn.style.display = 'none';
+    spinner.style.display = 'block';
+    
+    fetch(`/api/recent-matches?offset=${currentOffset}&limit=10`)
+        .then(response => response.json())
+        .then(data => {
+            const matchesList = document.getElementById('recent-matches-list');
+            
+            data.matches.forEach(match => {
+                const card = document.createElement('a');
+                card.href = `/match-score/${match.match_id}`;
+                card.className = 'cricbuzz-card';
+                
+                const team1Flag = match.team1_name ? match.team1_name.toLowerCase().replace(/ /g, '-') : 'default';
+                const team2Flag = match.team2_name ? match.team2_name.toLowerCase().replace(/ /g, '-') : 'default';
+                
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="series-name">${(match.series_name || 'CRICKET MATCH').toUpperCase()}</span>
+                        <span class="chevron">›</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="match-meta">
+                            <span class="match-info-text">${match.match_info || ''}${match.match_date ? ' • ' + match.match_date : ''}</span>
+                        </div>
+                        <div class="team-row">
+                            <div class="team-flag ${team1Flag}"></div>
+                            <span class="team-name">${match.team1_name || 'Team 1'}</span>
+                            <span class="team-score">${match.team1_score || ''}</span>
+                        </div>
+                        <div class="team-row">
+                            <div class="team-flag ${team2Flag}"></div>
+                            <span class="team-name">${match.team2_name || 'Team 2'}</span>
+                            <span class="team-score bold">${match.team2_score || ''}</span>
+                        </div>
+                        ${match.result ? `<div class="match-result">${match.result}</div>` : ''}
+                    </div>
+                `;
+                matchesList.appendChild(card);
+            });
+            
+            currentOffset += data.matches.length;
+            hasMore = data.has_more;
+            
+            if (hasMore) {
+                btn.style.display = 'inline-block';
+            } else {
+                document.getElementById('load-more-container').style.display = 'none';
+            }
+            
+            spinner.style.display = 'none';
+            isLoading = false;
+        })
+        .catch(error => {
+            console.error('Error loading matches:', error);
+            btn.style.display = 'inline-block';
+            spinner.style.display = 'none';
+            isLoading = false;
+        });
+}
+</script>
 {% endblock %}
