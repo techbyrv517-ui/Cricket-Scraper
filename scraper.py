@@ -764,25 +764,37 @@ def scrape_player_profile(player_id):
     batting_stats = {fmt: {} for fmt in formats}
     bowling_stats = {fmt: {} for fmt in formats}
     
-    tables = soup.find_all('table')
-    for table in tables:
-        table_text = table.get_text()
-        is_batting = 'Batting' in str(table.find_previous('div')) or 'Runs' in table_text
-        is_bowling = 'Bowling' in str(table.find_previous('div')) or 'Wickets' in table_text
+    career_divs = soup.find_all('div', class_=re.compile(r'.*flex.*flex-col.*'))
+    for div in career_divs:
+        header_div = div.find('div', string=re.compile(r'.*(Batting|Bowling).*Career.*Summary.*', re.I))
+        if not header_div:
+            header_text = div.get_text()[:100]
+            is_bowling_section = 'Bowling Career' in header_text
+            is_batting_section = 'Batting Career' in header_text
+        else:
+            header_text = header_div.get_text()
+            is_bowling_section = 'Bowling' in header_text
+            is_batting_section = 'Batting' in header_text
+        
+        if not is_batting_section and not is_bowling_section:
+            continue
+        
+        table = div.find('table')
+        if not table:
+            continue
         
         rows = table.find_all('tr')
         for row in rows:
             cells = row.find_all('td')
             if len(cells) >= 5:
                 stat_name = cells[0].get_text(strip=True)
-                if stat_name in ['Matches', 'Innings', 'Runs', 'Balls', 'Highest', 'Average', 'SR', 'Not Out', 'Fours', 'Sixes', '100s', '50s', 'Wickets', 'Overs', 'Best', 'Econ', '5W', '4W']:
-                    for i, fmt in enumerate(formats):
-                        if i + 1 < len(cells):
-                            val = cells[i + 1].get_text(strip=True)
-                            if is_bowling and stat_name in ['Wickets', 'Overs', 'Best', 'Econ', '5W', '4W']:
-                                bowling_stats[fmt][stat_name] = val
-                            else:
-                                batting_stats[fmt][stat_name] = val
+                for i, fmt in enumerate(formats):
+                    if i + 1 < len(cells):
+                        val = cells[i + 1].get_text(strip=True)
+                        if is_bowling_section:
+                            bowling_stats[fmt][stat_name] = val
+                        else:
+                            batting_stats[fmt][stat_name] = val
     
     batting_stats = {k: v for k, v in batting_stats.items() if v}
     bowling_stats = {k: v for k, v in bowling_stats.items() if v}

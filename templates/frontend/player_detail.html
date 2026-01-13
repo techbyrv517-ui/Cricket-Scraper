@@ -84,12 +84,13 @@
                     <tr>
                         <th>Format</th>
                         <th>Mat</th>
-                        <th>Overs</th>
+                        <th>Inns</th>
+                        <th>Balls</th>
                         <th>Wkts</th>
-                        <th>Best</th>
+                        <th>Avg</th>
                         <th>Econ</th>
+                        <th>Best</th>
                         <th>5W</th>
-                        <th>4W</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -97,12 +98,13 @@
                     <tr>
                         <td><strong>{{ format }}</strong></td>
                         <td>{{ stats.get('Matches', '-') }}</td>
-                        <td>{{ stats.get('Overs', '-') }}</td>
+                        <td>{{ stats.get('Innings', '-') }}</td>
+                        <td>{{ stats.get('Balls', '-') }}</td>
                         <td>{{ stats.get('Wickets', '-') }}</td>
+                        <td>{{ stats.get('Avg', '-') }}</td>
+                        <td>{{ stats.get('Eco', '-') }}</td>
                         <td>{{ stats.get('Best', '-') }}</td>
-                        <td>{{ stats.get('Econ', '-') }}</td>
                         <td>{{ stats.get('5W', '-') }}</td>
-                        <td>{{ stats.get('4W', '-') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
