@@ -415,12 +415,12 @@
             <a href="/">Live Scores</a>
             <a href="/cricket-teams">Teams</a>
             <a href="/cricket-series">Series</a>
-            <div class="mobile-nav-section">Matches</div>
+            <div class="mobile-nav-section">Posts</div>
             <a href="/">Home</a>
-            <a href="/match/india-vs-pakistan">IND vs PAK</a>
-            <a href="/match/india-vs-australia">IND vs AUS</a>
-            <a href="/match/india-vs-england">IND vs ENG</a>
-            <a href="/match/india-vs-new-zealand">IND vs NZ</a>
+            <a href="/category/ind-vs-pak">IND vs PAK</a>
+            <a href="/category/ind-vs-aus">IND vs AUS</a>
+            <a href="/category/ind-vs-eng">IND vs ENG</a>
+            <a href="/category/ind-vs-nz">IND vs NZ</a>
             <div class="mobile-nav-section">Pages</div>
             <a href="/page/about">About</a>
             <a href="/page/contact">Contact</a>
@@ -452,10 +452,10 @@
             <div class="container">
                 <ul>
                     <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
-                    <li><a href="/match/india-vs-pakistan" class="{% if 'india-vs-pakistan' in request.path %}active{% endif %}">IND vs PAK</a></li>
-                    <li><a href="/match/india-vs-australia" class="{% if 'india-vs-australia' in request.path %}active{% endif %}">IND vs AUS</a></li>
-                    <li><a href="/match/india-vs-england" class="{% if 'india-vs-england' in request.path %}active{% endif %}">IND vs ENG</a></li>
-                    <li><a href="/match/india-vs-new-zealand" class="{% if 'india-vs-new-zealand' in request.path %}active{% endif %}">IND vs NZ</a></li>
+                    <li><a href="/category/ind-vs-pak" class="{% if 'ind-vs-pak' in request.path %}active{% endif %}">IND vs PAK</a></li>
+                    <li><a href="/category/ind-vs-aus" class="{% if 'ind-vs-aus' in request.path %}active{% endif %}">IND vs AUS</a></li>
+                    <li><a href="/category/ind-vs-eng" class="{% if 'ind-vs-eng' in request.path %}active{% endif %}">IND vs ENG</a></li>
+                    <li><a href="/category/ind-vs-nz" class="{% if 'ind-vs-nz' in request.path %}active{% endif %}">IND vs NZ</a></li>
                 </ul>
             </div>
         </nav>
