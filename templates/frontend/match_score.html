@@ -102,33 +102,39 @@
         letter-spacing: 0.5px;
     }
     
+    .scorecard-container .score-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+        padding: 12px 18px;
+        border-radius: 8px;
+        margin: 15px 0;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
     .scorecard-container .match-status {
-        background: linear-gradient(135deg, #046a38 0%, #028a4a 100%);
+        background: transparent;
         color: #fff;
-        padding: 6px 14px;
-        border-radius: 15px;
-        font-size: 12px;
+        padding: 0;
+        font-size: 13px;
         font-weight: 600;
-        margin-top: 12px;
-        margin-bottom: 15px;
         display: inline-block;
-        box-shadow: 0 2px 8px rgba(4, 106, 56, 0.25);
-        position: relative;
+        margin: 0;
     }
     
     .scorecard-container .innings-header {
-        background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
+        background: transparent;
         color: #fff;
-        padding: 10px 15px;
+        padding: 0;
         font-size: 13px;
         font-weight: 600;
         display: inline-flex;
-        justify-content: space-between;
         align-items: center;
-        gap: 15px;
-        margin: 8px 5px 8px 0;
-        border-left: 3px solid #046a38;
-        border-radius: 6px;
+        gap: 10px;
+        margin: 0;
+        border: none;
     }
     
     .scorecard-container .innings-header .innings-score {
