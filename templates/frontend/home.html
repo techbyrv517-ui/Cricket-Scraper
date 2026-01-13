@@ -16,7 +16,7 @@
     <div class="home-layout">
         <section class="matches-section">
             <div class="match-tabs">
-                <button class="match-tab" onclick="showMatchTab('live')">Live</button>
+                <button class="match-tab" onclick="showMatchTab('live')"><span class="live-dot"></span>Live</button>
                 <button class="match-tab active" onclick="showMatchTab('recent')">Recent</button>
                 <button class="match-tab" onclick="showMatchTab('upcoming')">Upcoming</button>
             </div>
@@ -368,6 +368,21 @@ function showMatchTab(tabId) {
     .match-tab.active {
         background: #046a38;
         color: #fff;
+    }
+    
+    .live-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: #ff0000;
+        border-radius: 50%;
+        margin-right: 6px;
+        animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
     }
     
     .match-tab-content {
