@@ -150,6 +150,86 @@ body {
     margin-bottom: 15px;
 }
 
+.scorecard-selectors {
+    margin-bottom: 25px;
+}
+
+.selector-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.selector-group {
+    flex: 1;
+    min-width: 200px;
+}
+
+.selector-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #00d9ff;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.selector-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.selector-group select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.url-row {
+    margin-top: 15px;
+}
+
+.url-input-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #00d9ff;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.url-input-wrapper {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.url-input-wrapper input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    color: #00d9ff;
+    font-size: 0.85rem;
+}
+
+.url-input-wrapper input:focus {
+    outline: none;
+    border-color: #00d9ff;
+}
+
+.scorecard-result {
+    background: rgba(0,0,0,0.2);
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 20px;
+}
+
 .sidebar-series {
     margin-bottom: 20px;
     max-height: 200px;

@@ -48,9 +48,119 @@
             </header>
             
             <div class="table-container">
-                <p style="text-align: center; padding: 40px; color: #888;">Scorecard feature coming soon...</p>
+                <div class="scorecard-selectors">
+                    <div class="selector-row">
+                        <div class="selector-group">
+                            <label for="seriesSelect">Select Series:</label>
+                            <select id="seriesSelect">
+                                <option value="">-- Select a Series --</option>
+                                {% for s in all_series %}
+                                <option value="{{ s.id }}">{{ s.series_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="selector-group">
+                            <label for="matchSelect">Select Match:</label>
+                            <select id="matchSelect" disabled>
+                                <option value="">-- Select a Match --</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="url-row">
+                        <div class="url-input-group">
+                            <label for="scorecardUrl">Scorecard URL:</label>
+                            <div class="url-input-wrapper">
+                                <input type="text" id="scorecardUrl" readonly placeholder="Select a match to generate URL">
+                                <button id="scrapeBtn" class="btn btn-primary" disabled>Scrape Scorecard</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="scorecardContent">
+                    <p class="placeholder-text">Select a series and match to scrape scorecard</p>
+                </div>
             </div>
         </main>
     </div>
+    
+    <script>
+        const baseUrl = 'https://www.cricbuzz.com/live-cricket-scorecard/';
+        
+        document.getElementById('seriesSelect').addEventListener('change', function() {
+            const seriesId = this.value;
+            const matchSelect = document.getElementById('matchSelect');
+            const urlInput = document.getElementById('scorecardUrl');
+            const scrapeBtn = document.getElementById('scrapeBtn');
+            
+            matchSelect.innerHTML = '<option value="">-- Select a Match --</option>';
+            matchSelect.disabled = true;
+            urlInput.value = '';
+            scrapeBtn.disabled = true;
+            
+            if(!seriesId) return;
+            
+            fetch('/api/get-matches/' + seriesId)
+            .then(response => response.json())
+            .then(data => {
+                if(data.matches.length > 0) {
+                    matchSelect.disabled = false;
+                    data.matches.forEach(m => {
+                        const option = document.createElement('option');
+                        option.value = m.match_id;
+                        option.textContent = m.match_title;
+                        matchSelect.appendChild(option);
+                    });
+                }
+            });
+        });
+        
+        document.getElementById('matchSelect').addEventListener('change', function() {
+            const matchId = this.value;
+            const urlInput = document.getElementById('scorecardUrl');
+            const scrapeBtn = document.getElementById('scrapeBtn');
+            
+            if(matchId) {
+                urlInput.value = baseUrl + matchId;
+                scrapeBtn.disabled = false;
+            } else {
+                urlInput.value = '';
+                scrapeBtn.disabled = true;
+            }
+        });
+        
+        document.getElementById('scrapeBtn').addEventListener('click', function() {
+            const url = document.getElementById('scorecardUrl').value;
+            const content = document.getElementById('scorecardContent');
+            const btn = this;
+            
+            btn.disabled = true;
+            btn.textContent = 'Scraping...';
+            content.innerHTML = '<p class="placeholder-text">Scraping scorecard data...</p>';
+            
+            fetch('/api/scrape-scorecard', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({url: url})
+            })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.textContent = 'Scrape Scorecard';
+                if(data.success) {
+                    content.innerHTML = '<div class="scorecard-result">' + data.html + '</div>';
+                } else {
+                    content.innerHTML = '<p class="placeholder-text error">' + data.message + '</p>';
+                }
+            })
+            .catch(error => {
+                btn.disabled = false;
+                btn.textContent = 'Scrape Scorecard';
+                content.innerHTML = '<p class="placeholder-text error">Error scraping scorecard</p>';
+            });
+        });
+    </script>
 </body>
 </html>

@@ -105,8 +105,22 @@ def live_score():
 
 @app.route('/scorecard')
 def scorecard():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT id, series_name FROM series ORDER BY year DESC, series_name ASC')
+    all_series = cur.fetchall()
+    cur.close()
+    conn.close()
     sidebar = get_sidebar_data()
-    return render_template('scorecard.html', sidebar=sidebar)
+    return render_template('scorecard.html', all_series=all_series, sidebar=sidebar)
+
+@app.route('/api/scrape-scorecard', methods=['POST'])
+def api_scrape_scorecard():
+    from scraper import scrape_scorecard
+    data = request.get_json()
+    url = data.get('url', '')
+    result = scrape_scorecard(url)
+    return jsonify(result)
 
 @app.route('/matches')
 def matches_page():

@@ -282,3 +282,54 @@ def scrape_all_matches():
         time.sleep(0.5)
     
     return {'success': True, 'message': f'Scraped {total_matches} matches from {series_processed} series'}
+
+def scrape_scorecard(url):
+    if not url or 'cricbuzz.com/live-cricket-scorecard' not in url:
+        return {'success': False, 'message': 'Invalid scorecard URL'}
+    
+    api_key = os.environ.get('SCRAPER_API_KEY', '')
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    }
+    
+    try:
+        if api_key:
+            api_url = f"http://api.scraperapi.com?api_key={api_key}&url={url}&render=true"
+            response = requests.get(api_url, timeout=120)
+        else:
+            response = requests.get(url, headers=headers, timeout=30)
+        
+        response.raise_for_status()
+        html = response.text
+    except Exception as e:
+        return {'success': False, 'message': f'Error fetching scorecard: {str(e)}'}
+    
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    scorecard_html = '<p>Scorecard data scraped successfully!</p>'
+    
+    match_header = soup.find('div', class_=re.compile(r'cb-nav-hdr'))
+    if match_header:
+        scorecard_html += f'<h3>{match_header.get_text(strip=True)}</h3>'
+    
+    innings_divs = soup.find_all('div', id=re.compile(r'innings_'))
+    
+    if innings_divs:
+        for innings in innings_divs:
+            innings_title = innings.find('div', class_=re.compile(r'cb-scrd-hdr'))
+            if innings_title:
+                scorecard_html += f'<h4 style="color:#00d9ff;margin-top:15px;">{innings_title.get_text(strip=True)}</h4>'
+            
+            batsmen = innings.find_all('div', class_=re.compile(r'cb-scrd-itms'))
+            if batsmen:
+                scorecard_html += '<table style="width:100%;margin-top:10px;"><thead><tr><th>Batsman</th><th>Runs</th><th>Balls</th><th>4s</th><th>6s</th></tr></thead><tbody>'
+                for bat in batsmen[:11]:
+                    cols = bat.find_all('div')
+                    if len(cols) >= 5:
+                        scorecard_html += f'<tr><td>{cols[0].get_text(strip=True)}</td><td>{cols[2].get_text(strip=True)}</td><td>{cols[3].get_text(strip=True)}</td><td>{cols[4].get_text(strip=True)}</td><td>{cols[5].get_text(strip=True) if len(cols) > 5 else "-"}</td></tr>'
+                scorecard_html += '</tbody></table>'
+    else:
+        scorecard_html += '<p style="color:#888;">No detailed scorecard data found. The match may not have started yet.</p>'
+    
+    return {'success': True, 'html': scorecard_html}
