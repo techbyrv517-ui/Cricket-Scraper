@@ -634,56 +634,69 @@ def scrape_players_from_team(team_id):
     soup = BeautifulSoup(html, 'lxml')
     
     player_count = 0
-    current_role = 'Batter'
     
-    all_elements = soup.find_all(['div', 'a'])
+    html_str = str(soup)
     
-    for elem in all_elements:
-        elem_text = elem.get_text(strip=True).lower()
-        elem_class = ' '.join(elem.get('class', []))
+    role_positions = []
+    role_patterns = [
+        (r'(?i)>BATTER[S]?<|>Batter[s]?<', 'Batter'),
+        (r'(?i)>ALL[ -]?ROUNDER[S]?<|>All[ -]?Rounder[s]?<', 'All-Rounder'),
+        (r'(?i)>WICKET[ -]?KEEPER[S]?<|>Wicket[ -]?Keeper[s]?<|>WK<', 'Wicket-Keeper'),
+        (r'(?i)>BOWLER[S]?<|>Bowler[s]?<', 'Bowler'),
+    ]
+    
+    for pattern, role in role_patterns:
+        for m in re.finditer(pattern, html_str):
+            role_positions.append((m.start(), role))
+    
+    role_positions.sort(key=lambda x: x[0])
+    
+    player_links = soup.find_all('a', href=re.compile(r'/profiles/\d+/'))
+    
+    for link in player_links:
+        href = link.get('href', '')
+        player_match = re.search(r'/profiles/(\d+)/([^/]+)', href)
         
-        if 'cb-font-16' in elem_class or 'cb-text-gray' in elem_class:
-            if 'batter' in elem_text or 'batsman' in elem_text or 'batsmen' in elem_text:
-                current_role = 'Batter'
-            elif 'all-rounder' in elem_text or 'allrounder' in elem_text or 'all rounder' in elem_text:
-                current_role = 'All-Rounder'
-            elif 'wicket' in elem_text or 'keeper' in elem_text or 'wk' in elem_text:
-                current_role = 'Wicket-Keeper'
-            elif 'bowler' in elem_text:
-                current_role = 'Bowler'
+        if not player_match:
+            continue
         
-        if elem.name == 'a':
-            href = elem.get('href', '')
-            player_match = re.search(r'/profiles/(\d+)/([^/]+)', href)
-            
-            if player_match:
-                cricbuzz_id = player_match.group(1)
-                player_slug = player_match.group(2)
-                
-                player_name = ''
-                name_elem = elem.find(class_=re.compile(r'cb-font-16'))
-                if name_elem:
-                    player_name = name_elem.get_text(strip=True)
-                if not player_name:
-                    player_name = elem.get_text(strip=True)
-                
-                if not player_name or len(player_name) < 2:
-                    continue
-                
-                img = elem.find('img')
-                image_url = ''
-                if img and img.get('src'):
-                    image_url = img.get('src')
-                    if image_url.startswith('//'):
-                        image_url = 'https:' + image_url
-                
-                cur.execute('SELECT id FROM players WHERE cricbuzz_id = %s AND team_id = %s', (cricbuzz_id, team_id))
-                if cur.fetchone() is None:
-                    cur.execute('''
-                        INSERT INTO players (team_id, cricbuzz_id, name, slug, image_url, role)
-                        VALUES (%s, %s, %s, %s, %s, %s)
-                    ''', (team_id, cricbuzz_id, player_name, player_slug, image_url, current_role))
-                    player_count += 1
+        cricbuzz_id = player_match.group(1)
+        player_slug = player_match.group(2)
+        
+        player_name = ''
+        name_elem = link.find(class_=re.compile(r'cb-font-16'))
+        if name_elem:
+            player_name = name_elem.get_text(strip=True)
+        if not player_name:
+            player_name = link.get_text(strip=True)
+        
+        if not player_name or len(player_name) < 2:
+            continue
+        
+        link_html = str(link)
+        link_pos = html_str.find(link_html)
+        
+        current_role = 'Batter'
+        for pos, role in role_positions:
+            if pos < link_pos:
+                current_role = role
+            else:
+                break
+        
+        img = link.find('img')
+        image_url = ''
+        if img and img.get('src'):
+            image_url = img.get('src')
+            if image_url.startswith('//'):
+                image_url = 'https:' + image_url
+        
+        cur.execute('SELECT id FROM players WHERE cricbuzz_id = %s AND team_id = %s', (cricbuzz_id, team_id))
+        if cur.fetchone() is None:
+            cur.execute('''
+                INSERT INTO players (team_id, cricbuzz_id, name, slug, image_url, role)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            ''', (team_id, cricbuzz_id, player_name, player_slug, image_url, current_role))
+            player_count += 1
     
     conn.commit()
     cur.close()
