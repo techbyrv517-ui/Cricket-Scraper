@@ -175,7 +175,21 @@ function scrapeMatchesFromSeries($seriesId) {
                     $matchCount_parts++;
                 }
             }
-            if($matchCount_parts >= 1) {
+            $minRequired = max(2, ceil(count($keyParts) * 0.6));
+            if($matchCount_parts >= $minRequired) {
+                $matchBelongsToSeries = true;
+            }
+        }
+        
+        if(!$matchBelongsToSeries) {
+            $seriesNameWords = preg_split('/[\s-]+/', $series['series_name']);
+            $abbreviation = '';
+            foreach($seriesNameWords as $w) {
+                if(preg_match('/^[A-Z]/', $w) && !preg_match('/^\d/', $w)) {
+                    $abbreviation .= strtolower(substr($w, 0, 1));
+                }
+            }
+            if(strlen($abbreviation) >= 2 && stripos($matchUrlPath, $abbreviation . '-') !== false) {
                 $matchBelongsToSeries = true;
             }
         }
