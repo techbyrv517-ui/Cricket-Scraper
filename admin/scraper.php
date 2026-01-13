@@ -130,14 +130,36 @@ function scrapeMatchesFromSeries($seriesId) {
     
     $matchCount = 0;
     
-    preg_match_all('/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*title="([^"]+)"[^>]*>/i', $html, $matches, PREG_SET_ORDER);
+    $datePattern = '/<a[^>]*title="([A-Za-z]{3},\s+[A-Za-z]{3}\s+\d{1,2}\s+\d{4})"[^>]*>.*?<span>([^<]+)<\/span>/is';
+    preg_match_all($datePattern, $html, $dateMatches, PREG_OFFSET_CAPTURE);
+    
+    $datePositions = [];
+    foreach($dateMatches[1] as $idx => $dm) {
+        $datePositions[] = [
+            'position' => $dm[1],
+            'date' => trim($dateMatches[2][$idx][0])
+        ];
+    }
+    
+    $matchPattern = '/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*class="[^"]*"[^>]*title="([^"]+)"[^>]*>/i';
+    preg_match_all($matchPattern, $html, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
     
     $processedMatchIds = [];
     
     foreach($matches as $m) {
-        $matchUrl = "https://www.cricbuzz.com" . $m[1];
-        $matchId = $m[2];
-        $matchTitle = trim($m[3]);
+        $matchUrl = "https://www.cricbuzz.com" . $m[1][0];
+        $matchId = $m[2][0];
+        $matchTitle = trim($m[3][0]);
+        $matchPosition = $m[0][1];
+        
+        $matchDate = '';
+        foreach($datePositions as $dp) {
+            if($dp['position'] < $matchPosition) {
+                $matchDate = $dp['date'];
+            } else {
+                break;
+            }
+        }
         
         if(empty($matchId) || isset($processedMatchIds[$matchId])) continue;
         $processedMatchIds[$matchId] = true;
@@ -147,8 +169,8 @@ function scrapeMatchesFromSeries($seriesId) {
             $checkStmt->execute([$matchId, $seriesId]);
             
             if($checkStmt->rowCount() == 0) {
-                $stmt = $pdo->prepare("INSERT INTO matches (series_id, match_id, match_title, match_url) VALUES (?, ?, ?, ?)");
-                $stmt->execute([$seriesId, $matchId, $matchTitle, $matchUrl]);
+                $stmt = $pdo->prepare("INSERT INTO matches (series_id, match_id, match_title, match_url, match_date) VALUES (?, ?, ?, ?, ?)");
+                $stmt->execute([$seriesId, $matchId, $matchTitle, $matchUrl, $matchDate]);
                 $matchCount++;
             }
         }
