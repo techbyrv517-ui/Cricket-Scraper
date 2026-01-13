@@ -347,7 +347,7 @@ def index():
     conn = get_db()
     cur = conn.cursor()
     
-    cur.execute('''SELECT m.*, s.series_name, sc.match_status as result, sc.scorecard_html
+    cur.execute('''SELECT m.*, s.series_name, sc.match_status as result, sc.scorecard_html, sc.final_score
                    FROM matches m 
                    LEFT JOIN series s ON m.series_id = s.id 
                    LEFT JOIN scorecards sc ON m.match_id = sc.match_id
@@ -362,11 +362,21 @@ def index():
         match_date = parse_match_date(row.get('match_date'))
         match['parsed_date'] = match_date
         
-        t1_code, t1_score, t2_code, t2_score = parse_match_scores(row.get('scorecard_html'))
-        match['team1_code'] = t1_code
-        match['team1_score'] = t1_score
-        match['team2_code'] = t2_code
-        match['team2_score'] = t2_score
+        final_score = row.get('final_score', '')
+        if final_score and ' vs ' in final_score:
+            score_parts = final_score.split(' vs ')
+            if len(score_parts) >= 2:
+                t1_parts = score_parts[0].strip().rsplit(' ', 1)
+                t2_parts = score_parts[1].strip().rsplit(' ', 1)
+                match['team1_score'] = t1_parts[1] if len(t1_parts) > 1 else ''
+                match['team2_score'] = t2_parts[1] if len(t2_parts) > 1 else ''
+            else:
+                match['team1_score'] = ''
+                match['team2_score'] = ''
+        else:
+            t1_code, t1_score, t2_code, t2_score = parse_match_scores(row.get('scorecard_html'))
+            match['team1_score'] = t1_score
+            match['team2_score'] = t2_score
         
         team1_name, team2_name, match_info = parse_team_names(row.get('match_title'))
         match['team1_name'] = team1_name
