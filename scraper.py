@@ -289,17 +289,12 @@ def scrape_scorecard(url):
     
     api_key = os.environ.get('SCRAPER_API_KEY', '')
     
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    }
+    if not api_key:
+        return {'success': False, 'message': 'SCRAPER_API_KEY required for scorecard scraping (JavaScript rendering needed)'}
     
     try:
-        if api_key:
-            api_url = f"http://api.scraperapi.com?api_key={api_key}&url={url}&render=true"
-            response = requests.get(api_url, timeout=120)
-        else:
-            response = requests.get(url, headers=headers, timeout=30)
-        
+        api_url = f"http://api.scraperapi.com?api_key={api_key}&url={url}&render=true"
+        response = requests.get(api_url, timeout=180)
         response.raise_for_status()
         html = response.text
     except Exception as e:
