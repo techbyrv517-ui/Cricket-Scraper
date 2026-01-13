@@ -6,11 +6,6 @@
 {% block content %}
 <div class="series-hero">
     <div class="series-hero-content">
-        <div class="series-hero-icon">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-        </div>
         <h1>Cricket Series</h1>
         <p>Browse all cricket series and tournaments worldwide</p>
     </div>
@@ -79,7 +74,7 @@ function showYear(year) {
 <style>
 .series-hero {
     background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-    padding: 60px 20px;
+    padding: 20px 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -97,30 +92,17 @@ function showYear(year) {
 .series-hero-content {
     position: relative;
     z-index: 1;
-    max-width: 600px;
-    margin: 0 auto;
-}
-.series-hero-icon {
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 25px;
-    color: #fff;
-    box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
 }
 .series-hero h1 {
     color: #fff;
-    font-size: 2.5rem;
-    margin-bottom: 12px;
+    font-size: 1.4rem;
+    margin-bottom: 4px;
     font-weight: 700;
 }
 .series-hero p {
-    color: rgba(255,255,255,0.8);
-    font-size: 1.1rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.85rem;
+    margin: 0;
 }
 
 .series-container {
@@ -277,21 +259,13 @@ function showYear(year) {
 
 @media (max-width: 768px) {
     .series-hero {
-        padding: 30px 15px;
-    }
-    .series-hero-icon {
-        width: 70px;
-        height: 70px;
-    }
-    .series-hero-icon svg {
-        width: 40px;
-        height: 40px;
+        padding: 15px 12px;
     }
     .series-hero h1 {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
     }
     .series-hero p {
-        font-size: 0.9rem;
+        font-size: 0.75rem;
     }
     .series-container {
         padding: 15px 10px;
@@ -338,18 +312,13 @@ function showYear(year) {
 
 @media (max-width: 400px) {
     .series-hero {
-        padding: 25px 10px;
-    }
-    .series-hero-icon {
-        width: 60px;
-        height: 60px;
-        margin-bottom: 12px;
+        padding: 12px 10px;
     }
     .series-hero h1 {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
     }
     .series-hero p {
-        font-size: 0.8rem;
+        font-size: 0.7rem;
     }
     .year-btn {
         padding: 6px 12px;
