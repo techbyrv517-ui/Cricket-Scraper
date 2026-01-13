@@ -718,7 +718,10 @@ def admin_delete_team(team_id):
 def teams_page():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM teams WHERE is_published = TRUE ORDER BY team_type, name')
+    cur.execute('''SELECT * FROM teams WHERE is_published = TRUE 
+                   ORDER BY team_type, 
+                   CASE WHEN LOWER(name) = 'india' THEN 0 ELSE 1 END, 
+                   name''')
     all_teams = cur.fetchall()
     cur.close()
     conn.close()
