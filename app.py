@@ -68,6 +68,17 @@ def init_db():
         )
     ''')
     
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS scorecards (
+            id SERIAL PRIMARY KEY,
+            match_id VARCHAR(50) UNIQUE,
+            match_title TEXT,
+            match_status TEXT,
+            scorecard_html TEXT,
+            scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     conn.commit()
     cur.close()
     conn.close()
@@ -117,9 +128,46 @@ def scorecard():
 @app.route('/api/scrape-scorecard', methods=['POST'])
 def api_scrape_scorecard():
     from scraper import scrape_scorecard
+    import re
+    
     data = request.get_json()
     url = data.get('url', '')
     result = scrape_scorecard(url)
+    
+    if result.get('success') and result.get('html'):
+        match_id_match = re.search(r'/live-cricket-scorecard/(\d+)', url)
+        if match_id_match:
+            match_id = match_id_match.group(1)
+            
+            from bs4 import BeautifulSoup
+            soup = BeautifulSoup(result['html'], 'html.parser')
+            
+            title_el = soup.find('h2')
+            match_title = title_el.get_text(strip=True) if title_el else ''
+            
+            status_el = soup.find('div', class_='match-status')
+            match_status = status_el.get_text(strip=True) if status_el else ''
+            
+            conn = get_db()
+            cur = conn.cursor()
+            
+            cur.execute('''
+                INSERT INTO scorecards (match_id, match_title, match_status, scorecard_html)
+                VALUES (%s, %s, %s, %s)
+                ON CONFLICT (match_id) DO UPDATE SET
+                    match_title = EXCLUDED.match_title,
+                    match_status = EXCLUDED.match_status,
+                    scorecard_html = EXCLUDED.scorecard_html,
+                    scraped_at = CURRENT_TIMESTAMP
+            ''', (match_id, match_title, match_status, result['html']))
+            
+            conn.commit()
+            cur.close()
+            conn.close()
+            
+            result['saved'] = True
+            result['match_id'] = match_id
+    
     return jsonify(result)
 
 @app.route('/matches')
@@ -200,6 +248,38 @@ def api_clear_all_series():
     cur.close()
     conn.close()
     return jsonify({'success': True, 'message': 'All series and matches cleared successfully'})
+
+@app.route('/api/get-scorecard/<match_id>')
+def api_get_scorecard(match_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM scorecards WHERE match_id = %s', (match_id,))
+    scorecard = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    if scorecard:
+        return jsonify({
+            'success': True,
+            'scorecard': {
+                'match_id': scorecard['match_id'],
+                'match_title': scorecard['match_title'],
+                'match_status': scorecard['match_status'],
+                'html': scorecard['scorecard_html'],
+                'scraped_at': str(scorecard['scraped_at'])
+            }
+        })
+    return jsonify({'success': False, 'message': 'Scorecard not found'})
+
+@app.route('/api/saved-scorecards')
+def api_saved_scorecards():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT match_id, match_title, match_status, scraped_at FROM scorecards ORDER BY scraped_at DESC')
+    scorecards = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'scorecards': [dict(s) for s in scorecards]})
 
 with app.app_context():
     init_db()

@@ -35,6 +35,14 @@ A Python/Flask-based cricket data scraping website that scrapes series and match
 - match_url: Full URL to the match page
 - match_date: Date of the match
 
+### Scorecards Table
+- id: Auto-increment primary key
+- match_id: Cricbuzz match ID (unique)
+- match_title: Title of the match
+- match_status: Current match status
+- scorecard_html: Full HTML of the scraped scorecard
+- scraped_at: Timestamp of when scorecard was scraped
+
 ## Features Implemented
 1. Series data scraping from cricbuzz.com/cricket-schedule/series/all
 2. Match data scraping from individual series pages
@@ -65,10 +73,13 @@ A Python/Flask-based cricket data scraping website that scrapes series and match
 - POST /api/scrape-series - Scrape series data from Cricbuzz
 - POST /api/scrape-matches/<series_id> - Scrape matches for a specific series
 - POST /api/scrape-all-matches - Scrape matches for all series
-- POST /api/scrape-scorecard - Scrape scorecard for a match
+- POST /api/scrape-scorecard - Scrape scorecard for a match (saves to database)
 - GET /api/matches/<series_id> - Get matches for a series (JSON)
+- GET /api/get-scorecard/<match_id> - Get saved scorecard from database
+- GET /api/saved-scorecards - List all saved scorecards
 
 ## Recent Changes
+- January 2026: Added database storage for scorecards with ON CONFLICT UPDATE
 - January 2026: Migrated from PHP to Python/Flask framework
 - January 2026: Removed ScraperAPI dependency - now uses pure Python requests
 - January 2026: Added scorecard scraping with batting/bowling tables
