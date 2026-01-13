@@ -1,7 +1,7 @@
 <?php
 require_once '../config/database.php';
 
-$series = $pdo->query("SELECT * FROM series ORDER BY created_at DESC")->fetchAll(PDO::FETCH_ASSOC);
+$series = $pdo->query("SELECT * FROM series ORDER BY year ASC, month ASC, series_name ASC")->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
