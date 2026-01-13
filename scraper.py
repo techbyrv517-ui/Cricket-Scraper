@@ -304,9 +304,11 @@ def scrape_matches_from_series(series_id):
         if match_title and len(match_title) > 2:
             cur.execute('SELECT id FROM matches WHERE match_id = %s AND series_id = %s', (match_id, series_id))
             if cur.fetchone() is None:
+                match_slug = re.sub(r'[^a-zA-Z0-9 ]', '', match_title).lower()
+                match_slug = re.sub(r' +', '-', match_slug).strip('-')
                 cur.execute(
-                    'INSERT INTO matches (series_id, match_id, match_title, match_url, match_date) VALUES (%s, %s, %s, %s, %s)',
-                    (series_id, match_id, match_title, match_url, match_date)
+                    'INSERT INTO matches (series_id, match_id, match_title, match_url, match_date, slug) VALUES (%s, %s, %s, %s, %s, %s)',
+                    (series_id, match_id, match_title, match_url, match_date, match_slug)
                 )
                 match_count += 1
     
