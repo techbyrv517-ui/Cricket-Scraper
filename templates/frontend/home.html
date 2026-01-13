@@ -87,18 +87,34 @@
             <div class="matches-list">
                 {% if upcoming_matches %}
                     {% for match in upcoming_matches %}
-                    <a href="/cricket-match/{{ match.slug }}" class="cricbuzz-card upcoming">
+                    <a href="/match-score/{{ match.match_id }}" class="cricbuzz-card">
                         <div class="card-header">
                             <span class="series-name">{{ match.series_name|upper if match.series_name else 'UPCOMING MATCH' }}</span>
                             <span class="chevron">›</span>
                         </div>
                         <div class="card-body">
                             <div class="match-meta">
-                                <span class="match-info-text">{{ match.match_title }}</span>
+                                <span class="match-info-text">{{ match.match_info or '' }}{% if match.match_date %} • {{ match.match_date }}{% endif %}</span>
                             </div>
-                            <div class="upcoming-info">
-                                <span class="upcoming-date">{{ match.match_date }}</span>
+                            <div class="team-row">
+                                {% if match.team1_flag %}
+                                <img src="{{ match.team1_flag }}" alt="{{ match.team1_name }}" class="team-flag-img">
+                                {% else %}
+                                <div class="team-flag {{ match.team1_name|lower|replace(' ', '-') if match.team1_name else 'default' }}"></div>
+                                {% endif %}
+                                <span class="team-name">{{ match.team1_name or 'Team 1' }}</span>
+                                <span class="team-score"></span>
                             </div>
+                            <div class="team-row">
+                                {% if match.team2_flag %}
+                                <img src="{{ match.team2_flag }}" alt="{{ match.team2_name }}" class="team-flag-img">
+                                {% else %}
+                                <div class="team-flag {{ match.team2_name|lower|replace(' ', '-') if match.team2_name else 'default' }}"></div>
+                                {% endif %}
+                                <span class="team-name">{{ match.team2_name or 'Team 2' }}</span>
+                                <span class="team-score"></span>
+                            </div>
+                            <div class="upcoming-badge">Upcoming</div>
                         </div>
                     </a>
                     {% endfor %}
@@ -426,6 +442,17 @@ function showMatchTab(tabId) {
         font-weight: 500;
     }
     
+    .upcoming-badge {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #ff9800;
+        font-weight: 600;
+        background: rgba(255, 152, 0, 0.1);
+        padding: 4px 10px;
+        border-radius: 4px;
+        display: inline-block;
+    }
+    
     .upcoming-info {
         padding: 10px 0;
         text-align: center;
@@ -563,13 +590,11 @@ function fetchLiveMatches() {
         .then(data => {
             const liveList = document.getElementById('live-matches-list');
             const noLive = document.getElementById('no-live-matches');
-            const refreshInfo = document.getElementById('live-refresh-info');
             
             liveList.innerHTML = '';
             
             if (data.matches && data.matches.length > 0) {
-                noLive.style.display = 'none';
-                refreshInfo.style.display = 'block';
+                if (noLive) noLive.style.display = 'none';
                 
                 data.matches.forEach(match => {
                     const card = document.createElement('a');
@@ -609,9 +634,10 @@ function fetchLiveMatches() {
                     liveList.appendChild(card);
                 });
             } else {
-                liveList.appendChild(noLive);
-                noLive.style.display = 'block';
-                refreshInfo.style.display = 'none';
+                if (noLive) {
+                    liveList.appendChild(noLive);
+                    noLive.style.display = 'block';
+                }
             }
         })
         .catch(error => {
