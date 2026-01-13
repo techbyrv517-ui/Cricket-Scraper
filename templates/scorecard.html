@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Score - Cricket Scraper</title>
+    <title>Scorecard - Cricket Scraper</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -30,11 +30,11 @@
                     <span class="nav-icon">🗑️</span>
                     <span>Clear Match</span>
                 </a>
-                <a href="{{ url_for('live_score') }}" class="nav-item active">
+                <a href="{{ url_for('live_score') }}" class="nav-item">
                     <span class="nav-icon">🏏</span>
                     <span>Live Score</span>
                 </a>
-                <a href="{{ url_for('scorecard') }}" class="nav-item">
+                <a href="{{ url_for('scorecard') }}" class="nav-item active">
                     <span class="nav-icon">📊</span>
                     <span>Scorecard</span>
                 </a>
@@ -44,11 +44,11 @@
         
         <main class="main-content">
             <header>
-                <h1>Live Score</h1>
+                <h1>Scorecard</h1>
             </header>
             
             <div class="table-container">
-                <p style="text-align: center; padding: 40px; color: #888;">Live score feature coming soon...</p>
+                <p style="text-align: center; padding: 40px; color: #888;">Scorecard feature coming soon...</p>
             </div>
         </main>
     </div>

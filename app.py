@@ -103,6 +103,11 @@ def live_score():
     sidebar = get_sidebar_data()
     return render_template('live_score.html', sidebar=sidebar)
 
+@app.route('/scorecard')
+def scorecard():
+    sidebar = get_sidebar_data()
+    return render_template('scorecard.html', sidebar=sidebar)
+
 @app.route('/admin/matches/<int:series_id>')
 def view_matches(series_id):
     conn = get_db()
