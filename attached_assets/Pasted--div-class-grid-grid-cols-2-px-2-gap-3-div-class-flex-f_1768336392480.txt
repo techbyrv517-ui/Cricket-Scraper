@@ -1,0 +1,451 @@
+<div class="grid grid-cols-2 px-2 gap-3"><div class="flex flex-col"><div class="w-full wb:border wb:rounded-lg"><div class="hidden tb:flex items-center p-2 border-b"><div class="text-sm font-semibold text-[#000000DE]">Batting Career Summary</div><div class="flex-1 border-b ml-2 border-dashed border-gray-300"></div></div><table class="w-full"><thead class="border-b border-cbBorderGrey"><tr class="grid grid-cols-6 gap-4 p-2 text-xs bg-cbGrpHdrBkg tb:bg-[#FAFAFA]"><th class="w-full capitalize font-bold text-cbItmBkgDark text-left col-span-2"></th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">Test</th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">ODI</th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">T20</th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">IPL</th></tr></thead><tbody><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Matches</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">40</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">59</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">36</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">118</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Innings</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">73</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">59</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">36</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">115</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#000000DE] w-full"><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Runs</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">2843</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">2874</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">869</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">3866</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Balls</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">4623</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">2911</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">627</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">2787</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Highest</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">269</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">208</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">126</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">129</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Average</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">42.43</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">56.35</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">28.03</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">39.45</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">SR</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">61.50</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">98.73</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">138.60</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">138.72</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Not Out</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">6</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">8</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">5</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">17</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Fours</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">318</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">322</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">98</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">372</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Sixes</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">46</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">62</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">26</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">119</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Ducks</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">5</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">2</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">4</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">50s</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">8</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">16</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">3</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">26</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">100s</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">10</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">8</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">4</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">200s</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">300s</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">400s</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr></tbody></table></div></div><div class="flex flex-col"><div class="w-full wb:border wb:rounded-lg"><div class="hidden tb:flex items-center p-2 border-b"><div class="text-sm font-semibold text-[#000000DE]">Bowling Career Summary</div><div class="flex-1 border-b ml-2 border-dashed border-gray-300"></div></div><table class="w-full"><thead class="border-b border-cbBorderGrey"><tr class="grid grid-cols-6 gap-4 p-2 text-xs bg-cbGrpHdrBkg tb:bg-[#FAFAFA]"><th class="w-full capitalize font-bold text-cbItmBkgDark text-left col-span-2"></th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">Test</th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">ODI</th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">T20</th><th class="w-full capitalize font-bold text-cbItmBkgDark text-left ">IPL</th></tr></thead><tbody><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Matches</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">40</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">59</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">36</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">118</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Innings</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">2</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Balls</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">7</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">18</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Runs</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">25</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Maidens</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#000000DE] w-full"><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Wickets</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#000000DE] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Avg</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0.0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">Eco</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.86</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">8.33</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">SR</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0.0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0.0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">BBI</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0/1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0/11</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">-/-</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">-/-</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">BBM</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0/1</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0/11</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">-/-</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">-/-</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">4w</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">5w</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr><tr class="wb:text-sm text-xs grid grid-cols-6 border-b bg-cbWhite border-cbBorderGrey text-[#0000008A] w-full"><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                col-span-2 text-[#000000DE]
+                                                
+                                            ">10w</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                
+                                            ">0</td><td class="w-full  text-left text-[#0000008A] p-2 tb:border-r border-cbBorderGrey
+                                                text-[#0000008A]
+                                                border-r-0
+                                            ">0</td></tr></tbody></table></div></div></div>

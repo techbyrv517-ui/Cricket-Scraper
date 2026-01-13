@@ -39,22 +39,34 @@
     
     {% if player.batting_stats %}
     <section class="stats-section">
-        <h2>ICC Rankings (Batting)</h2>
+        <h2>Batting Career Summary</h2>
         <div class="stats-table-wrapper">
             <table class="stats-table">
                 <thead>
                     <tr>
                         <th>Format</th>
-                        <th>Current Rank</th>
-                        <th>Best Rank</th>
+                        <th>Mat</th>
+                        <th>Inns</th>
+                        <th>Runs</th>
+                        <th>HS</th>
+                        <th>Avg</th>
+                        <th>SR</th>
+                        <th>100s</th>
+                        <th>50s</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for format, stats in player.batting_stats.items() %}
                     <tr>
                         <td><strong>{{ format }}</strong></td>
-                        <td>{{ stats.get('ICC_Rank', stats.get('Mat', '-')) }}</td>
-                        <td>{{ stats.get('Best_Rank', stats.get('Inns', '-')) }}</td>
+                        <td>{{ stats.get('Matches', '-') }}</td>
+                        <td>{{ stats.get('Innings', '-') }}</td>
+                        <td>{{ stats.get('Runs', '-') }}</td>
+                        <td>{{ stats.get('Highest', '-') }}</td>
+                        <td>{{ stats.get('Average', '-') }}</td>
+                        <td>{{ stats.get('SR', '-') }}</td>
+                        <td>{{ stats.get('100s', '-') }}</td>
+                        <td>{{ stats.get('50s', '-') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -65,34 +77,32 @@
     
     {% if player.bowling_stats %}
     <section class="stats-section">
-        <h2>Bowling Career</h2>
+        <h2>Bowling Career Summary</h2>
         <div class="stats-table-wrapper">
             <table class="stats-table">
                 <thead>
                     <tr>
                         <th>Format</th>
                         <th>Mat</th>
-                        <th>Inns</th>
+                        <th>Overs</th>
                         <th>Wkts</th>
-                        <th>BBI</th>
-                        <th>Avg</th>
+                        <th>Best</th>
                         <th>Econ</th>
-                        <th>SR</th>
                         <th>5W</th>
+                        <th>4W</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for format, stats in player.bowling_stats.items() %}
                     <tr>
                         <td><strong>{{ format }}</strong></td>
-                        <td>{{ stats.get('Mat', '-') }}</td>
-                        <td>{{ stats.get('Inns', '-') }}</td>
-                        <td>{{ stats.get('Wkts', '-') }}</td>
-                        <td>{{ stats.get('BBI', '-') }}</td>
-                        <td>{{ stats.get('Avg', '-') }}</td>
+                        <td>{{ stats.get('Matches', '-') }}</td>
+                        <td>{{ stats.get('Overs', '-') }}</td>
+                        <td>{{ stats.get('Wickets', '-') }}</td>
+                        <td>{{ stats.get('Best', '-') }}</td>
                         <td>{{ stats.get('Econ', '-') }}</td>
-                        <td>{{ stats.get('SR', '-') }}</td>
                         <td>{{ stats.get('5W', '-') }}</td>
+                        <td>{{ stats.get('4W', '-') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -760,20 +760,32 @@ def scrape_player_profile(player_id):
             if label and value and len(label) < 30:
                 personal_info[label] = value
     
-    icc_table = soup.find('table')
-    if icc_table:
-        rows = icc_table.find_all('tr')
+    formats = ['Test', 'ODI', 'T20I', 'IPL']
+    batting_stats = {fmt: {} for fmt in formats}
+    bowling_stats = {fmt: {} for fmt in formats}
+    
+    tables = soup.find_all('table')
+    for table in tables:
+        table_text = table.get_text()
+        is_batting = 'Batting' in str(table.find_previous('div')) or 'Runs' in table_text
+        is_bowling = 'Bowling' in str(table.find_previous('div')) or 'Wickets' in table_text
+        
+        rows = table.find_all('tr')
         for row in rows:
             cells = row.find_all('td')
-            if len(cells) >= 3:
-                format_name = cells[0].get_text(strip=True)
-                if format_name in ['Test', 'ODI', 'T20I']:
-                    current_rank = cells[1].get_text(strip=True)
-                    best_rank = cells[2].get_text(strip=True)
-                    batting_stats[format_name] = {
-                        'ICC_Rank': current_rank,
-                        'Best_Rank': best_rank
-                    }
+            if len(cells) >= 5:
+                stat_name = cells[0].get_text(strip=True)
+                if stat_name in ['Matches', 'Innings', 'Runs', 'Balls', 'Highest', 'Average', 'SR', 'Not Out', 'Fours', 'Sixes', '100s', '50s', 'Wickets', 'Overs', 'Best', 'Econ', '5W', '4W']:
+                    for i, fmt in enumerate(formats):
+                        if i + 1 < len(cells):
+                            val = cells[i + 1].get_text(strip=True)
+                            if is_bowling and stat_name in ['Wickets', 'Overs', 'Best', 'Econ', '5W', '4W']:
+                                bowling_stats[fmt][stat_name] = val
+                            else:
+                                batting_stats[fmt][stat_name] = val
+    
+    batting_stats = {k: v for k, v in batting_stats.items() if v}
+    bowling_stats = {k: v for k, v in bowling_stats.items() if v}
     
     cur.execute('''
         UPDATE players 
