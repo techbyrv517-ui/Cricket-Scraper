@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from functools import wraps
 import psycopg2
@@ -7,6 +8,16 @@ from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()
+
+def slugify(text):
+    if not text:
+        return ''
+    text = text.lower().strip()
+    text = re.sub(r'[^\w\s-]', '', text)
+    text = re.sub(r'[\s_]+', '-', text)
+    text = re.sub(r'-+', '-', text)
+    text = text.strip('-')
+    return text[:200]
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
@@ -714,6 +725,7 @@ def admin_delete_team(team_id):
     flash('Team deleted successfully', 'success')
     return redirect(url_for('admin_teams'))
 
+@app.route('/cricket-teams')
 @app.route('/teams')
 def teams_page():
     conn = get_db()
@@ -740,6 +752,7 @@ def teams_page():
     settings = get_site_settings()
     return render_template('frontend/teams.html', teams_by_type=teams_by_type, settings=settings)
 
+@app.route('/cricket-series')
 @app.route('/series')
 def series_page():
     conn = get_db()
@@ -759,12 +772,12 @@ def series_page():
     settings = get_site_settings()
     return render_template('frontend/series.html', series_by_year=series_by_year, settings=settings)
 
-@app.route('/series/<int:series_id>')
-def series_detail_page(series_id):
+@app.route('/cricket-series/<slug>')
+def series_detail_page(slug):
     conn = get_db()
     cur = conn.cursor()
     
-    cur.execute('SELECT * FROM series WHERE id = %s', (series_id,))
+    cur.execute('SELECT * FROM series WHERE slug = %s', (slug,))
     series = cur.fetchone()
     
     if not series:
@@ -772,7 +785,7 @@ def series_detail_page(series_id):
         conn.close()
         return "Series not found", 404
     
-    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY match_id ASC', (series_id,))
+    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY match_id ASC', (series['id'],))
     matches = cur.fetchall()
     
     cur.close()
@@ -781,22 +794,48 @@ def series_detail_page(series_id):
     settings = get_site_settings()
     return render_template('frontend/series_detail.html', series=series, matches=matches, settings=settings)
 
-@app.route('/match-score/<int:match_id>')
-def match_score_page(match_id):
+@app.route('/series/<int:series_id>')
+def series_detail_redirect(series_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT slug FROM series WHERE id = %s', (series_id,))
+    series = cur.fetchone()
+    cur.close()
+    conn.close()
+    if series and series.get('slug'):
+        return redirect(f"/cricket-series/{series['slug']}", code=301)
+    return "Series not found", 404
+
+@app.route('/cricket-match/<slug>')
+def match_score_page(slug):
     conn = get_db()
     cur = conn.cursor()
     
-    cur.execute('SELECT * FROM scorecards WHERE match_id = %s', (str(match_id),))
-    scorecard = cur.fetchone()
-    
-    cur.execute('SELECT * FROM matches WHERE match_id = %s', (str(match_id),))
+    cur.execute('SELECT * FROM matches WHERE slug = %s', (slug,))
     match = cur.fetchone()
+    
+    scorecard = None
+    if match:
+        cur.execute('SELECT * FROM scorecards WHERE match_id = %s', (str(match.get('match_id', '')),))
+        scorecard = cur.fetchone()
     
     cur.close()
     conn.close()
     
     settings = get_site_settings()
     return render_template('frontend/match_score.html', scorecard=scorecard, match=match, settings=settings)
+
+@app.route('/match-score/<int:match_id>')
+def match_score_redirect(match_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT slug FROM matches WHERE match_id = %s', (str(match_id),))
+    match = cur.fetchone()
+    cur.close()
+    conn.close()
+    if match and match.get('slug'):
+        return redirect(f"/cricket-match/{match['slug']}", code=301)
+    return "Match not found", 404
 
 @app.route('/robots.txt')
 def robots():

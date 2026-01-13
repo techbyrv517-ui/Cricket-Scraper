@@ -25,7 +25,7 @@
         <div id="year-{{ year }}" class="year-section {% if loop.first %}active{% endif %}">
             <div class="series-grid">
                 {% for series in series_list %}
-                <a href="/series/{{ series.id }}" class="series-card">
+                <a href="/cricket-series/{{ series.slug }}" class="series-card">
                     <div class="series-name">{{ series.series_name }}</div>
                     <div class="series-date">{{ series.date_range }}</div>
                     <div class="series-month">{{ series.month }} {{ series.year }}</div>

@@ -15,14 +15,14 @@
     <div style="padding: 40px 0;">
         
         <div style="margin-bottom: 20px;">
-            <a href="/series" class="back-link">&larr; Back to Series</a>
+            <a href="/cricket-series" class="back-link">&larr; Back to Series</a>
         </div>
         
         {% if matches %}
         <h2 class="section-title">Matches ({{ matches|length }})</h2>
         <div class="matches-list">
             {% for match in matches %}
-            <a href="/match-score/{{ match.match_id }}" class="match-card">
+            <a href="/cricket-match/{{ match.slug }}" class="match-card">
                 <div class="match-title">{{ match.match_title }}</div>
                 <div class="match-date">{{ match.match_date }}</div>
             </a>
