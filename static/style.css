@@ -107,6 +107,49 @@ body {
     max-height: 300px;
 }
 
+.series-selector {
+    margin-bottom: 20px;
+}
+
+.series-selector label {
+    display: block;
+    margin-bottom: 8px;
+    color: #00d9ff;
+    font-weight: 600;
+}
+
+.series-selector select {
+    width: 100%;
+    max-width: 400px;
+    padding: 12px 15px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    color: #fff;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.series-selector select:focus {
+    outline: none;
+    border-color: #00d9ff;
+}
+
+.placeholder-text {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+
+.placeholder-text.error {
+    color: #ff4757;
+}
+
+.series-info {
+    color: #888;
+    margin-bottom: 15px;
+}
+
 .sidebar-series {
     margin-bottom: 20px;
     max-height: 200px;

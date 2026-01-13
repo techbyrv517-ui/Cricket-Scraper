@@ -26,8 +26,12 @@
                     <span class="nav-icon">🗑️</span>
                     <span>Clear Match</span>
                 </a>
-                <a href="{{ url_for('live_score') }}" class="nav-item active">
+                <a href="{{ url_for('matches_page') }}" class="nav-item">
                     <span class="nav-icon">🏏</span>
+                    <span>Matches</span>
+                </a>
+                <a href="{{ url_for('live_score') }}" class="nav-item active">
+                    <span class="nav-icon">📡</span>
                     <span>Live Score</span>
                 </a>
                 <a href="{{ url_for('scorecard') }}" class="nav-item">
@@ -35,18 +39,6 @@
                     <span>Scorecard</span>
                 </a>
             </nav>
-            
-            <div class="sidebar-matches">
-                <h3>Matches</h3>
-                <div class="matches-scroll">
-                    {% for s in sidebar.recent_series %}
-                    <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item">
-                        <span class="series-name">{{ s.series_name[:30] }}{% if s.series_name|length > 30 %}...{% endif %}</span>
-                        <span class="series-badge">{{ s.match_count }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
             
         </aside>
         

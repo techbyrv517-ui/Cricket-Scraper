@@ -108,6 +108,29 @@ def scorecard():
     sidebar = get_sidebar_data()
     return render_template('scorecard.html', sidebar=sidebar)
 
+@app.route('/matches')
+def matches_page():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT id, series_name FROM series ORDER BY year DESC, series_name ASC')
+    all_series = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('matches_page.html', all_series=all_series, sidebar=sidebar)
+
+@app.route('/api/get-matches/<int:series_id>')
+def api_get_matches(series_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM series WHERE id = %s', (series_id,))
+    series = cur.fetchone()
+    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY match_id', (series_id,))
+    matches = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify({'series': dict(series) if series else None, 'matches': [dict(m) for m in matches]})
+
 @app.route('/admin/matches/<int:series_id>')
 def view_matches(series_id):
     conn = get_db()
