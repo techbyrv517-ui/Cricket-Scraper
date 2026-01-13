@@ -578,6 +578,24 @@ def api_clear_all_matches():
     conn.close()
     return jsonify({'success': True, 'message': 'All matches cleared successfully'})
 
+@app.route('/api/clear-series-matches/<int:series_id>', methods=['POST'])
+def api_clear_series_matches(series_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT series_name FROM series WHERE id = %s', (series_id,))
+    series = cur.fetchone()
+    if not series:
+        cur.close()
+        conn.close()
+        return jsonify({'success': False, 'message': 'Series not found'})
+    
+    cur.execute('DELETE FROM matches WHERE series_id = %s', (series_id,))
+    deleted_count = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'message': f'Cleared {deleted_count} matches from {series["series_name"]}'})
+
 @app.route('/api/clear-all-series', methods=['POST'])
 def api_clear_all_series():
     conn = get_db()

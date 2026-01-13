@@ -115,6 +115,7 @@
                             <td><a href="{{ s.series_url }}" target="_blank">View</a></td>
                             <td>
                                 <button class="btn btn-small scrape-matches" data-id="{{ s.id }}">Scrape Matches</button>
+                                <button class="btn btn-small btn-danger clear-series-matches" data-id="{{ s.id }}">Clear Matches</button>
                                 <a href="{{ url_for('view_matches', series_id=s.id) }}" class="btn btn-small btn-secondary">View Matches</a>
                             </td>
                         </tr>
@@ -238,6 +239,32 @@
                     alert('Error: ' + error);
                     button.disabled = false;
                     button.textContent = 'Scrape Matches';
+                });
+            });
+        });
+        
+        document.querySelectorAll('.clear-series-matches').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if(!confirm('Are you sure you want to clear matches for this series?')) return;
+                
+                const seriesId = this.dataset.id;
+                const button = this;
+                
+                button.disabled = true;
+                button.textContent = 'Clearing...';
+                
+                fetch('/api/clear-series-matches/' + seriesId, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    button.disabled = false;
+                    button.textContent = 'Clear Matches';
+                    if(data.success) location.reload();
+                })
+                .catch(error => {
+                    alert('Error: ' + error);
+                    button.disabled = false;
+                    button.textContent = 'Clear Matches';
                 });
             });
         });
