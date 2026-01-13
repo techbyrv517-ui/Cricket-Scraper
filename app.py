@@ -541,6 +541,14 @@ def scorecard():
     sidebar = get_sidebar_data()
     return render_template('scorecard.html', all_series=all_series, sidebar=sidebar)
 
+def get_team_flag(team_name, cur):
+    """Get team flag URL from database"""
+    if not team_name:
+        return ''
+    cur.execute('SELECT flag_url FROM teams WHERE LOWER(name) = LOWER(%s) LIMIT 1', (team_name,))
+    result = cur.fetchone()
+    return result['flag_url'] if result and result.get('flag_url') else ''
+
 @app.route('/api/live-matches')
 def api_live_matches():
     conn = get_db()
@@ -555,13 +563,14 @@ def api_live_matches():
         ORDER BY sc.last_updated DESC
     ''')
     live_scorecards = cur.fetchall()
-    cur.close()
-    conn.close()
     
     matches_data = []
     for row in live_scorecards:
         match = dict(row)
         team1_name, team2_name, match_info = parse_team_names(match.get('match_title') or match.get('m_title'))
+        
+        team1_flag = get_team_flag(team1_name, cur)
+        team2_flag = get_team_flag(team2_name, cur)
         
         final_score = match.get('final_score', '')
         team1_score = ''
@@ -581,12 +590,16 @@ def api_live_matches():
             'match_info': match_info or '',
             'team1_name': team1_name or '',
             'team2_name': team2_name or '',
+            'team1_flag': team1_flag,
+            'team2_flag': team2_flag,
             'team1_score': team1_score,
             'team2_score': team2_score,
             'match_status': match.get('match_status', ''),
             'last_updated': match.get('last_updated').isoformat() if match.get('last_updated') else ''
         })
     
+    cur.close()
+    conn.close()
     return jsonify({'matches': matches_data, 'count': len(matches_data)})
 
 @app.route('/api/recent-matches')

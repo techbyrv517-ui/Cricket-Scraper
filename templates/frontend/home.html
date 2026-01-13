@@ -306,6 +306,15 @@ function showMatchTab(tabId) {
         font-weight: 600;
     }
     
+    .team-flag-img {
+        width: 24px;
+        height: 16px;
+        object-fit: cover;
+        border-radius: 2px;
+        margin-right: 10px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    
     .card-header {
         background: linear-gradient(135deg, #1a5f4c, #2d7a5e);
         color: #fff;
@@ -562,8 +571,12 @@ function fetchLiveMatches() {
                     card.href = `/match-score/${match.match_id}`;
                     card.className = 'cricbuzz-card live-card';
                     
-                    const team1Flag = match.team1_name ? match.team1_name.toLowerCase().replace(/ /g, '-') : 'default';
-                    const team2Flag = match.team2_name ? match.team2_name.toLowerCase().replace(/ /g, '-') : 'default';
+                    const team1FlagHtml = match.team1_flag 
+                        ? `<img src="${match.team1_flag}" class="team-flag-img" alt="${match.team1_name}">` 
+                        : `<div class="team-flag ${match.team1_name ? match.team1_name.toLowerCase().replace(/ /g, '-') : 'default'}"></div>`;
+                    const team2FlagHtml = match.team2_flag 
+                        ? `<img src="${match.team2_flag}" class="team-flag-img" alt="${match.team2_name}">` 
+                        : `<div class="team-flag ${match.team2_name ? match.team2_name.toLowerCase().replace(/ /g, '-') : 'default'}"></div>`;
                     
                     card.innerHTML = `
                         <div class="card-header">
@@ -576,12 +589,12 @@ function fetchLiveMatches() {
                                 <span class="match-info-text">${match.match_info || match.match_title || ''}</span>
                             </div>
                             <div class="team-row">
-                                <div class="team-flag ${team1Flag}"></div>
+                                ${team1FlagHtml}
                                 <span class="team-name">${match.team1_name || 'Team 1'}</span>
                                 <span class="team-score">${match.team1_score || ''}</span>
                             </div>
                             <div class="team-row">
-                                <div class="team-flag ${team2Flag}"></div>
+                                ${team2FlagHtml}
                                 <span class="team-name">${match.team2_name || 'Team 2'}</span>
                                 <span class="team-score bold">${match.team2_score || ''}</span>
                             </div>
