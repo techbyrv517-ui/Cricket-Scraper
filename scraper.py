@@ -136,61 +136,35 @@ def scrape_matches_from_series(series_id):
         conn.close()
         return {'success': False, 'message': 'Empty response from website'}
     
-    country_abbrevs = {
-        'india': 'ind', 'new zealand': 'nz', 'australia': 'aus',
-        'england': 'eng', 'pakistan': 'pak', 'south africa': 'sa',
-        'sri lanka': 'sl', 'bangladesh': 'ban', 'west indies': 'wi',
-        'afghanistan': 'afg', 'zimbabwe': 'zim', 'ireland': 'ire',
-        'uae': 'uae', 'usa': 'usa', 'nepal': 'nep', 'namibia': 'nam',
-        'netherlands': 'ned', 'scotland': 'sco', 'oman': 'oman',
-        'canada': 'can', 'kenya': 'ken', 'hong kong': 'hk',
-        'papua new guinea': 'png', 'bermuda': 'ber', 'jersey': 'jer'
-    }
-    
     match_count = 0
     processed_match_ids = set()
     
-    match_pattern = re.compile(r'href="(/live-cricket-scores/(\d+)/[^"]+)"[^>]*title="([^"]+)"')
-    matches = match_pattern.findall(html)
+    soup = BeautifulSoup(html, 'html.parser')
     
-    series_name_lower = series_name.lower()
+    match_links = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
     
-    for match_data in matches:
-        match_url_path = match_data[0]
-        match_id = match_data[1]
-        match_title = match_data[2].strip()
+    for link in match_links:
+        href = link.get('href', '')
+        title = link.get('title', '')
         
-        match_url = f"https://www.cricbuzz.com{match_url_path}"
-        match_url_lower = match_url_path.lower()
-        
-        match_belongs_to_series = False
-        
-        if series_slug and series_slug in match_url_path:
-            match_belongs_to_series = True
-        
-        if not match_belongs_to_series:
-            teams_found = 0
-            for full_name, abbr in country_abbrevs.items():
-                if full_name in series_name_lower:
-                    if f'{abbr}-' in match_url_lower or f'-{abbr}-' in match_url_lower or match_url_lower.endswith(f'-{abbr}'):
-                        teams_found += 1
-            
-            year_match = re.search(r'(\d{4})', series_slug)
-            year_in_url = year_match and year_match.group(1) in match_url_path
-            
-            if teams_found >= 2:
-                match_belongs_to_series = True
-            
-            if not match_belongs_to_series and 'tour' in series_name_lower:
-                if 'tour' in match_url_lower and teams_found >= 1:
-                    match_belongs_to_series = True
-        
-        if not match_belongs_to_series:
+        if not href:
             continue
+        
+        match_id_search = re.search(r'/live-cricket-scores/(\d+)/', href)
+        if not match_id_search:
+            continue
+        
+        match_id = match_id_search.group(1)
+        
+        if not title:
+            title = link.get_text(strip=True)
         
         if not match_id or match_id in processed_match_ids:
             continue
         processed_match_ids.add(match_id)
+        
+        match_url = f"https://www.cricbuzz.com{href}"
+        match_title = title.strip() if title else ''
         
         if match_title and len(match_title) > 2:
             cur.execute('SELECT id FROM matches WHERE match_id = %s AND series_id = %s', (match_id, series_id))
