@@ -1,0 +1,98 @@
+{% extends 'admin.html' %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Add New Post</h1>
+    <a href="{{ url_for('admin_posts') }}" class="btn btn-secondary">Back to Posts</a>
+</div>
+
+<div class="card">
+    <form method="POST" class="form-grid">
+        <div class="form-group">
+            <label for="title">Post Title *</label>
+            <input type="text" id="title" name="title" required placeholder="Enter post title">
+        </div>
+        
+        <div class="form-group">
+            <label for="featured_image">Featured Image URL</label>
+            <input type="url" id="featured_image" name="featured_image" placeholder="https://example.com/image.jpg">
+            <small>Enter the URL of the featured image</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="category">Category</label>
+            <input type="text" id="category" name="category" placeholder="e.g., News, Updates, Match Preview">
+        </div>
+        
+        <div class="form-group">
+            <label for="excerpt">Excerpt (Short Description)</label>
+            <textarea id="excerpt" name="excerpt" rows="2" placeholder="Brief description for sidebar display"></textarea>
+        </div>
+        
+        <div class="form-group full-width">
+            <label for="content">Content</label>
+            <textarea id="content" name="content" rows="12" placeholder="Full post content (HTML supported)"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="meta_title">Meta Title (SEO)</label>
+            <input type="text" id="meta_title" name="meta_title" placeholder="SEO title for search engines">
+        </div>
+        
+        <div class="form-group">
+            <label for="meta_description">Meta Description (SEO)</label>
+            <textarea id="meta_description" name="meta_description" rows="2" placeholder="SEO description for search engines"></textarea>
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" name="is_published" checked>
+                <span>Publish immediately</span>
+            </label>
+        </div>
+        
+        <div class="form-actions full-width">
+            <button type="submit" class="btn btn-primary">Create Post</button>
+            <a href="{{ url_for('admin_posts') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+.form-grid .full-width {
+    grid-column: 1 / -1;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+.form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+.form-group small {
+    color: #666;
+    font-size: 12px;
+}
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+</style>
+{% endblock %}

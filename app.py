@@ -242,6 +242,23 @@ def init_db():
         )
     ''')
     
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS posts (
+            id SERIAL PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            slug VARCHAR(255) UNIQUE NOT NULL,
+            featured_image TEXT,
+            excerpt TEXT,
+            content TEXT,
+            category VARCHAR(100),
+            meta_title VARCHAR(255),
+            meta_description TEXT,
+            is_published BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     try:
         cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS team_type VARCHAR(50) DEFAULT \'international\'')
         cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS flag_url TEXT')
@@ -461,6 +478,9 @@ def index():
     upcoming_matches = upcoming_matches[:15]
     has_more_recent = len(recent_matches) > 10
     
+    cur.execute('SELECT id, title, slug, featured_image, excerpt FROM posts WHERE is_published = TRUE ORDER BY created_at DESC LIMIT 10')
+    sidebar_posts = cur.fetchall()
+    
     cur.close()
     conn.close()
     
@@ -471,7 +491,8 @@ def index():
                           live_matches=live_matches,
                           recent_matches=initial_recent,
                           upcoming_matches=upcoming_matches,
-                          has_more_recent=has_more_recent)
+                          has_more_recent=has_more_recent,
+                          sidebar_posts=sidebar_posts)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -1090,6 +1111,121 @@ def admin_edit_team(team_id):
     
     sidebar = get_sidebar_data()
     return render_template('admin/edit_team.html', team=team, sidebar=sidebar)
+
+@app.route('/admin/posts')
+@login_required
+def admin_posts():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM posts ORDER BY created_at DESC')
+    posts = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/posts.html', posts=posts, sidebar=sidebar)
+
+@app.route('/admin/posts/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_post():
+    if request.method == 'POST':
+        title = request.form.get('title')
+        base_slug = slugify(title)
+        featured_image = request.form.get('featured_image')
+        excerpt = request.form.get('excerpt')
+        content = request.form.get('content')
+        category = request.form.get('category')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        is_published = request.form.get('is_published') == 'on'
+        
+        conn = get_db()
+        cur = conn.cursor()
+        
+        slug = base_slug
+        counter = 1
+        while True:
+            cur.execute('SELECT id FROM posts WHERE slug = %s', (slug,))
+            if not cur.fetchone():
+                break
+            slug = f"{base_slug}-{counter}"
+            counter += 1
+        
+        cur.execute('''
+            INSERT INTO posts (title, slug, featured_image, excerpt, content, category, meta_title, meta_description, is_published)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (title, slug, featured_image, excerpt, content, category, meta_title, meta_description, is_published))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash('Post created successfully', 'success')
+        return redirect(url_for('admin_posts'))
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/add_post.html', sidebar=sidebar)
+
+@app.route('/admin/posts/edit/<int:post_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_post(post_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        featured_image = request.form.get('featured_image')
+        excerpt = request.form.get('excerpt')
+        content = request.form.get('content')
+        category = request.form.get('category')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        is_published = request.form.get('is_published') == 'on'
+        
+        cur.execute('''
+            UPDATE posts SET title=%s, featured_image=%s, excerpt=%s, content=%s, category=%s, 
+            meta_title=%s, meta_description=%s, is_published=%s, updated_at=CURRENT_TIMESTAMP
+            WHERE id=%s
+        ''', (title, featured_image, excerpt, content, category, meta_title, meta_description, is_published, post_id))
+        conn.commit()
+        flash('Post updated successfully', 'success')
+    
+    cur.execute('SELECT * FROM posts WHERE id = %s', (post_id,))
+    post = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/edit_post.html', post=post, sidebar=sidebar)
+
+@app.route('/admin/posts/delete/<int:post_id>', methods=['POST'])
+@login_required
+def admin_delete_post(post_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM posts WHERE id = %s', (post_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Post deleted successfully', 'success')
+    return redirect(url_for('admin_posts'))
+
+@app.route('/post/<slug>')
+def view_post(slug):
+    settings = get_site_settings()
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM posts WHERE slug = %s AND is_published = TRUE', (slug,))
+    post = cur.fetchone()
+    
+    if not post:
+        cur.close()
+        conn.close()
+        return "Post not found", 404
+    
+    cur.execute('SELECT id, title, slug, featured_image FROM posts WHERE is_published = TRUE AND id != %s ORDER BY created_at DESC LIMIT 5', (post['id'],))
+    related_posts = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    return render_template('frontend/post.html', post=post, related_posts=related_posts, settings=settings)
 
 @app.route('/admin/teams/delete/<int:team_id>', methods=['POST'])
 @login_required

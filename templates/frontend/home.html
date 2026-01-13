@@ -13,22 +13,23 @@
 </section>
 
 <div class="container">
-    <section class="matches-section">
-        <div class="match-tabs">
-            <button class="match-tab active" onclick="showMatchTab('live')">Live</button>
-            <button class="match-tab" onclick="showMatchTab('recent')">Recent</button>
-            <button class="match-tab" onclick="showMatchTab('upcoming')">Upcoming</button>
-        </div>
-        
-        <div id="live" class="match-tab-content active">
-            <div class="matches-list" id="live-matches-list">
-                <div class="no-matches" id="no-live-matches">
-                    <div class="no-match-icon">🏏</div>
-                    <p>No live matches at the moment</p>
-                    <span>Check Recent or Upcoming matches</span>
+    <div class="home-layout">
+        <section class="matches-section">
+            <div class="match-tabs">
+                <button class="match-tab active" onclick="showMatchTab('live')">Live</button>
+                <button class="match-tab" onclick="showMatchTab('recent')">Recent</button>
+                <button class="match-tab" onclick="showMatchTab('upcoming')">Upcoming</button>
+            </div>
+            
+            <div id="live" class="match-tab-content active">
+                <div class="matches-list" id="live-matches-list">
+                    <div class="no-matches" id="no-live-matches">
+                        <div class="no-match-icon">🏏</div>
+                        <p>No live matches at the moment</p>
+                        <span>Check Recent or Upcoming matches</span>
+                    </div>
                 </div>
             </div>
-        </div>
         
         <div id="recent" class="match-tab-content">
             <div class="matches-list" id="recent-matches-list">
@@ -127,7 +128,30 @@
                 {% endif %}
             </div>
         </div>
-    </section>
+        </section>
+        
+        <aside class="posts-sidebar">
+            <h3 class="sidebar-title">Latest Posts</h3>
+            <div class="sidebar-posts">
+                {% if sidebar_posts %}
+                    {% for post in sidebar_posts %}
+                    <a href="/post/{{ post.slug }}" class="sidebar-post-item">
+                        {% if post.featured_image %}
+                        <img src="{{ post.featured_image }}" alt="{{ post.title }}" class="sidebar-post-img">
+                        {% else %}
+                        <div class="sidebar-post-img no-image"></div>
+                        {% endif %}
+                        <span class="sidebar-post-title">{{ post.title }}</span>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                <div class="no-posts">
+                    <p>No posts yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </aside>
+    </div>
     
     <section style="margin-top: 40px;">
         <h2 class="section-title">Popular Matchups</h2>
@@ -221,8 +245,92 @@ function showMatchTab(tabId) {
 
 {% block extra_css %}
 <style>
+    .home-layout {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 25px;
+        margin-top: 20px;
+    }
+    
+    .posts-sidebar {
+        background: #fff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        height: fit-content;
+        position: sticky;
+        top: 80px;
+    }
+    
+    .sidebar-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: #1a1a2e;
+        margin: 0 0 15px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #046a38;
+    }
+    
+    .sidebar-posts {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .sidebar-post-item {
+        display: flex;
+        gap: 10px;
+        text-decoration: none;
+        color: #333;
+        padding: 8px;
+        border-radius: 8px;
+        transition: background 0.2s;
+    }
+    
+    .sidebar-post-item:hover {
+        background: #f5f5f5;
+    }
+    
+    .sidebar-post-img {
+        width: 70px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+    
+    .sidebar-post-img.no-image {
+        background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
+    }
+    
+    .sidebar-post-title {
+        font-size: 13px;
+        font-weight: 500;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .no-posts {
+        text-align: center;
+        padding: 20px;
+        color: #999;
+    }
+    
+    @media (max-width: 900px) {
+        .home-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .posts-sidebar {
+            position: static;
+            order: 2;
+        }
+    }
+    
     .matches-section {
-        margin-top: 30px;
         background: #fff;
         border-radius: 12px;
         padding: 25px;
