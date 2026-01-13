@@ -361,12 +361,13 @@ def scrape_scorecard(url):
     
     soup = BeautifulSoup(html, 'html.parser')
     scorecard_html = ''
+    match_header_html = ''
     team_scores = []
     
     title = soup.find('title')
     if title:
         title_text = title.get_text(strip=True).replace('Cricket scorecard | ', '').replace(' | Cricbuzz.com', '')
-        scorecard_html += f'<div class="match-header"><h2>{title_text}</h2></div>'
+        match_header_html = f'<div class="match-header"><h2>{title_text}</h2></div>'
     
     status_div = soup.find('div', class_='text-cbComplete')
     status_text = status_div.get_text(strip=True) if status_div else ''
@@ -493,7 +494,7 @@ def scrape_scorecard(url):
     if not scorecard_html or '<table' not in scorecard_html:
         scorecard_html = '<p class="no-data">Scorecard data not available. Match may not have started yet or the page structure has changed.</p>'
     else:
-        scorecard_html = match_summary + '<div class="scorecard-data">' + scorecard_html + '</div>'
+        scorecard_html = match_header_html + match_summary + '<div class="scorecard-data">' + scorecard_html + '</div>'
     
     return {'success': True, 'html': scorecard_html, 'final_score': final_score, 'is_live': is_live, 'status_text': status_text}
 
