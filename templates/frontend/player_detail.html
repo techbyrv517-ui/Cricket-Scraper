@@ -37,72 +37,76 @@
     </section>
     {% endif %}
     
-    {% if player.batting_stats %}
-    <section class="stats-section">
-        <h2>Batting Career Summary</h2>
-        <div class="stats-table-wrapper">
-            <table class="stats-table vertical-stats">
-                <thead>
-                    <tr>
-                        <th></th>
-                        {% for format in player.batting_stats.keys() %}
-                        <th>{{ format }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Matches</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Matches', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Innings</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Innings', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Runs</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Runs', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Balls</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Balls', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Highest</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Highest', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Average</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Average', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>SR</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('SR', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Not Out</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Not Out', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Fours</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Fours', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Sixes</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Sixes', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Ducks</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Ducks', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>50s</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('50s', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>100s</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('100s', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>200s</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('200s', '-') }}</td>{% endfor %}</tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-    {% endif %}
-    
-    {% if player.bowling_stats %}
-    <section class="stats-section">
-        <h2>Bowling Career Summary</h2>
-        <div class="stats-table-wrapper">
-            <table class="stats-table vertical-stats">
-                <thead>
-                    <tr>
-                        <th></th>
-                        {% for format in player.bowling_stats.keys() %}
-                        <th>{{ format }}</th>
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Matches</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Matches', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Innings</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Innings', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Balls</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Balls', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Runs</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Runs', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Wickets</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Wickets', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Maidens</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Maidens', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Avg</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Avg', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>Eco</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Eco', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>SR</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('SR', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>BBI</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('BBI', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>BBM</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('BBM', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>4w</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('4w', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>5w</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('5w', '-') }}</td>{% endfor %}</tr>
-                    <tr><td>10w</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('10w', '-') }}</td>{% endfor %}</tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
+    {% if player.batting_stats or player.bowling_stats %}
+    <div class="career-stats-row">
+        {% if player.batting_stats %}
+        <section class="stats-section stats-half">
+            <h2>Batting Career Summary</h2>
+            <div class="stats-table-wrapper">
+                <table class="stats-table vertical-stats">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {% for format in player.batting_stats.keys() %}
+                            <th>{{ format }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Matches</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Matches', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Innings</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Innings', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Runs</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Runs', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Balls</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Balls', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Highest</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Highest', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Average</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Average', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>SR</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('SR', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Not Out</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Not Out', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Fours</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Fours', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Sixes</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Sixes', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Ducks</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('Ducks', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>50s</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('50s', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>100s</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('100s', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>200s</td>{% for fmt, stats in player.batting_stats.items() %}<td>{{ stats.get('200s', '-') }}</td>{% endfor %}</tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+        
+        {% if player.bowling_stats %}
+        <section class="stats-section stats-half">
+            <h2>Bowling Career Summary</h2>
+            <div class="stats-table-wrapper">
+                <table class="stats-table vertical-stats">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            {% for format in player.bowling_stats.keys() %}
+                            <th>{{ format }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Matches</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Matches', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Innings</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Innings', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Balls</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Balls', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Runs</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Runs', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Wickets</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Wickets', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Maidens</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Maidens', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Avg</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Avg', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>Eco</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('Eco', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>SR</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('SR', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>BBI</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('BBI', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>BBM</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('BBM', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>4w</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('4w', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>5w</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('5w', '-') }}</td>{% endfor %}</tr>
+                        <tr><td>10w</td>{% for fmt, stats in player.bowling_stats.items() %}<td>{{ stats.get('10w', '-') }}</td>{% endfor %}</tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+    </div>
     {% endif %}
     
     {% if player.career_timeline %}
@@ -198,6 +202,15 @@
     padding: 30px 20px;
 }
 
+.career-stats-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.stats-half {
+    flex: 1;
+    min-width: 300px;
+}
 .stats-section {
     background: #fff;
     border-radius: 12px;
@@ -240,7 +253,9 @@
 .stats-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+}
+.vertical-stats {
+    min-width: auto;
 }
 .stats-table th, .stats-table td {
     padding: 12px 15px;
