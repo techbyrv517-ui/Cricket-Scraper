@@ -71,23 +71,49 @@
     .scorecard-container table {
         width: 100%;
         border-collapse: collapse;
+        border-radius: 8px;
+        overflow: hidden;
     }
     
     .scorecard-container th,
     .scorecard-container td {
-        padding: 10px 12px;
+        padding: 12px 15px;
         text-align: left;
-        border-bottom: 1px solid #eee;
+        border-bottom: 1px solid #e9ecef;
     }
     
     .scorecard-container th {
-        background: #f8f9fa;
+        background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
         font-weight: 600;
-        color: #333;
+        color: #fff;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.5px;
     }
     
-    .scorecard-container tr:hover {
+    .scorecard-container tbody tr:nth-child(even) {
         background: #f8f9fa;
+    }
+    
+    .scorecard-container tbody tr:hover {
+        background: #e8f5e9;
+    }
+    
+    .scorecard-container td:first-child {
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+    
+    .scorecard-container h3, 
+    .scorecard-container h4 {
+        color: #046a38;
+        margin: 20px 0 15px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #046a38;
+    }
+    
+    .scorecard-container h3:first-child {
+        margin-top: 0;
     }
     
     .no-scorecard {
