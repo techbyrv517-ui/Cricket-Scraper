@@ -24,13 +24,30 @@
 
 <div class="player-container">
     {% if player.personal_info %}
-    <section class="stats-section">
+    <section class="stats-section personal-info-section">
         <h2>Personal Information</h2>
-        <div class="info-grid">
+        <div class="personal-info-grid">
             {% for key, value in player.personal_info.items() %}
-            <div class="info-item">
-                <span class="info-label">{{ key }}</span>
-                <span class="info-value">{{ value }}</span>
+            <div class="personal-info-card">
+                <div class="info-icon">
+                    {% if key == 'Born' %}
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    {% elif key == 'Birth Place' %}
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    {% elif key == 'Role' %}
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    {% elif 'Batting' in key %}
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M2.5 3.5L14 15l-3 3 1.5 1.5L16 16l7.5 7.5-1 1L15 17l-3.5 3.5L10 19l3-3L1.5 4.5l1-1z"/></svg>
+                    {% elif 'Bowling' in key %}
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+                    {% else %}
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    {% endif %}
+                </div>
+                <div class="info-content">
+                    <span class="info-label">{{ key }}</span>
+                    <span class="info-value">{{ value }}</span>
+                </div>
             </div>
             {% endfor %}
         </div>
@@ -226,6 +243,54 @@
     border-bottom: 2px solid #f0f0f0;
 }
 
+.personal-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
+}
+.personal-info-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 10px;
+    border-left: 4px solid #00d4aa;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.personal-info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.info-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 50%;
+    color: #00d4aa;
+    flex-shrink: 0;
+}
+.info-content {
+    flex: 1;
+    min-width: 0;
+}
+.info-label {
+    display: block;
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 3px;
+}
+.info-value {
+    font-weight: 600;
+    color: #1a1a2e;
+    font-size: 0.95rem;
+    word-break: break-word;
+}
 .info-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -235,16 +300,6 @@
     padding: 12px;
     background: #f8f9fa;
     border-radius: 8px;
-}
-.info-label {
-    display: block;
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 4px;
-}
-.info-value {
-    font-weight: 600;
-    color: #1a1a2e;
 }
 
 .stats-table-wrapper {
@@ -310,6 +365,28 @@
     .info-grid {
         grid-template-columns: 1fr 1fr;
     }
+    .personal-info-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+    .personal-info-card {
+        padding: 10px;
+        gap: 8px;
+    }
+    .info-icon {
+        width: 32px;
+        height: 32px;
+    }
+    .info-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+    .info-label {
+        font-size: 0.65rem;
+    }
+    .info-value {
+        font-size: 0.8rem;
+    }
     .career-stats-row {
         flex-direction: column;
     }
@@ -355,6 +432,19 @@
     .stats-section {
         padding: 10px;
         margin-bottom: 15px;
+    }
+    .personal-info-grid {
+        grid-template-columns: 1fr;
+    }
+    .personal-info-card {
+        padding: 12px;
+    }
+    .info-icon {
+        width: 36px;
+        height: 36px;
+    }
+    .info-value {
+        font-size: 0.85rem;
     }
 }
 </style>
