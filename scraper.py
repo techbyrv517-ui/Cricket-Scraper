@@ -194,8 +194,22 @@ def scrape_matches_from_series(series_id):
                 if alias in match_slug_lower:
                     return True
         
-        if 'icc' in series_name_lower or 'world cup' in series_name_lower or 'league' in series_name_lower:
-            return True
+        series_keywords = []
+        series_words = series_name_lower.replace('-', ' ').split()
+        for word in series_words:
+            if len(word) > 2 and word not in ['the', 'and', 'for', 'tour', 'series', 'match', 'cricket', 'league', 'cup', 'trophy']:
+                series_keywords.append(word)
+        
+        if series_keywords:
+            for keyword in series_keywords:
+                if keyword in match_slug_lower:
+                    return True
+        
+        if series_slug:
+            series_slug_words = series_slug.lower().replace('-', ' ').split()
+            for word in series_slug_words:
+                if len(word) > 2 and word in match_slug_lower:
+                    return True
         
         return False
     
