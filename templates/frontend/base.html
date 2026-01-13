@@ -46,17 +46,21 @@
         }
         
         .header {
-            background: var(--accent);
+            background: #f5f5f5;
             padding: 0;
             position: sticky;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
         .header-main {
-            background: var(--primary);
+            background: #f5f5f5;
             padding: 0;
+        }
+        
+        .header-main .container {
+            background: var(--primary);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
         .container {
@@ -123,12 +127,13 @@
         }
         
         .nav-sub {
-            background: #2d3e50;
-            border-bottom: 1px solid #3d4e60;
+            background: #f5f5f5;
         }
         
         .nav-sub .container {
+            background: var(--accent);
             padding: 0 40px;
+            border-bottom: 1px solid #3d4e60;
         }
         
         .nav-sub ul {
