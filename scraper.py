@@ -36,38 +36,65 @@ def scrape_series_data():
     conn = get_db()
     cur = conn.cursor()
     
-    series_links = soup.find_all('a', href=re.compile(r'/cricket-series/\d+/'))
+    month_divs = soup.find_all('div', class_=re.compile(r'w-4/12.*font-bold'))
     
-    for link in series_links:
-        href = link.get('href', '')
+    for month_div in month_divs:
+        month_text = month_div.get_text(strip=True).lower()
         
-        if not href or '/matches' in href:
+        parts = month_text.split()
+        if len(parts) >= 2:
+            series_month = parts[0].capitalize()
+            series_year = parts[1]
+        else:
+            series_month = 'January'
+            series_year = '2026'
+        
+        parent_row = month_div.parent
+        if not parent_row:
             continue
         
-        if href in processed_urls:
+        series_container = parent_row.find('div', class_='w-full')
+        if not series_container:
             continue
-        processed_urls.add(href)
         
-        series_url = f"https://www.cricbuzz.com{href}/matches"
+        series_links = series_container.find_all('a', href=re.compile(r'/cricket-series/\d+/'))
         
-        series_name = link.get_text(strip=True)
-        
-        year_match = re.search(r'20(2[4-9]|3[0-9])', href)
-        series_year = '20' + year_match.group(1) if year_match else '2026'
-        
-        series_month = 'January'
-        
-        series_id_match = re.search(r'/cricket-series/(\d+)/', href)
-        cricbuzz_series_id = series_id_match.group(1) if series_id_match else ''
-        
-        if series_name and len(series_name) > 2:
-            cur.execute('SELECT id FROM series WHERE series_url = %s', (series_url,))
-            if cur.fetchone() is None:
-                cur.execute(
-                    'INSERT INTO series (series_id, month, year, series_name, date_range, series_url) VALUES (%s, %s, %s, %s, %s, %s)',
-                    (cricbuzz_series_id, series_month, series_year, series_name, '', series_url)
-                )
-                series_count += 1
+        for link in series_links:
+            href = link.get('href', '')
+            
+            if not href:
+                continue
+            
+            if href in processed_urls:
+                continue
+            processed_urls.add(href)
+            
+            if '/matches' in href:
+                series_url = f"https://www.cricbuzz.com{href}"
+            else:
+                series_url = f"https://www.cricbuzz.com{href}/matches"
+            
+            full_text = link.get_text(strip=True)
+            
+            date_match = re.search(r'([A-Z][a-z]{2}\s*\d{1,2}\s*-\s*[A-Z][a-z]{2}\s*\d{1,2})', full_text)
+            if date_match:
+                date_range = date_match.group(1)
+                series_name = full_text.replace(date_match.group(0), '').strip()
+            else:
+                date_range = ''
+                series_name = full_text
+            
+            series_id_match = re.search(r'/cricket-series/(\d+)/', href)
+            cricbuzz_series_id = series_id_match.group(1) if series_id_match else ''
+            
+            if series_name and len(series_name) > 2:
+                cur.execute('SELECT id FROM series WHERE series_url = %s', (series_url,))
+                if cur.fetchone() is None:
+                    cur.execute(
+                        'INSERT INTO series (series_id, month, year, series_name, date_range, series_url) VALUES (%s, %s, %s, %s, %s, %s)',
+                        (cricbuzz_series_id, series_month, series_year, series_name, date_range, series_url)
+                    )
+                    series_count += 1
     
     conn.commit()
     cur.close()
