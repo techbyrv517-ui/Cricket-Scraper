@@ -234,13 +234,17 @@ def scrape_matches_from_series(series_id):
             match_title = link.get_text(strip=True)
         
         match_date = ''
-        parent = link.parent
-        while parent and parent.name != 'body':
-            date_elem = parent.find(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),'))
-            if date_elem:
-                match_date = date_elem.strip()
-                break
-            parent = parent.parent
+        date_elem = link.find_previous(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*[A-Za-z]+\s*\d+'))
+        if date_elem:
+            match_date = date_elem.strip()
+        else:
+            parent = link.parent
+            while parent and parent.name != 'body':
+                date_text = parent.find(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),'))
+                if date_text:
+                    match_date = date_text.strip()
+                    break
+                parent = parent.parent
         
         match_url = f"https://www.cricbuzz.com{href}"
         
