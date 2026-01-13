@@ -1,0 +1,282 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}{{ player.name }} - {{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}
+
+{% block meta_description %}{{ player.name }} career statistics, batting and bowling records. View complete profile and performance stats.{% endblock %}
+
+{% block content %}
+<div class="player-hero">
+    <div class="player-hero-content">
+        {% if player.image_url %}
+        <img src="{{ player.image_url }}" alt="{{ player.name }}" class="player-avatar">
+        {% else %}
+        <div class="player-avatar-placeholder">{{ player.name[:2]|upper }}</div>
+        {% endif %}
+        <div class="player-info">
+            <h1>{{ player.name }}</h1>
+            <p class="player-role">{{ player.role or 'Cricketer' }}</p>
+            {% if player.team_name %}
+            <a href="/team/{{ player.team_slug }}" class="player-team">{{ player.team_name }}</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="player-container">
+    {% if player.personal_info %}
+    <section class="stats-section">
+        <h2>Personal Information</h2>
+        <div class="info-grid">
+            {% for key, value in player.personal_info.items() %}
+            <div class="info-item">
+                <span class="info-label">{{ key }}</span>
+                <span class="info-value">{{ value }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if player.batting_stats %}
+    <section class="stats-section">
+        <h2>Batting Career</h2>
+        <div class="stats-table-wrapper">
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Mat</th>
+                        <th>Inns</th>
+                        <th>Runs</th>
+                        <th>HS</th>
+                        <th>Avg</th>
+                        <th>SR</th>
+                        <th>100s</th>
+                        <th>50s</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for format, stats in player.batting_stats.items() %}
+                    <tr>
+                        <td><strong>{{ format }}</strong></td>
+                        <td>{{ stats.get('Mat', '-') }}</td>
+                        <td>{{ stats.get('Inns', '-') }}</td>
+                        <td>{{ stats.get('Runs', '-') }}</td>
+                        <td>{{ stats.get('HS', '-') }}</td>
+                        <td>{{ stats.get('Avg', '-') }}</td>
+                        <td>{{ stats.get('SR', '-') }}</td>
+                        <td>{{ stats.get('100s', '-') }}</td>
+                        <td>{{ stats.get('50s', '-') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if player.bowling_stats %}
+    <section class="stats-section">
+        <h2>Bowling Career</h2>
+        <div class="stats-table-wrapper">
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Mat</th>
+                        <th>Inns</th>
+                        <th>Wkts</th>
+                        <th>BBI</th>
+                        <th>Avg</th>
+                        <th>Econ</th>
+                        <th>SR</th>
+                        <th>5W</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for format, stats in player.bowling_stats.items() %}
+                    <tr>
+                        <td><strong>{{ format }}</strong></td>
+                        <td>{{ stats.get('Mat', '-') }}</td>
+                        <td>{{ stats.get('Inns', '-') }}</td>
+                        <td>{{ stats.get('Wkts', '-') }}</td>
+                        <td>{{ stats.get('BBI', '-') }}</td>
+                        <td>{{ stats.get('Avg', '-') }}</td>
+                        <td>{{ stats.get('Econ', '-') }}</td>
+                        <td>{{ stats.get('SR', '-') }}</td>
+                        <td>{{ stats.get('5W', '-') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+    
+    {% if not player.batting_stats and not player.bowling_stats and not player.personal_info %}
+    <div class="no-stats">
+        <div class="no-stats-icon">📊</div>
+        <h3>Profile Not Available</h3>
+        <p>Career statistics for {{ player.name }} are not available yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.player-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 50px 20px;
+}
+.player-hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+.player-avatar {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(255,255,255,0.2);
+}
+.player-avatar-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3498db, #9b59b6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #fff;
+    border: 4px solid rgba(255,255,255,0.2);
+}
+.player-info h1 {
+    color: #fff;
+    font-size: 2.2rem;
+    margin-bottom: 10px;
+}
+.player-role {
+    color: #00d4aa;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+.player-team {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 1rem;
+}
+.player-team:hover {
+    color: #fff;
+}
+
+.player-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.stats-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.stats-section h2 {
+    color: #1a1a2e;
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+.info-item {
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+.info-label {
+    display: block;
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 4px;
+}
+.info-value {
+    font-weight: 600;
+    color: #1a1a2e;
+}
+
+.stats-table-wrapper {
+    overflow-x: auto;
+}
+.stats-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+.stats-table th, .stats-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid #e9ecef;
+}
+.stats-table th {
+    background: #f8f9fa;
+    color: #1a1a2e;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.stats-table td:first-child {
+    text-align: left;
+}
+.stats-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.no-stats {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+}
+.no-stats-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+.no-stats h3 {
+    color: #1a1a2e;
+    margin-bottom: 10px;
+}
+.no-stats p {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .player-hero-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    .player-avatar, .player-avatar-placeholder {
+        width: 120px;
+        height: 120px;
+        font-size: 2.5rem;
+    }
+    .player-info h1 {
+        font-size: 1.8rem;
+    }
+    .info-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+</style>
+{% endblock %}

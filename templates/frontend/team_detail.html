@@ -35,7 +35,7 @@
             </div>
             <div class="players-grid">
                 {% for player in players_list %}
-                <div class="player-card">
+                <a href="/player/{{ player.slug }}" class="player-card">
                     {% if player.image_url %}
                     <img src="{{ player.image_url }}" alt="{{ player.name }}" class="player-img">
                     {% else %}
@@ -45,7 +45,7 @@
                     {% endif %}
                     <div class="player-name">{{ player.name }}</div>
                     <span class="role-badge" style="background: {{ role_colors[role] }}">{{ role }}</span>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </section>
@@ -143,12 +143,15 @@
     gap: 20px;
 }
 .player-card {
+    display: block;
+    text-decoration: none;
     background: #fff;
     border-radius: 12px;
     padding: 20px 15px;
     text-align: center;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
 }
 .player-card:hover {
     transform: translateY(-5px);

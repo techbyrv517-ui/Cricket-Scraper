@@ -1519,6 +1519,25 @@ def team_detail_page(slug):
     settings = get_site_settings()
     return render_template('frontend/team_detail.html', team=team, players_by_role=players_by_role, settings=settings)
 
+@app.route('/player/<slug>')
+def player_detail_page(slug):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT p.*, t.name as team_name, t.slug as team_slug FROM players p LEFT JOIN teams t ON p.team_id = t.id WHERE p.slug = %s', (slug,))
+    player = cur.fetchone()
+    
+    if not player:
+        cur.close()
+        conn.close()
+        return "Player not found", 404
+    
+    cur.close()
+    conn.close()
+    
+    settings = get_site_settings()
+    return render_template('frontend/player_detail.html', player=player, settings=settings)
+
 @app.route('/cricket-teams')
 @app.route('/teams')
 def teams_page():
