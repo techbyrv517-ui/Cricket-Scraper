@@ -107,6 +107,33 @@
             background: var(--secondary);
         }
         
+        .nav-sub {
+            background: #2d3e50;
+            border-bottom: 1px solid #3d4e60;
+        }
+        
+        .nav-sub ul {
+            list-style: none;
+            display: flex;
+            gap: 0;
+        }
+        
+        .nav-sub li a {
+            display: block;
+            padding: 10px 18px;
+            color: #ccc;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 400;
+            transition: all 0.3s;
+        }
+        
+        .nav-sub li a:hover,
+        .nav-sub li a.active {
+            color: #fff;
+            background: var(--primary);
+        }
+        
         .main-content {
             padding: 20px 0;
             min-height: calc(100vh - 300px);
@@ -226,13 +253,20 @@
         <nav class="nav-main">
             <div class="container">
                 <ul>
+                    <li><a href="/" class="active">Live Scores</a></li>
+                    <li><a href="/teams">Teams</a></li>
+                    <li><a href="/series">Series</a></li>
+                </ul>
+            </div>
+        </nav>
+        <nav class="nav-sub">
+            <div class="container">
+                <ul>
                     <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
-                    <li><a href="/match/india-vs-pakistan">IND vs PAK</a></li>
-                    <li><a href="/match/india-vs-australia">IND vs AUS</a></li>
-                    <li><a href="/match/india-vs-england">IND vs ENG</a></li>
-                    <li><a href="/match/india-vs-new-zealand">IND vs NZ</a></li>
-                    <li><a href="/page/about">About</a></li>
-                    <li><a href="/page/contact">Contact</a></li>
+                    <li><a href="/match/india-vs-pakistan" class="{% if 'india-vs-pakistan' in request.path %}active{% endif %}">IND vs PAK</a></li>
+                    <li><a href="/match/india-vs-australia" class="{% if 'india-vs-australia' in request.path %}active{% endif %}">IND vs AUS</a></li>
+                    <li><a href="/match/india-vs-england" class="{% if 'india-vs-england' in request.path %}active{% endif %}">IND vs ENG</a></li>
+                    <li><a href="/match/india-vs-new-zealand" class="{% if 'india-vs-new-zealand' in request.path %}active{% endif %}">IND vs NZ</a></li>
                 </ul>
             </div>
         </nav>
