@@ -799,11 +799,34 @@ def scrape_player_profile(player_id):
     batting_stats = {k: v for k, v in batting_stats.items() if v}
     bowling_stats = {k: v for k, v in bowling_stats.items() if v}
     
+    career_timeline = []
+    timeline_div = soup.find('div', string=re.compile(r'Career Timeline', re.I))
+    if timeline_div:
+        timeline_container = timeline_div.find_parent('div', class_=re.compile(r'.*bg-white.*'))
+        if timeline_container:
+            timeline_rows = timeline_container.find_all('div', class_=re.compile(r'grid.*grid-cols-12.*border-b.*'))
+            for row in timeline_rows:
+                cols = row.find_all(['div', 'a'])
+                if len(cols) >= 3:
+                    format_div = row.find('div', class_=re.compile(r'.*uppercase.*'))
+                    if format_div:
+                        format_name = format_div.get_text(strip=True).upper()
+                        debut_link = cols[1] if len(cols) > 1 else None
+                        last_link = cols[2] if len(cols) > 2 else None
+                        debut_text = debut_link.get_text(strip=True) if debut_link else ''
+                        last_text = last_link.get_text(strip=True) if last_link else ''
+                        if format_name and (debut_text or last_text):
+                            career_timeline.append({
+                                'format': format_name,
+                                'debut': debut_text,
+                                'last_match': last_text
+                            })
+    
     cur.execute('''
         UPDATE players 
-        SET personal_info = %s, batting_stats = %s, bowling_stats = %s, profile_scraped = TRUE
+        SET personal_info = %s, batting_stats = %s, bowling_stats = %s, career_timeline = %s, profile_scraped = TRUE
         WHERE id = %s
-    ''', (json.dumps(personal_info), json.dumps(batting_stats), json.dumps(bowling_stats), player_id))
+    ''', (json.dumps(personal_info), json.dumps(batting_stats), json.dumps(bowling_stats), json.dumps(career_timeline), player_id))
     
     conn.commit()
     cur.close()

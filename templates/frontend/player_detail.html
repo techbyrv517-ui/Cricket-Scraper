@@ -137,6 +137,32 @@
     </section>
     {% endif %}
     
+    {% if player.career_timeline %}
+    <section class="stats-section">
+        <h2>Career Timeline</h2>
+        <div class="stats-table-wrapper">
+            <table class="stats-table">
+                <thead>
+                    <tr>
+                        <th>Format</th>
+                        <th>Debut</th>
+                        <th>Last Match</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in player.career_timeline %}
+                    <tr>
+                        <td><strong>{{ entry.format }}</strong></td>
+                        <td>{{ entry.debut }}</td>
+                        <td>{{ entry.last_match }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+    
     {% if not player.batting_stats and not player.bowling_stats and not player.personal_info %}
     <div class="no-stats">
         <div class="no-stats-icon">📊</div>
