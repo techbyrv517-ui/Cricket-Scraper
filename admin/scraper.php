@@ -10,8 +10,13 @@ function scrapeSeriesData() {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, [
+        'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language: en-US,en;q=0.5',
+        'Connection: keep-alive',
+    ]);
     
     $html = curl_exec($ch);
     
@@ -25,54 +30,42 @@ function scrapeSeriesData() {
         return ['success' => false, 'message' => 'Empty response from website'];
     }
     
-    $dom = new DOMDocument();
-    @$dom->loadHTML($html);
-    $xpath = new DOMXPath($dom);
-    
     $seriesCount = 0;
-    $currentMonth = '';
-    $currentYear = '';
     
-    $scheduleItems = $xpath->query("//div[contains(@class, 'cb-col-100')]");
+    preg_match_all('/<a[^>]*href="(\/cricket-series\/\d+\/[^"]+)"[^>]*>([^<]+)<\/a>/i', $html, $matches, PREG_SET_ORDER);
     
-    foreach($scheduleItems as $item) {
-        $monthHeader = $xpath->query(".//div[contains(@class, 'cb-lv-grn-strip')]", $item);
-        if($monthHeader->length > 0) {
-            $monthText = trim($monthHeader->item(0)->textContent);
-            $parts = explode(' ', $monthText);
-            if(count($parts) >= 2) {
-                $currentMonth = $parts[0];
-                $currentYear = $parts[1];
-            }
+    $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    preg_match_all('/(' . implode('|', $months) . ')\s+(\d{4})/', $html, $monthMatches);
+    
+    $currentMonth = !empty($monthMatches[1]) ? $monthMatches[1][0] : date('F');
+    $currentYear = !empty($monthMatches[2]) ? $monthMatches[2][0] : date('Y');
+    
+    $processedUrls = [];
+    
+    foreach($matches as $m) {
+        $seriesUrlPath = $m[1];
+        $seriesName = trim($m[2]);
+        
+        if(empty($seriesName) || strlen($seriesName) < 3) continue;
+        
+        $baseUrl = preg_replace('/\/matches$/', '', $seriesUrlPath);
+        if(isset($processedUrls[$baseUrl])) continue;
+        $processedUrls[$baseUrl] = true;
+        
+        $seriesUrl = "https://www.cricbuzz.com" . $seriesUrlPath;
+        if(strpos($seriesUrl, '/matches') === false) {
+            $seriesUrl = rtrim($seriesUrl, '/') . '/matches';
         }
         
-        $seriesLinks = $xpath->query(".//a[contains(@href, '/cricket-series/')]", $item);
+        $dateRange = '';
         
-        foreach($seriesLinks as $link) {
-            $seriesName = trim($link->textContent);
-            $seriesUrl = "https://www.cricbuzz.com" . $link->getAttribute('href');
-            
-            if(strpos($seriesUrl, '/matches') === false) {
-                $seriesUrl = rtrim($seriesUrl, '/') . '/matches';
-            }
-            
-            $parent = $link->parentNode;
-            $dateRange = '';
-            $dateSpan = $xpath->query(".//span[contains(@class, 'cb-font-12')]", $parent);
-            if($dateSpan->length > 0) {
-                $dateRange = trim($dateSpan->item(0)->textContent);
-            }
-            
-            if(!empty($seriesName) && !empty($currentMonth)) {
-                $checkStmt = $pdo->prepare("SELECT id FROM series WHERE series_name = ? AND month = ? AND year = ?");
-                $checkStmt->execute([$seriesName, $currentMonth, $currentYear]);
-                
-                if($checkStmt->rowCount() == 0) {
-                    $stmt = $pdo->prepare("INSERT INTO series (month, year, series_name, date_range, series_url) VALUES (?, ?, ?, ?, ?)");
-                    $stmt->execute([$currentMonth, $currentYear, $seriesName, $dateRange, $seriesUrl]);
-                    $seriesCount++;
-                }
-            }
+        $checkStmt = $pdo->prepare("SELECT id FROM series WHERE series_name = ?");
+        $checkStmt->execute([$seriesName]);
+        
+        if($checkStmt->rowCount() == 0) {
+            $stmt = $pdo->prepare("INSERT INTO series (month, year, series_name, date_range, series_url) VALUES (?, ?, ?, ?, ?)");
+            $stmt->execute([$currentMonth, $currentYear, $seriesName, $dateRange, $seriesUrl]);
+            $seriesCount++;
         }
     }
     
@@ -96,7 +89,7 @@ function scrapeMatchesFromSeries($seriesId) {
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+    curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     
     $html = curl_exec($ch);
@@ -106,22 +99,21 @@ function scrapeMatchesFromSeries($seriesId) {
         return ['success' => false, 'message' => 'Empty response from website'];
     }
     
-    $dom = new DOMDocument();
-    @$dom->loadHTML($html);
-    $xpath = new DOMXPath($dom);
-    
     $matchCount = 0;
     
-    $matchLinks = $xpath->query("//a[contains(@href, '/live-cricket-scores/')]");
+    preg_match_all('/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*>([^<]+)<\/a>/i', $html, $matches, PREG_SET_ORDER);
     
-    foreach($matchLinks as $link) {
-        $matchUrl = "https://www.cricbuzz.com" . $link->getAttribute('href');
-        $matchTitle = trim($link->textContent);
+    $processedMatchIds = [];
+    
+    foreach($matches as $m) {
+        $matchUrl = "https://www.cricbuzz.com" . $m[1];
+        $matchId = $m[2];
+        $matchTitle = trim($m[3]);
         
-        preg_match('/\/live-cricket-scores\/(\d+)\//', $matchUrl, $matches);
-        $matchId = isset($matches[1]) ? $matches[1] : '';
+        if(empty($matchId) || isset($processedMatchIds[$matchId])) continue;
+        $processedMatchIds[$matchId] = true;
         
-        if(!empty($matchId) && !empty($matchTitle)) {
+        if(!empty($matchTitle) && strlen($matchTitle) > 2) {
             $checkStmt = $pdo->prepare("SELECT id FROM matches WHERE match_id = ? AND series_id = ?");
             $checkStmt->execute([$matchId, $seriesId]);
             
