@@ -1,0 +1,94 @@
+{% extends 'admin.html' %}
+
+{% block content %}
+<div class="content-header">
+    <h1>Post Categories</h1>
+    <p style="color: #666; margin-top: 5px;">India Matchup Categories for SEO</p>
+</div>
+
+<div class="card">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Short Name</th>
+                <th>Slug</th>
+                <th>Focus Keyword</th>
+                <th>Posts</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <td><strong>{{ cat.name }}</strong></td>
+                <td>{{ cat.short_name }}</td>
+                <td><code>/category/{{ cat.slug }}</code></td>
+                <td>{{ cat.focus_keyword or '-' }}</td>
+                <td>{{ cat.post_count or 0 }}</td>
+                <td>
+                    {% if cat.is_published %}
+                    <span class="badge badge-success">Published</span>
+                    {% else %}
+                    <span class="badge badge-warning">Draft</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{{ url_for('admin_edit_category', cat_id=cat.id) }}" class="btn btn-sm btn-secondary">Edit SEO</a>
+                    <a href="/category/{{ cat.slug }}" target="_blank" class="btn btn-sm btn-info">View</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
+                    No categories found
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+.content-header {
+    margin-bottom: 20px;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.data-table th, .data-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+.data-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+}
+.data-table code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+.badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+.badge-success {
+    background: #d4edda;
+    color: #155724;
+}
+.badge-warning {
+    background: #fff3cd;
+    color: #856404;
+}
+.btn-sm {
+    padding: 4px 10px;
+    font-size: 12px;
+}
+</style>
+{% endblock %}

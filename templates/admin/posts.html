@@ -29,7 +29,7 @@
                     {% endif %}
                 </td>
                 <td><strong>{{ post.title }}</strong></td>
-                <td>{{ post.category or '-' }}</td>
+                <td>{{ post.category_name or '-' }}</td>
                 <td>
                     {% if post.is_published %}
                     <span class="badge badge-success">Published</span>

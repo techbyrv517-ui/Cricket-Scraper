@@ -61,9 +61,21 @@
                         <span class="nav-icon">🏏</span>
                         <span>Teams</span>
                     </a>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-section-title">Posts</span>
                     <a href="{{ url_for('admin_posts') }}" class="nav-item">
                         <span class="nav-icon">📝</span>
-                        <span>Posts</span>
+                        <span>All Posts</span>
+                    </a>
+                    <a href="{{ url_for('admin_add_post') }}" class="nav-item">
+                        <span class="nav-icon">➕</span>
+                        <span>Add New Post</span>
+                    </a>
+                    <a href="{{ url_for('admin_post_categories') }}" class="nav-item">
+                        <span class="nav-icon">📁</span>
+                        <span>Categories</span>
                     </a>
                 </div>
                 

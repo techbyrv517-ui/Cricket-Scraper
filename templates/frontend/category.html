@@ -1,0 +1,289 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}{{ category.meta_title or (category.short_name ~ ' - Live Scores, News & Updates | ' ~ settings.site_name) }}{% endblock %}
+
+{% block meta %}
+<meta name="description" content="{{ category.meta_description or category.description }}">
+<meta name="keywords" content="{{ category.focus_keyword }}, {{ category.short_name }}, live score, cricket news, match updates">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ category.canonical_url or (settings.site_url ~ '/category/' ~ category.slug) }}">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{ category.meta_title or category.short_name }}">
+<meta property="og:description" content="{{ category.meta_description or category.description }}">
+<meta property="og:url" content="{{ settings.site_url }}/category/{{ category.slug }}">
+{% if category.og_image %}
+<meta property="og:image" content="{{ category.og_image }}">
+{% endif %}
+<meta property="og:site_name" content="{{ settings.site_name }}">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ category.meta_title or category.short_name }}">
+<meta name="twitter:description" content="{{ category.meta_description or category.description }}">
+{% if category.og_image %}
+<meta name="twitter:image" content="{{ category.og_image }}">
+{% endif %}
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "{{ category.hero_title or category.short_name }}",
+    "description": "{{ category.meta_description or category.description }}",
+    "url": "{{ settings.site_url }}/category/{{ category.slug }}",
+    "mainEntity": {
+        "@type": "ItemList",
+        "name": "{{ category.short_name }} Articles",
+        "numberOfItems": {{ posts|length }},
+        "itemListElement": [
+            {% for post in posts %}
+            {
+                "@type": "ListItem",
+                "position": {{ loop.index }},
+                "url": "{{ settings.site_url }}/post/{{ post.slug }}",
+                "name": "{{ post.title }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ]
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "{{ settings.site_name }}",
+        "url": "{{ settings.site_url }}"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="category-hero">
+    <div class="hero-content">
+        <h1>{{ category.hero_title or category.short_name }}</h1>
+        <p>{{ category.hero_description or category.description }}</p>
+    </div>
+</div>
+
+<div class="category-container">
+    <div class="main-content">
+        {% if category.content %}
+        <div class="category-intro">
+            {{ category.content|safe }}
+        </div>
+        {% endif %}
+        
+        <div class="posts-section">
+            <h2>Latest {{ category.name }} News & Updates</h2>
+            
+            {% if posts %}
+            <div class="posts-grid">
+                {% for post in posts %}
+                <article class="post-card">
+                    <a href="/post/{{ post.slug }}" class="post-link">
+                        {% if post.featured_image %}
+                        <div class="post-image">
+                            <img src="{{ post.featured_image }}" alt="{{ post.title }}" loading="lazy">
+                        </div>
+                        {% else %}
+                        <div class="post-image post-image-placeholder">
+                            <span>{{ category.name }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="post-content">
+                            <h3>{{ post.title }}</h3>
+                            {% if post.excerpt %}
+                            <p>{{ post.excerpt }}</p>
+                            {% endif %}
+                            <span class="post-date">{{ post.created_at.strftime('%d %b %Y') if post.created_at else '' }}</span>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-posts">
+                <p>No posts yet in this category. Check back soon for updates!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <aside class="category-sidebar">
+        <div class="sidebar-widget">
+            <h3>All Categories</h3>
+            <ul class="category-list">
+                {% for cat in all_categories %}
+                <li class="{{ 'active' if cat.id == category.id else '' }}">
+                    <a href="/category/{{ cat.slug }}">{{ cat.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </aside>
+</div>
+
+<style>
+.category-hero {
+    background: linear-gradient(135deg, var(--primary-color, #046a38) 0%, #023d20 100%);
+    color: white;
+    padding: 60px 40px;
+    margin: 0 auto 30px;
+    max-width: 1200px;
+    border-radius: 8px;
+}
+.hero-content {
+    max-width: 800px;
+}
+.hero-content h1 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+.hero-content p {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    line-height: 1.6;
+}
+.category-container {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px 40px;
+}
+.category-intro {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    line-height: 1.7;
+}
+.posts-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 25px;
+    color: #333;
+}
+.posts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 25px;
+}
+.post-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.post-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+}
+.post-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+.post-image {
+    height: 180px;
+    overflow: hidden;
+}
+.post-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.post-image-placeholder {
+    background: linear-gradient(135deg, #046a38 0%, #023d20 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+.post-content {
+    padding: 20px;
+}
+.post-content h3 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: #333;
+    line-height: 1.4;
+}
+.post-content p {
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+.post-date {
+    color: #999;
+    font-size: 0.8rem;
+}
+.no-posts {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #666;
+}
+.category-sidebar {
+    position: sticky;
+    top: 80px;
+    height: fit-content;
+}
+.sidebar-widget {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.sidebar-widget h3 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 2px solid var(--primary-color, #046a38);
+    padding-bottom: 10px;
+}
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.category-list li {
+    margin-bottom: 8px;
+}
+.category-list li a {
+    display: block;
+    padding: 10px 12px;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+.category-list li a:hover,
+.category-list li.active a {
+    background: var(--primary-color, #046a38);
+    color: white;
+}
+@media (max-width: 900px) {
+    .category-container {
+        grid-template-columns: 1fr;
+        padding: 0 20px 30px;
+    }
+    .category-hero {
+        padding: 40px 20px;
+        margin: 0 20px 20px;
+    }
+    .hero-content h1 {
+        font-size: 1.8rem;
+    }
+    .posts-grid {
+        grid-template-columns: 1fr;
+    }
+    .category-sidebar {
+        position: static;
+    }
+}
+</style>
+{% endblock %}

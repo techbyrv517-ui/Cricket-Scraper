@@ -3,57 +3,98 @@
 {% block content %}
 <div class="content-header">
     <h1>Edit Post</h1>
-    <a href="{{ url_for('admin_posts') }}" class="btn btn-secondary">Back to Posts</a>
+    <div>
+        <a href="/post/{{ post.slug }}" target="_blank" class="btn btn-info">View Post</a>
+        <a href="{{ url_for('admin_posts') }}" class="btn btn-secondary">Back to Posts</a>
+    </div>
 </div>
 
 <div class="card">
-    <form method="POST" class="form-grid">
-        <div class="form-group">
-            <label for="title">Post Title *</label>
-            <input type="text" id="title" name="title" required value="{{ post.title }}" placeholder="Enter post title">
+    <form method="POST" class="post-form">
+        <div class="form-section">
+            <h3>Basic Information</h3>
+            <div class="form-grid">
+                <div class="form-group full-width">
+                    <label for="title">Post Title *</label>
+                    <input type="text" id="title" name="title" required value="{{ post.title }}" placeholder="Enter post title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="category_id">Category *</label>
+                    <select id="category_id" name="category_id" required>
+                        <option value="">Select Category</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {{ 'selected' if post.category_id == cat.id else '' }}>{{ cat.name }} - {{ cat.short_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="featured_image">Featured Image URL</label>
+                    <input type="url" id="featured_image" name="featured_image" value="{{ post.featured_image or '' }}" placeholder="https://example.com/image.jpg">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image }}" alt="Preview" style="max-width: 200px; margin-top: 10px; border-radius: 4px;">
+                    {% endif %}
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="excerpt">Excerpt (Short Description)</label>
+                    <textarea id="excerpt" name="excerpt" rows="2" placeholder="Brief description for sidebar display">{{ post.excerpt or '' }}</textarea>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="content">Content</label>
+                    <textarea id="content" name="content" rows="15" placeholder="Full post content">{{ post.content or '' }}</textarea>
+                </div>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label for="featured_image">Featured Image URL</label>
-            <input type="url" id="featured_image" name="featured_image" value="{{ post.featured_image or '' }}" placeholder="https://example.com/image.jpg">
-            {% if post.featured_image %}
-            <img src="{{ post.featured_image }}" alt="Preview" style="max-width: 200px; margin-top: 10px; border-radius: 4px;">
-            {% endif %}
+        <div class="form-section">
+            <h3>Advanced SEO Settings</h3>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="focus_keyword">Focus Keyword</label>
+                    <input type="text" id="focus_keyword" name="focus_keyword" value="{{ post.focus_keyword or '' }}" placeholder="e.g., India vs Pakistan live score">
+                    <small>Primary keyword to optimize for</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="meta_title">Meta Title (SEO)</label>
+                    <input type="text" id="meta_title" name="meta_title" value="{{ post.meta_title or '' }}" placeholder="SEO title (50-60 chars)" maxlength="70">
+                    <small id="meta_title_count">{{ (post.meta_title|length) if post.meta_title else 0 }}/70 characters</small>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="meta_description">Meta Description (SEO)</label>
+                    <textarea id="meta_description" name="meta_description" rows="2" placeholder="SEO description (150-160 chars)" maxlength="170">{{ post.meta_description or '' }}</textarea>
+                    <small id="meta_desc_count">{{ (post.meta_description|length) if post.meta_description else 0 }}/170 characters</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="canonical_url">Canonical URL</label>
+                    <input type="url" id="canonical_url" name="canonical_url" value="{{ post.canonical_url or '' }}" placeholder="https://cricbuzz-live-score.com/post/your-post">
+                    <small>Leave empty for auto-generated URL</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="og_image">OG Image URL (Social Sharing)</label>
+                    <input type="url" id="og_image" name="og_image" value="{{ post.og_image or '' }}" placeholder="https://example.com/social-image.jpg">
+                    <small>Image for social media (1200x630 recommended)</small>
+                </div>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label for="category">Category</label>
-            <input type="text" id="category" name="category" value="{{ post.category or '' }}" placeholder="e.g., News, Updates">
+        <div class="form-section">
+            <h3>Publishing</h3>
+            <div class="form-group">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="is_published" {{ 'checked' if post.is_published else '' }}>
+                    <span>Published</span>
+                </label>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label for="excerpt">Excerpt (Short Description)</label>
-            <textarea id="excerpt" name="excerpt" rows="2" placeholder="Brief description">{{ post.excerpt or '' }}</textarea>
-        </div>
-        
-        <div class="form-group full-width">
-            <label for="content">Content</label>
-            <textarea id="content" name="content" rows="12" placeholder="Full post content">{{ post.content or '' }}</textarea>
-        </div>
-        
-        <div class="form-group">
-            <label for="meta_title">Meta Title (SEO)</label>
-            <input type="text" id="meta_title" name="meta_title" value="{{ post.meta_title or '' }}" placeholder="SEO title">
-        </div>
-        
-        <div class="form-group">
-            <label for="meta_description">Meta Description (SEO)</label>
-            <textarea id="meta_description" name="meta_description" rows="2" placeholder="SEO description">{{ post.meta_description or '' }}</textarea>
-        </div>
-        
-        <div class="form-group">
-            <label class="checkbox-label">
-                <input type="checkbox" name="is_published" {{ 'checked' if post.is_published else '' }}>
-                <span>Published</span>
-            </label>
-        </div>
-        
-        <div class="form-actions full-width">
+        <div class="form-actions">
             <button type="submit" class="btn btn-primary">Update Post</button>
             <a href="{{ url_for('admin_posts') }}" class="btn btn-secondary">Cancel</a>
         </div>
@@ -61,6 +102,19 @@
 </div>
 
 <style>
+.post-form {
+    max-width: 100%;
+}
+.form-section {
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+.form-section h3 {
+    margin-bottom: 20px;
+    color: #333;
+    font-size: 18px;
+}
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -74,12 +128,22 @@
     margin-bottom: 5px;
     font-weight: 500;
 }
-.form-group input, .form-group textarea {
+.form-group input, .form-group textarea, .form-group select {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
+}
+.form-group select {
+    background: #fff;
+    cursor: pointer;
+}
+.form-group small {
+    color: #666;
+    font-size: 12px;
+    margin-top: 4px;
+    display: block;
 }
 .checkbox-label {
     display: flex;
@@ -90,7 +154,30 @@
 .form-actions {
     display: flex;
     gap: 10px;
-    margin-top: 10px;
+    margin-top: 20px;
+}
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.content-header div {
+    display: flex;
+    gap: 10px;
+}
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
+
+<script>
+document.getElementById('meta_title').addEventListener('input', function() {
+    document.getElementById('meta_title_count').textContent = this.value.length + '/70 characters';
+});
+document.getElementById('meta_description').addEventListener('input', function() {
+    document.getElementById('meta_desc_count').textContent = this.value.length + '/170 characters';
+});
+</script>
 {% endblock %}

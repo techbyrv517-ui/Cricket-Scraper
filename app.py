@@ -1117,7 +1117,12 @@ def admin_edit_team(team_id):
 def admin_posts():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM posts ORDER BY created_at DESC')
+    cur.execute('''
+        SELECT p.*, pc.name as category_name 
+        FROM posts p 
+        LEFT JOIN post_categories pc ON p.category_id = pc.id 
+        ORDER BY p.created_at DESC
+    ''')
     posts = cur.fetchall()
     cur.close()
     conn.close()
@@ -1127,19 +1132,22 @@ def admin_posts():
 @app.route('/admin/posts/add', methods=['GET', 'POST'])
 @login_required
 def admin_add_post():
+    conn = get_db()
+    cur = conn.cursor()
+    
     if request.method == 'POST':
         title = request.form.get('title')
         base_slug = slugify(title)
         featured_image = request.form.get('featured_image')
         excerpt = request.form.get('excerpt')
         content = request.form.get('content')
-        category = request.form.get('category')
+        category_id = request.form.get('category_id')
+        focus_keyword = request.form.get('focus_keyword')
         meta_title = request.form.get('meta_title')
         meta_description = request.form.get('meta_description')
+        canonical_url = request.form.get('canonical_url')
+        og_image = request.form.get('og_image')
         is_published = request.form.get('is_published') == 'on'
-        
-        conn = get_db()
-        cur = conn.cursor()
         
         slug = base_slug
         counter = 1
@@ -1151,17 +1159,21 @@ def admin_add_post():
             counter += 1
         
         cur.execute('''
-            INSERT INTO posts (title, slug, featured_image, excerpt, content, category, meta_title, meta_description, is_published)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        ''', (title, slug, featured_image, excerpt, content, category, meta_title, meta_description, is_published))
+            INSERT INTO posts (title, slug, featured_image, excerpt, content, category_id, focus_keyword, meta_title, meta_description, canonical_url, og_image, is_published)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (title, slug, featured_image, excerpt, content, category_id or None, focus_keyword, meta_title, meta_description, canonical_url, og_image, is_published))
         conn.commit()
         cur.close()
         conn.close()
         flash('Post created successfully', 'success')
         return redirect(url_for('admin_posts'))
     
+    cur.execute('SELECT * FROM post_categories ORDER BY name')
+    categories = cur.fetchall()
+    cur.close()
+    conn.close()
     sidebar = get_sidebar_data()
-    return render_template('admin/add_post.html', sidebar=sidebar)
+    return render_template('admin/add_post.html', categories=categories, sidebar=sidebar)
 
 @app.route('/admin/posts/edit/<int:post_id>', methods=['GET', 'POST'])
 @login_required
@@ -1174,26 +1186,32 @@ def admin_edit_post(post_id):
         featured_image = request.form.get('featured_image')
         excerpt = request.form.get('excerpt')
         content = request.form.get('content')
-        category = request.form.get('category')
+        category_id = request.form.get('category_id')
+        focus_keyword = request.form.get('focus_keyword')
         meta_title = request.form.get('meta_title')
         meta_description = request.form.get('meta_description')
+        canonical_url = request.form.get('canonical_url')
+        og_image = request.form.get('og_image')
         is_published = request.form.get('is_published') == 'on'
         
         cur.execute('''
-            UPDATE posts SET title=%s, featured_image=%s, excerpt=%s, content=%s, category=%s, 
-            meta_title=%s, meta_description=%s, is_published=%s, updated_at=CURRENT_TIMESTAMP
+            UPDATE posts SET title=%s, featured_image=%s, excerpt=%s, content=%s, category_id=%s, 
+            focus_keyword=%s, meta_title=%s, meta_description=%s, canonical_url=%s, og_image=%s,
+            is_published=%s, updated_at=CURRENT_TIMESTAMP
             WHERE id=%s
-        ''', (title, featured_image, excerpt, content, category, meta_title, meta_description, is_published, post_id))
+        ''', (title, featured_image, excerpt, content, category_id or None, focus_keyword, meta_title, meta_description, canonical_url, og_image, is_published, post_id))
         conn.commit()
         flash('Post updated successfully', 'success')
     
     cur.execute('SELECT * FROM posts WHERE id = %s', (post_id,))
     post = cur.fetchone()
+    cur.execute('SELECT * FROM post_categories ORDER BY name')
+    categories = cur.fetchall()
     cur.close()
     conn.close()
     
     sidebar = get_sidebar_data()
-    return render_template('admin/edit_post.html', post=post, sidebar=sidebar)
+    return render_template('admin/edit_post.html', post=post, categories=categories, sidebar=sidebar)
 
 @app.route('/admin/posts/delete/<int:post_id>', methods=['POST'])
 @login_required
@@ -1206,6 +1224,91 @@ def admin_delete_post(post_id):
     conn.close()
     flash('Post deleted successfully', 'success')
     return redirect(url_for('admin_posts'))
+
+@app.route('/admin/posts/categories')
+@login_required
+def admin_post_categories():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('''
+        SELECT pc.*, COUNT(p.id) as post_count 
+        FROM post_categories pc 
+        LEFT JOIN posts p ON pc.id = p.category_id 
+        GROUP BY pc.id 
+        ORDER BY pc.name
+    ''')
+    categories = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/post_categories.html', categories=categories, sidebar=sidebar)
+
+@app.route('/admin/posts/categories/edit/<int:cat_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_category(cat_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        name = request.form.get('name')
+        short_name = request.form.get('short_name')
+        description = request.form.get('description')
+        hero_title = request.form.get('hero_title')
+        hero_description = request.form.get('hero_description')
+        content = request.form.get('content')
+        focus_keyword = request.form.get('focus_keyword')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        canonical_url = request.form.get('canonical_url')
+        og_image = request.form.get('og_image')
+        is_published = request.form.get('is_published') == 'on'
+        
+        cur.execute('''
+            UPDATE post_categories SET name=%s, short_name=%s, description=%s, hero_title=%s,
+            hero_description=%s, content=%s, focus_keyword=%s, meta_title=%s, meta_description=%s,
+            canonical_url=%s, og_image=%s, is_published=%s, updated_at=CURRENT_TIMESTAMP
+            WHERE id=%s
+        ''', (name, short_name, description, hero_title, hero_description, content, focus_keyword, 
+              meta_title, meta_description, canonical_url, og_image, is_published, cat_id))
+        conn.commit()
+        flash('Category updated successfully', 'success')
+    
+    cur.execute('SELECT * FROM post_categories WHERE id = %s', (cat_id,))
+    category = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/edit_category.html', category=category, sidebar=sidebar)
+
+@app.route('/category/<slug>')
+def view_category(slug):
+    settings = get_site_settings()
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM post_categories WHERE slug = %s AND is_published = TRUE', (slug,))
+    category = cur.fetchone()
+    
+    if not category:
+        cur.close()
+        conn.close()
+        return "Category not found", 404
+    
+    cur.execute('''
+        SELECT * FROM posts 
+        WHERE category_id = %s AND is_published = TRUE 
+        ORDER BY created_at DESC
+    ''', (category['id'],))
+    posts = cur.fetchall()
+    
+    cur.execute('SELECT * FROM post_categories WHERE is_published = TRUE ORDER BY name')
+    all_categories = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    return render_template('frontend/category.html', category=category, posts=posts, all_categories=all_categories, settings=settings)
 
 @app.route('/post/<slug>')
 def view_post(slug):
