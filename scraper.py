@@ -322,6 +322,7 @@ def scrape_scorecard(url):
     
     soup = BeautifulSoup(html, 'html.parser')
     scorecard_html = ''
+    team_scores = []
     
     title = soup.find('title')
     if title:
@@ -347,6 +348,9 @@ def scrape_scorecard(url):
             team_text = team_name.get_text(strip=True) if team_name else ''
             score_text = team_score.get_text(strip=True) if team_score else ''
             overs_text = overs_span[-1].get_text(strip=True) if len(overs_span) > 1 else ''
+            
+            if team_text and score_text:
+                team_scores.append(f"{team_text} {score_text}")
             
             scorecard_html += f'<div class="innings-header">{team_text} <span class="innings-score">{score_text} {overs_text}</span></div>'
         
@@ -429,7 +433,9 @@ def scrape_scorecard(url):
     else:
         scorecard_html = '<div class="scorecard-data">' + scorecard_html + '</div>'
     
-    return {'success': True, 'html': scorecard_html}
+    final_score = ' vs '.join(team_scores) if team_scores else ''
+    
+    return {'success': True, 'html': scorecard_html, 'final_score': final_score}
 
 def scrape_teams(team_type='international'):
     urls = {
