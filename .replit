@@ -1,4 +1,4 @@
-modules = ["php-8.2", "postgresql-16", "python-3.11"]
+modules = ["php-8.2", "python-3.11", "postgresql-16"]
 [agent]
 expertMode = true
 

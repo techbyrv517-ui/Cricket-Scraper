@@ -7,49 +7,67 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Cricket Scraper Admin Panel</h1>
-        </header>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>Cricket Scraper</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('admin') }}" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span>Series List</span>
+                </a>
+            </nav>
+            <div class="sidebar-actions">
+                <h3>Scrape Actions</h3>
+                <button id="scrapeSeriesBtn" class="btn btn-primary btn-full">Scrape Series</button>
+                <button id="scrapeAllMatchesBtn" class="btn btn-primary btn-full">Scrape All Matches</button>
+                <h3>Clear Data</h3>
+                <button id="clearMatchesBtn" class="btn btn-danger btn-full">Clear All Matches</button>
+                <button id="clearSeriesBtn" class="btn btn-danger btn-full">Clear All Series</button>
+            </div>
+        </aside>
         
-        <div class="actions">
-            <button id="scrapeSeriesBtn" class="btn btn-primary">Scrape Series Data</button>
-            <button id="scrapeAllMatchesBtn" class="btn btn-primary">Scrape All Matches</button>
-            <span id="statusMessage" class="status-message"></span>
-        </div>
-        
-        <div class="table-container">
-            <h2>Series List</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Month</th>
-                        <th>Year</th>
-                        <th>Series Name</th>
-                        <th>Date Range</th>
-                        <th>Series URL</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="seriesTableBody">
-                    {% for s in series %}
-                    <tr>
-                        <td>{{ s.id }}</td>
-                        <td>{{ s.month }}</td>
-                        <td>{{ s.year }}</td>
-                        <td>{{ s.series_name }}</td>
-                        <td>{{ s.date_range }}</td>
-                        <td><a href="{{ s.series_url }}" target="_blank">View</a></td>
-                        <td>
-                            <button class="btn btn-small scrape-matches" data-id="{{ s.id }}">Scrape Matches</button>
-                            <a href="{{ url_for('view_matches', series_id=s.id) }}" class="btn btn-small btn-secondary">View Matches</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
+        <main class="main-content">
+            <header>
+                <h1>Series List</h1>
+                <span id="statusMessage" class="status-message"></span>
+            </header>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Series ID</th>
+                            <th>Month</th>
+                            <th>Year</th>
+                            <th>Series Name</th>
+                            <th>Date Range</th>
+                            <th>Series URL</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="seriesTableBody">
+                        {% for s in series %}
+                        <tr>
+                            <td>{{ s.id }}</td>
+                            <td>{{ s.series_id or '-' }}</td>
+                            <td>{{ s.month }}</td>
+                            <td>{{ s.year }}</td>
+                            <td>{{ s.series_name }}</td>
+                            <td>{{ s.date_range }}</td>
+                            <td><a href="{{ s.series_url }}" target="_blank">View</a></td>
+                            <td>
+                                <button class="btn btn-small scrape-matches" data-id="{{ s.id }}">Scrape Matches</button>
+                                <a href="{{ url_for('view_matches', series_id=s.id) }}" class="btn btn-small btn-secondary">View Matches</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
     </div>
     
     <script>
@@ -61,24 +79,20 @@
             btn.textContent = 'Scraping...';
             status.textContent = '';
             
-            fetch('/api/scrape-series', {
-                method: 'POST'
-            })
+            fetch('/api/scrape-series', { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 status.textContent = data.message;
                 status.className = 'status-message ' + (data.success ? 'success' : 'error');
                 btn.disabled = false;
-                btn.textContent = 'Scrape Series Data';
-                if(data.success) {
-                    setTimeout(() => location.reload(), 1500);
-                }
+                btn.textContent = 'Scrape Series';
+                if(data.success) setTimeout(() => location.reload(), 1500);
             })
             .catch(error => {
                 status.textContent = 'Error: ' + error;
                 status.className = 'status-message error';
                 btn.disabled = false;
-                btn.textContent = 'Scrape Series Data';
+                btn.textContent = 'Scrape Series';
             });
         });
         
@@ -87,13 +101,10 @@
             const status = document.getElementById('statusMessage');
             
             btn.disabled = true;
-            btn.textContent = 'Scraping All Matches...';
+            btn.textContent = 'Scraping...';
             status.textContent = 'This may take a few minutes...';
-            status.className = 'status-message';
             
-            fetch('/api/scrape-all-matches', {
-                method: 'POST'
-            })
+            fetch('/api/scrape-all-matches', { method: 'POST' })
             .then(response => response.json())
             .then(data => {
                 status.textContent = data.message;
@@ -106,6 +117,49 @@
                 status.className = 'status-message error';
                 btn.disabled = false;
                 btn.textContent = 'Scrape All Matches';
+            });
+        });
+        
+        document.getElementById('clearMatchesBtn').addEventListener('click', function() {
+            if(!confirm('Are you sure you want to delete ALL matches?')) return;
+            
+            const btn = this;
+            const status = document.getElementById('statusMessage');
+            btn.disabled = true;
+            
+            fetch('/api/clear-all-matches', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                status.textContent = data.message;
+                status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                btn.disabled = false;
+            })
+            .catch(error => {
+                status.textContent = 'Error: ' + error;
+                status.className = 'status-message error';
+                btn.disabled = false;
+            });
+        });
+        
+        document.getElementById('clearSeriesBtn').addEventListener('click', function() {
+            if(!confirm('Are you sure you want to delete ALL series and matches?')) return;
+            
+            const btn = this;
+            const status = document.getElementById('statusMessage');
+            btn.disabled = true;
+            
+            fetch('/api/clear-all-series', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                status.textContent = data.message;
+                status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                btn.disabled = false;
+                if(data.success) setTimeout(() => location.reload(), 1500);
+            })
+            .catch(error => {
+                status.textContent = 'Error: ' + error;
+                status.className = 'status-message error';
+                btn.disabled = false;
             });
         });
         
@@ -117,9 +171,7 @@
                 button.disabled = true;
                 button.textContent = 'Scraping...';
                 
-                fetch('/api/scrape-matches/' + seriesId, {
-                    method: 'POST'
-                })
+                fetch('/api/scrape-matches/' + seriesId, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     alert(data.message);

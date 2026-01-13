@@ -19,6 +19,7 @@ def init_db():
     cur.execute('''
         CREATE TABLE IF NOT EXISTS series (
             id SERIAL PRIMARY KEY,
+            series_id VARCHAR(50),
             month VARCHAR(20),
             year VARCHAR(10),
             series_name TEXT,
@@ -100,6 +101,27 @@ def api_scrape_all_matches():
     from scraper import scrape_all_matches
     result = scrape_all_matches()
     return jsonify(result)
+
+@app.route('/api/clear-all-matches', methods=['POST'])
+def api_clear_all_matches():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM matches')
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'message': 'All matches cleared successfully'})
+
+@app.route('/api/clear-all-series', methods=['POST'])
+def api_clear_all_series():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM matches')
+    cur.execute('DELETE FROM series')
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'message': 'All series and matches cleared successfully'})
 
 with app.app_context():
     init_db()

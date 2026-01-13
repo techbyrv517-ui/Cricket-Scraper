@@ -79,12 +79,15 @@ def scrape_series_data():
         series_month = 'January'
         series_year = '2026'
         
+        series_id_match = re.search(r'/cricket-series/(\d+)/', href)
+        cricbuzz_series_id = series_id_match.group(1) if series_id_match else ''
+        
         if series_name:
             cur.execute('SELECT id FROM series WHERE series_url = %s', (series_url,))
             if cur.fetchone() is None:
                 cur.execute(
-                    'INSERT INTO series (month, year, series_name, date_range, series_url) VALUES (%s, %s, %s, %s, %s)',
-                    (series_month, series_year, series_name, date_range, series_url)
+                    'INSERT INTO series (series_id, month, year, series_name, date_range, series_url) VALUES (%s, %s, %s, %s, %s, %s)',
+                    (cricbuzz_series_id, series_month, series_year, series_name, date_range, series_url)
                 )
                 series_count += 1
     
