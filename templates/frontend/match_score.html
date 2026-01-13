@@ -140,21 +140,24 @@
         padding: 25px;
     }
     
-    .scorecard-container .batting-table,
-    .scorecard-container .bowling-table {
-        margin-top: 25px;
+    .scorecard-container .table-scroll {
+        margin: 20px 0;
         border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
     
-    .scorecard-container table {
-        width: 100%;
-        border-collapse: collapse;
+    .scorecard-container .batting-table,
+    .scorecard-container .bowling-table {
         border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
+    .scorecard-container table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
     }
     
     .scorecard-container th,
@@ -265,18 +268,19 @@
     
     @media (max-width: 768px) {
         .scorecard-container {
-            border-radius: 8px;
+            border-radius: 10px;
             margin: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
         }
         
         .scorecard-container .match-header {
-            padding: 20px 15px;
-            border-radius: 8px 8px 0 0;
+            padding: 18px 15px;
+            border-radius: 10px 10px 0 0;
         }
         
         .scorecard-container .match-header h2 {
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.4;
         }
         
@@ -306,25 +310,33 @@
         
         .scorecard-container .scorecard-data {
             padding: 12px;
+            background: #f5f5f5;
         }
         
-        .scorecard-container .batting-table,
-        .scorecard-container .bowling-table {
-            display: block;
+        .scorecard-container .table-scroll {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
-            margin: 0 0 15px 0;
+            margin: 0 0 12px 0;
             border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            background: #fff;
         }
         
         .scorecard-container table {
-            min-width: 480px;
+            min-width: 500px;
             width: 100%;
             margin: 0;
-            border-radius: 8px;
+            border-radius: 0;
             box-shadow: none;
+        }
+        
+        .scorecard-container thead th {
+            background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
+            color: #fff;
+            font-size: 11px;
+            padding: 12px 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .scorecard-container th,
@@ -333,30 +345,36 @@
             font-size: 12px;
             white-space: nowrap;
             text-align: center;
+            border-bottom: 1px solid #eee;
         }
         
-        .scorecard-container td:first-child,
-        .scorecard-container th:first-child {
+        .scorecard-container tbody td:first-child,
+        .scorecard-container thead th:first-child {
             min-width: 120px;
-            max-width: 140px;
             text-align: left;
             padding: 10px 12px;
             white-space: normal;
             position: sticky;
             left: 0;
-            background: #fff;
             z-index: 1;
-            border-right: 1px solid #e9ecef;
         }
         
-        .scorecard-container th:first-child {
+        .scorecard-container thead th:first-child {
             background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
             z-index: 2;
-            border-right: 1px solid #035a30;
+        }
+        
+        .scorecard-container tbody td:first-child {
+            background: #fff;
+            border-right: 1px solid #eee;
+        }
+        
+        .scorecard-container tbody tr:nth-child(even) td {
+            background: #fafafa;
         }
         
         .scorecard-container tbody tr:nth-child(even) td:first-child {
-            background: #f8f9fa;
+            background: #fafafa;
         }
         
         .scorecard-container .batter-name {
@@ -376,8 +394,13 @@
         .scorecard-container .did-not-bat {
             padding: 10px 12px;
             font-size: 12px;
-            margin: 8px 0;
+            margin: 0 0 10px 0;
             border-radius: 6px;
+            background: #fff;
+        }
+        
+        .scorecard-container .total {
+            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
         }
         
         .no-scorecard {
@@ -391,7 +414,7 @@
     
     @media (max-width: 480px) {
         .scorecard-container .match-header h2 {
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .scorecard-container .scorecard-data {
@@ -399,7 +422,12 @@
         }
         
         .scorecard-container table {
-            min-width: 420px;
+            min-width: 450px;
+        }
+        
+        .scorecard-container thead th {
+            font-size: 10px;
+            padding: 10px 8px;
         }
         
         .scorecard-container th,
@@ -408,10 +436,9 @@
             font-size: 11px;
         }
         
-        .scorecard-container td:first-child,
-        .scorecard-container th:first-child {
+        .scorecard-container tbody td:first-child,
+        .scorecard-container thead th:first-child {
             min-width: 100px;
-            max-width: 120px;
             padding: 8px 10px;
         }
         

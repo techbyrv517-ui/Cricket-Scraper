@@ -356,7 +356,7 @@ def scrape_scorecard(url):
         bat_grids = innings.find_all('div', class_=re.compile(r'scorecard-bat-grid'))
         
         if bat_grids:
-            scorecard_html += '<table class="batting-table"><thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
+            scorecard_html += '<div class="table-scroll"><table class="batting-table"><thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
             
             for grid in bat_grids:
                 player_link = grid.find('a', href=re.compile(r'/profiles/'))
@@ -375,7 +375,7 @@ def scrape_scorecard(url):
                     
                     scorecard_html += f'<tr><td><div class="batter-name">{batter_name}</div><div class="dismissal-text">{dismissal}</div></td><td>{runs}</td><td>{balls}</td><td>{fours}</td><td>{sixes}</td><td>{sr}</td></tr>'
             
-            scorecard_html += '</tbody></table>'
+            scorecard_html += '</tbody></table></div>'
         
         extras_div = innings.find('div', class_='font-bold', string='Extras')
         if extras_div:
@@ -407,7 +407,7 @@ def scrape_scorecard(url):
         bowl_grids = innings.find_all('div', class_=re.compile(r'scorecard-bowl-grid'))
         
         if bowl_grids:
-            scorecard_html += '<table class="bowling-table"><thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>NB</th><th>WD</th><th>ECO</th></tr></thead><tbody>'
+            scorecard_html += '<div class="table-scroll"><table class="bowling-table"><thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>NB</th><th>WD</th><th>ECO</th></tr></thead><tbody>'
             
             for grid in bowl_grids:
                 bowler_link = grid.find('a', href=re.compile(r'/profiles/'))
@@ -425,7 +425,7 @@ def scrape_scorecard(url):
                     
                     scorecard_html += f'<tr><td>{bowler_name}</td><td>{overs}</td><td>{maidens}</td><td>{bruns}</td><td class="wickets">{wickets}</td><td>{noballs}</td><td>{wides}</td><td>{eco}</td></tr>'
             
-            scorecard_html += '</tbody></table>'
+            scorecard_html += '</tbody></table></div>'
     
     final_score = ' vs '.join(team_scores) if team_scores else ''
     
