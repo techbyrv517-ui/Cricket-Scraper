@@ -575,13 +575,43 @@ def api_live_matches():
         final_score = match.get('final_score', '')
         team1_score = ''
         team2_score = ''
-        if final_score and ' vs ' in final_score:
-            score_parts = final_score.split(' vs ')
-            if len(score_parts) >= 2:
-                t1_parts = score_parts[0].strip().rsplit(' ', 1)
-                t2_parts = score_parts[1].strip().rsplit(' ', 1)
-                team1_score = t1_parts[1] if len(t1_parts) > 1 else ''
-                team2_score = t2_parts[1] if len(t2_parts) > 1 else ''
+        
+        if final_score:
+            if ' vs ' in final_score:
+                score_parts = final_score.split(' vs ')
+                if len(score_parts) >= 2:
+                    t1_parts = score_parts[0].strip().rsplit(' ', 1)
+                    t2_parts = score_parts[1].strip().rsplit(' ', 1)
+                    team1_score = t1_parts[1] if len(t1_parts) > 1 else ''
+                    team2_score = t2_parts[1] if len(t2_parts) > 1 else ''
+            else:
+                import re
+                score_match = re.search(r'(\d+[-/]\d+|\d+)', final_score)
+                if score_match:
+                    score_val = score_match.group(1)
+                    fs_upper = final_score.upper()
+                    
+                    def get_team_abbrs(name):
+                        if not name:
+                            return []
+                        words = name.split()
+                        abbrs = [name[:3].upper()]
+                        if len(words) > 1:
+                            abbrs.append(''.join(w[0] for w in words).upper())
+                        return abbrs
+                    
+                    t1_abbrs = get_team_abbrs(team1_name)
+                    t2_abbrs = get_team_abbrs(team2_name)
+                    
+                    matched_t1 = any(abbr in fs_upper for abbr in t1_abbrs)
+                    matched_t2 = any(abbr in fs_upper for abbr in t2_abbrs)
+                    
+                    if matched_t1 and not matched_t2:
+                        team1_score = score_val
+                    elif matched_t2 and not matched_t1:
+                        team2_score = score_val
+                    else:
+                        team1_score = score_val
         
         matches_data.append({
             'match_id': match.get('match_id'),
