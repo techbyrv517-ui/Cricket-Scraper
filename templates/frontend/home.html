@@ -28,9 +28,6 @@
                     <span>Check Recent or Upcoming matches</span>
                 </div>
             </div>
-            <div id="live-refresh-info" style="text-align: center; padding: 10px; color: #888; font-size: 12px; display: none;">
-                Auto-refreshing every 60 seconds
-            </div>
         </div>
         
         <div id="recent" class="match-tab-content active">
@@ -615,6 +612,5 @@ function fetchLiveMatches() {
 }
 
 fetchLiveMatches();
-setInterval(fetchLiveMatches, 60000);
 </script>
 {% endblock %}
