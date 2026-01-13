@@ -4,44 +4,79 @@
 {% block meta_description %}Browse all cricket series and tournaments. Get schedules, fixtures, and match details.{% endblock %}
 
 {% block content %}
-<div class="hero">
-    <div class="container">
+<div class="series-hero">
+    <div class="series-hero-content">
+        <div class="series-hero-icon">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+        </div>
         <h1>Cricket Series</h1>
-        <p>Browse all cricket series and tournaments</p>
+        <p>Browse all cricket series and tournaments worldwide</p>
     </div>
 </div>
 
-<div class="container">
-    <div style="padding: 40px 0;">
-        
-        {% if series_by_year %}
+<div class="series-container">
+    {% if series_by_year %}
+    <div class="year-filter-section">
         <div class="year-tabs">
             {% for year in series_by_year.keys()|sort(reverse=true) %}
-            <button class="year-btn {% if loop.first %}active{% endif %}" onclick="showYear('{{ year }}')">{{ year }}</button>
+            <button class="year-btn {% if loop.first %}active{% endif %}" onclick="showYear('{{ year }}')">
+                <span class="year-text">{{ year }}</span>
+            </button>
             {% endfor %}
         </div>
-        
-        {% for year, series_list in series_by_year.items()|sort(reverse=true) %}
-        <div id="year-{{ year }}" class="year-section {% if loop.first %}active{% endif %}">
-            <div class="series-grid">
-                {% for series in series_list %}
-                <a href="/cricket-series/{{ series.slug }}" class="series-card">
-                    <div class="series-name">{{ series.series_name }}</div>
-                    <div class="series-date">{{ series.date_range }}</div>
-                    <div class="series-month">{{ series.month }} {{ series.year }}</div>
-                </a>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
-        {% else %}
-        <div style="text-align: center; padding: 60px 20px; color: #666;">
-            <h3>No series available</h3>
-            <p>Series will appear here once scraped from admin panel.</p>
-        </div>
-        {% endif %}
-        
     </div>
+    
+    {% for year, series_list in series_by_year.items()|sort(reverse=true) %}
+    <div id="year-{{ year }}" class="year-section {% if loop.first %}active{% endif %}">
+        <div class="series-count">
+            <span class="count-number">{{ series_list|length }}</span> Series in {{ year }}
+        </div>
+        <div class="series-grid">
+            {% for series in series_list %}
+            <a href="/cricket-series/{{ series.slug }}" class="series-card">
+                <div class="series-card-header">
+                    <div class="series-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                    </div>
+                    <div class="series-badge">{{ series.month[:3] }}</div>
+                </div>
+                <div class="series-card-body">
+                    <div class="series-name">{{ series.series_name }}</div>
+                    <div class="series-meta">
+                        <div class="series-date">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                            </svg>
+                            {{ series.date_range }}
+                        </div>
+                    </div>
+                </div>
+                <div class="series-card-footer">
+                    <span class="view-details">View Matches</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/>
+                    </svg>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="no-series">
+        <div class="no-series-icon">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+            </svg>
+        </div>
+        <h3>No Series Available</h3>
+        <p>Series will appear here once scraped from admin panel.</p>
+    </div>
+    {% endif %}
 </div>
 
 <script>
@@ -50,111 +85,337 @@ function showYear(year) {
     document.querySelectorAll('.year-btn').forEach(el => el.classList.remove('active'));
     
     document.getElementById('year-' + year).classList.add('active');
-    event.target.classList.add('active');
+    event.target.closest('.year-btn').classList.add('active');
 }
 </script>
 {% endblock %}
 
 {% block extra_css %}
 <style>
+.series-hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    padding: 60px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.series-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+.series-hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 600px;
+    margin: 0 auto;
+}
+.series-hero-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    color: #fff;
+    box-shadow: 0 10px 30px rgba(0, 212, 170, 0.3);
+}
+.series-hero h1 {
+    color: #fff;
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+    font-weight: 700;
+}
+.series-hero p {
+    color: rgba(255,255,255,0.8);
+    font-size: 1.1rem;
+}
+
+.series-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.year-filter-section {
+    background: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+.year-tabs {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+.year-btn {
+    padding: 12px 28px;
+    border: 2px solid #e9ecef;
+    background: #fff;
+    color: #333;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.year-btn:hover {
+    border-color: #00d4aa;
+    color: #00d4aa;
+    transform: translateY(-2px);
+}
+.year-btn.active {
+    background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
+    border-color: #00d4aa;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+}
+
+.year-section {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+.year-section.active {
+    display: block;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.series-count {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #666;
+    font-size: 1rem;
+}
+.count-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #00d4aa;
+}
+
+.series-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+}
+
+.series-card {
+    background: #fff;
+    border-radius: 15px;
+    padding: 0;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.series-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+.series-card:hover .series-card-footer {
+    background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
+    color: #fff;
+}
+.series-card:hover .series-card-footer svg {
+    transform: translateX(5px);
+}
+
+.series-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-bottom: 1px solid #e9ecef;
+}
+.series-icon {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #00d4aa;
+}
+.series-badge {
+    background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.series-card-body {
+    padding: 20px;
+    flex: 1;
+}
+.series-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+.series-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.series-date {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #666;
+}
+.series-date svg {
+    color: #00d4aa;
+}
+
+.series-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #f8f9fa;
+    color: #00d4aa;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+.series-card-footer svg {
+    transition: transform 0.3s;
+}
+
+.no-series {
+    text-align: center;
+    padding: 80px 20px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+.no-series-icon {
+    color: #ccc;
+    margin-bottom: 20px;
+}
+.no-series h3 {
+    color: #1a1a2e;
+    margin-bottom: 10px;
+}
+.no-series p {
+    color: #666;
+}
+
+@media (max-width: 768px) {
+    .series-hero {
+        padding: 40px 15px;
+    }
+    .series-hero-icon {
+        width: 80px;
+        height: 80px;
+    }
+    .series-hero-icon svg {
+        width: 45px;
+        height: 45px;
+    }
+    .series-hero h1 {
+        font-size: 1.8rem;
+    }
+    .series-hero p {
+        font-size: 0.95rem;
+    }
+    .series-container {
+        padding: 20px 15px;
+    }
+    .year-filter-section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
     .year-tabs {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
+        gap: 8px;
     }
-    
     .year-btn {
-        padding: 10px 25px;
-        border: none;
-        background: #e9ecef;
-        color: #333;
-        font-size: 15px;
-        font-weight: 600;
-        border-radius: 25px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .year-btn:hover {
-        background: #dee2e6;
-    }
-    
-    .year-btn.active {
-        background: #046a38;
-        color: #fff;
-    }
-    
-    .year-section {
-        display: none;
-    }
-    
-    .year-section.active {
-        display: block;
-    }
-    
-    .series-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
-    }
-    
-    .series-card {
-        background: #fff;
-        border-radius: 10px;
-        padding: 20px;
-        text-decoration: none;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        transition: transform 0.3s, box-shadow 0.3s;
-        border-left: 4px solid #046a38;
-    }
-    
-    .series-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-    }
-    
-    .series-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #1a1a2e;
-        margin-bottom: 8px;
-        line-height: 1.4;
-    }
-    
-    .series-date {
-        font-size: 14px;
-        color: #046a38;
-        margin-bottom: 5px;
-    }
-    
-    .series-month {
+        padding: 10px 20px;
         font-size: 13px;
-        color: #888;
     }
-    
-    @media (max-width: 768px) {
-        .year-tabs {
-            justify-content: center;
-        }
-        
-        .year-btn {
-            padding: 8px 18px;
-            font-size: 13px;
-        }
-        
-        .series-grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        
-        .series-card {
-            padding: 15px;
-        }
-        
-        .series-name {
-            font-size: 14px;
-        }
+    .series-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
+    .series-card-header {
+        padding: 12px 15px;
+    }
+    .series-icon {
+        width: 38px;
+        height: 38px;
+    }
+    .series-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    .series-badge {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+    .series-card-body {
+        padding: 15px;
+    }
+    .series-name {
+        font-size: 0.95rem;
+    }
+    .series-date {
+        font-size: 0.8rem;
+    }
+    .series-card-footer {
+        padding: 10px 15px;
+        font-size: 0.8rem;
+    }
+    .count-number {
+        font-size: 1.2rem;
+    }
+    .series-count {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .series-hero {
+        padding: 30px 10px;
+    }
+    .series-hero-icon {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 15px;
+    }
+    .series-hero h1 {
+        font-size: 1.5rem;
+    }
+    .series-hero p {
+        font-size: 0.85rem;
+    }
+    .year-btn {
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+}
 </style>
 {% endblock %}
