@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     
+    {% if settings.get('google_analytics_enabled') == 'true' and settings.get('google_analytics_id') %}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ settings.get('google_analytics_id') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ settings.get('google_analytics_id') }}');
+    </script>
+    {% endif %}
+    
+    {% if settings.get('adsense_enabled') == 'true' and settings.get('adsense_publisher_id') %}
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ settings.get('adsense_publisher_id') }}" crossorigin="anonymous"></script>
+    {% if settings.get('adsense_auto_ads') == 'true' %}
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+    {% endif %}
+    {% endif %}
+    
     <title>{% block title %}{{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}</title>
     <meta name="description" content="{% block meta_description %}{{ settings.get('site_tagline', 'Live Cricket Scores, Match Updates & News') }}{% endblock %}">
     <meta name="keywords" content="{{ settings.get('meta_keywords', 'cricket, live score, India vs Pakistan') }}">

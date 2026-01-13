@@ -1006,8 +1006,14 @@ def admin_settings():
     cur = conn.cursor()
     
     if request.method == 'POST':
-        settings_to_update = ['site_name', 'site_url', 'site_tagline', 'theme_primary', 
-                             'theme_secondary', 'theme_accent', 'header_logo', 'footer_text', 'meta_keywords']
+        settings_to_update = [
+            'site_name', 'site_url', 'site_tagline', 'theme_primary', 
+            'theme_secondary', 'theme_accent', 'header_logo', 'footer_text', 'meta_keywords',
+            'google_analytics_id', 'google_analytics_enabled',
+            'adsense_publisher_id', 'adsense_auto_ads', 'adsense_enabled',
+            'ad_slot_header', 'ad_slot_sidebar', 'ad_slot_content', 'ad_slot_footer',
+            'ad_header_enabled', 'ad_sidebar_enabled', 'ad_content_enabled', 'ad_footer_enabled'
+        ]
         for key in settings_to_update:
             value = request.form.get(key, '')
             cur.execute('''
@@ -1678,8 +1684,13 @@ Allow: /
 def sitemap():
     from datetime import datetime
     
+    conn = get_db()
+    cur = conn.cursor()
+    
     pages = [
         ('/', '1.0', 'daily'),
+        ('/cricket-series', '0.9', 'daily'),
+        ('/players', '0.9', 'daily'),
         ('/page/about', '0.8', 'monthly'),
         ('/page/contact', '0.8', 'monthly'),
         ('/page/privacy-policy', '0.6', 'monthly'),
@@ -1696,10 +1707,37 @@ def sitemap():
         ('/match/india-vs-west-indies', '0.9', 'daily'),
     ]
     
+    try:
+        cur.execute('SELECT slug FROM series WHERE slug IS NOT NULL AND slug != %s', ('',))
+        for s in cur.fetchall():
+            pages.append((f"/cricket-series/{s['slug']}", '0.8', 'daily'))
+        
+        cur.execute('SELECT slug FROM matches WHERE slug IS NOT NULL AND slug != %s', ('',))
+        for m in cur.fetchall():
+            pages.append((f"/cricket-match/{m['slug']}", '0.7', 'daily'))
+        
+        cur.execute('SELECT slug FROM players WHERE slug IS NOT NULL AND slug != %s', ('',))
+        for p in cur.fetchall():
+            pages.append((f"/player/{p['slug']}", '0.7', 'weekly'))
+        
+        cur.execute('SELECT slug FROM posts WHERE is_published = true AND slug IS NOT NULL')
+        for post in cur.fetchall():
+            pages.append((f"/post/{post['slug']}", '0.8', 'weekly'))
+        
+        cur.execute('SELECT slug FROM post_categories WHERE is_published = true AND slug IS NOT NULL')
+        for cat in cur.fetchall():
+            pages.append((f"/category/{cat['slug']}", '0.8', 'weekly'))
+    except:
+        pass
+    
+    cur.close()
+    conn.close()
+    
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
     
-    base_url = 'https://cricbuzz-live-score.com'
+    settings = get_site_settings()
+    base_url = settings.get('site_url', 'https://cricbuzz-live-score.com').rstrip('/')
     today = datetime.now().strftime('%Y-%m-%d')
     
     for url, priority, freq in pages:
@@ -1712,6 +1750,12 @@ def sitemap():
     
     xml += '</urlset>'
     return xml, 200, {'Content-Type': 'application/xml'}
+
+@app.route('/admin/generate-sitemap')
+@login_required
+def admin_generate_sitemap():
+    flash('Sitemap regenerated successfully! Visit /sitemap.xml to view.', 'success')
+    return redirect(url_for('admin_settings'))
 
 with app.app_context():
     init_db()

@@ -10,7 +10,7 @@
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
-            <div class="alert alert-{{ category }}" style="background: {% if category == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if category == 'success' %}#155724{% else %}#721c24{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <div class="alert alert-{{ category }}">
                 {{ message }}
             </div>
         {% endfor %}
@@ -18,114 +18,447 @@
 {% endwith %}
 
 <form method="POST" class="settings-form">
-    <div class="settings-section">
-        <h3>General Settings</h3>
-        <div class="form-group">
-            <label>Site Name</label>
-            <input type="text" name="site_name" value="{{ settings.get('site_name', '') }}" class="form-input">
+    <div class="settings-grid">
+        <div class="settings-section">
+            <div class="section-header">
+                <span class="section-icon">&#9881;</span>
+                <h3>General Settings</h3>
+            </div>
+            <div class="form-group">
+                <label>Site Name</label>
+                <input type="text" name="site_name" value="{{ settings.get('site_name', '') }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Site URL</label>
+                <input type="text" name="site_url" value="{{ settings.get('site_url', '') }}" class="form-input" placeholder="https://example.com">
+            </div>
+            <div class="form-group">
+                <label>Site Tagline</label>
+                <input type="text" name="site_tagline" value="{{ settings.get('site_tagline', '') }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Header Logo Text</label>
+                <input type="text" name="header_logo" value="{{ settings.get('header_logo', '') }}" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Footer Text</label>
+                <input type="text" name="footer_text" value="{{ settings.get('footer_text', '') }}" class="form-input">
+            </div>
         </div>
-        <div class="form-group">
-            <label>Site URL</label>
-            <input type="text" name="site_url" value="{{ settings.get('site_url', '') }}" class="form-input">
-        </div>
-        <div class="form-group">
-            <label>Site Tagline</label>
-            <input type="text" name="site_tagline" value="{{ settings.get('site_tagline', '') }}" class="form-input">
-        </div>
-        <div class="form-group">
-            <label>Header Logo Text</label>
-            <input type="text" name="header_logo" value="{{ settings.get('header_logo', '') }}" class="form-input">
-        </div>
-        <div class="form-group">
-            <label>Footer Text</label>
-            <input type="text" name="footer_text" value="{{ settings.get('footer_text', '') }}" class="form-input">
+        
+        <div class="settings-section">
+            <div class="section-header">
+                <span class="section-icon">&#127912;</span>
+                <h3>Theme Colors</h3>
+            </div>
+            <div class="color-grid">
+                <div class="form-group">
+                    <label>Primary Color</label>
+                    <div class="color-picker">
+                        <input type="color" name="theme_primary" value="{{ settings.get('theme_primary', '#046A38') }}">
+                        <span>{{ settings.get('theme_primary', '#046A38') }}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Secondary Color</label>
+                    <div class="color-picker">
+                        <input type="color" name="theme_secondary" value="{{ settings.get('theme_secondary', '#FF6B00') }}">
+                        <span>{{ settings.get('theme_secondary', '#FF6B00') }}</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Accent Color</label>
+                    <div class="color-picker">
+                        <input type="color" name="theme_accent" value="{{ settings.get('theme_accent', '#1A1A2E') }}">
+                        <span>{{ settings.get('theme_accent', '#1A1A2E') }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
-    <div class="settings-section">
-        <h3>Theme Colors</h3>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
-            <div class="form-group">
-                <label>Primary Color</label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="color" name="theme_primary" value="{{ settings.get('theme_primary', '#046A38') }}" style="width: 50px; height: 40px; border: none; cursor: pointer;">
-                    <input type="text" value="{{ settings.get('theme_primary', '#046A38') }}" class="form-input" readonly style="flex: 1;">
-                </div>
+    <div class="settings-section full-width">
+        <div class="section-header">
+            <span class="section-icon">&#128200;</span>
+            <h3>Google Analytics</h3>
+        </div>
+        <div class="inline-group">
+            <div class="form-group flex-1">
+                <label>Measurement ID (G-XXXXXXXXXX)</label>
+                <input type="text" name="google_analytics_id" value="{{ settings.get('google_analytics_id', '') }}" class="form-input" placeholder="G-XXXXXXXXXX">
             </div>
             <div class="form-group">
-                <label>Secondary Color</label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="color" name="theme_secondary" value="{{ settings.get('theme_secondary', '#FF6B00') }}" style="width: 50px; height: 40px; border: none; cursor: pointer;">
-                    <input type="text" value="{{ settings.get('theme_secondary', '#FF6B00') }}" class="form-input" readonly style="flex: 1;">
-                </div>
+                <label>Enable Tracking</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="google_analytics_enabled" value="true" {% if settings.get('google_analytics_enabled') == 'true' %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="settings-section full-width">
+        <div class="section-header">
+            <span class="section-icon">&#128176;</span>
+            <h3>AdSense Settings</h3>
+        </div>
+        <div class="inline-group">
+            <div class="form-group flex-1">
+                <label>Publisher ID (ca-pub-XXXXXXXX)</label>
+                <input type="text" name="adsense_publisher_id" value="{{ settings.get('adsense_publisher_id', '') }}" class="form-input" placeholder="ca-pub-XXXXXXXXXXXXXXXX">
             </div>
             <div class="form-group">
-                <label>Accent Color</label>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <input type="color" name="theme_accent" value="{{ settings.get('theme_accent', '#1A1A2E') }}" style="width: 50px; height: 40px; border: none; cursor: pointer;">
-                    <input type="text" value="{{ settings.get('theme_accent', '#1A1A2E') }}" class="form-input" readonly style="flex: 1;">
+                <label>Enable AdSense</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="adsense_enabled" value="true" {% if settings.get('adsense_enabled') == 'true' %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+            <div class="form-group">
+                <label>Auto Ads</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" name="adsense_auto_ads" value="true" {% if settings.get('adsense_auto_ads') == 'true' %}checked{% endif %}>
+                    <span class="toggle-slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="ad-slots-section">
+            <h4>Manual Ad Slots</h4>
+            <div class="ad-slots-grid">
+                <div class="ad-slot-item">
+                    <div class="ad-slot-header">
+                        <span>Header Ad</span>
+                        <label class="toggle-switch small">
+                            <input type="checkbox" name="ad_header_enabled" value="true" {% if settings.get('ad_header_enabled') == 'true' %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <input type="text" name="ad_slot_header" value="{{ settings.get('ad_slot_header', '') }}" class="form-input" placeholder="Ad Slot ID">
+                </div>
+                <div class="ad-slot-item">
+                    <div class="ad-slot-header">
+                        <span>Sidebar Ad</span>
+                        <label class="toggle-switch small">
+                            <input type="checkbox" name="ad_sidebar_enabled" value="true" {% if settings.get('ad_sidebar_enabled') == 'true' %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <input type="text" name="ad_slot_sidebar" value="{{ settings.get('ad_slot_sidebar', '') }}" class="form-input" placeholder="Ad Slot ID">
+                </div>
+                <div class="ad-slot-item">
+                    <div class="ad-slot-header">
+                        <span>In-Content Ad</span>
+                        <label class="toggle-switch small">
+                            <input type="checkbox" name="ad_content_enabled" value="true" {% if settings.get('ad_content_enabled') == 'true' %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <input type="text" name="ad_slot_content" value="{{ settings.get('ad_slot_content', '') }}" class="form-input" placeholder="Ad Slot ID">
+                </div>
+                <div class="ad-slot-item">
+                    <div class="ad-slot-header">
+                        <span>Footer Ad</span>
+                        <label class="toggle-switch small">
+                            <input type="checkbox" name="ad_footer_enabled" value="true" {% if settings.get('ad_footer_enabled') == 'true' %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <input type="text" name="ad_slot_footer" value="{{ settings.get('ad_slot_footer', '') }}" class="form-input" placeholder="Ad Slot ID">
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="settings-section">
-        <h3>SEO Settings</h3>
+    <div class="settings-section full-width">
+        <div class="section-header">
+            <span class="section-icon">&#128269;</span>
+            <h3>SEO Settings</h3>
+        </div>
         <div class="form-group">
             <label>Meta Keywords</label>
-            <textarea name="meta_keywords" class="form-input" rows="3">{{ settings.get('meta_keywords', '') }}</textarea>
-            <small style="color: #666;">Comma-separated keywords for SEO</small>
+            <textarea name="meta_keywords" class="form-input" rows="3" placeholder="cricket, live score, india vs pakistan...">{{ settings.get('meta_keywords', '') }}</textarea>
+            <small>Comma-separated keywords for SEO</small>
+        </div>
+        <div class="sitemap-actions">
+            <a href="/admin/generate-sitemap" class="btn btn-secondary">
+                <span>&#128196;</span> Regenerate Sitemap
+            </a>
+            <a href="/sitemap.xml" target="_blank" class="btn btn-outline">
+                <span>&#128279;</span> View Sitemap
+            </a>
         </div>
     </div>
     
-    <button type="submit" class="btn btn-primary" style="padding: 12px 30px; font-size: 16px;">Save Settings</button>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg">
+            <span>&#10003;</span> Save All Settings
+        </button>
+    </div>
 </form>
 
 <style>
-    .settings-section {
-        background: #1e2a3a;
-        padding: 25px;
-        border-radius: 10px;
-        margin-bottom: 25px;
-    }
-    .settings-section h3 {
-        color: #00d4aa;
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
         margin-bottom: 20px;
-        padding-bottom: 10px;
+    }
+    .settings-section {
+        background: linear-gradient(135deg, #1e2a3a 0%, #16202c 100%);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #2d3e50;
+    }
+    .settings-section.full-width {
+        margin-bottom: 20px;
+    }
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
         border-bottom: 1px solid #2d3e50;
     }
+    .section-icon {
+        font-size: 20px;
+    }
+    .section-header h3 {
+        color: #00d4aa;
+        margin: 0;
+        font-size: 16px;
+    }
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 16px;
     }
     .form-group label {
         display: block;
-        margin-bottom: 8px;
-        color: #ccc;
+        margin-bottom: 6px;
+        color: #aaa;
+        font-size: 13px;
         font-weight: 500;
+    }
+    .form-group small {
+        display: block;
+        margin-top: 5px;
+        color: #666;
+        font-size: 11px;
     }
     .form-input {
         width: 100%;
-        padding: 12px 15px;
-        background: #16202c;
+        padding: 10px 12px;
+        background: #0d1520;
         border: 1px solid #2d3e50;
         border-radius: 6px;
         color: #fff;
-        font-size: 14px;
+        font-size: 13px;
+        transition: border-color 0.2s;
     }
     .form-input:focus {
         outline: none;
         border-color: #00d4aa;
     }
-    .btn-primary {
-        background: #00d4aa;
-        color: #000;
-        border: none;
+    .color-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+    .color-picker {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #0d1520;
+        padding: 8px;
         border-radius: 6px;
+        border: 1px solid #2d3e50;
+    }
+    .color-picker input[type="color"] {
+        width: 35px;
+        height: 35px;
+        border: none;
         cursor: pointer;
+        border-radius: 4px;
+    }
+    .color-picker span {
+        font-size: 12px;
+        color: #888;
+    }
+    .inline-group {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+    .flex-1 {
+        flex: 1;
+        min-width: 200px;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+    .toggle-switch.small {
+        width: 40px;
+        height: 22px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #2d3e50;
+        border-radius: 26px;
+        transition: 0.3s;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background: #fff;
+        border-radius: 50%;
+        transition: 0.3s;
+    }
+    .toggle-switch.small .toggle-slider:before {
+        height: 16px;
+        width: 16px;
+    }
+    .toggle-switch input:checked + .toggle-slider {
+        background: #00d4aa;
+    }
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    .toggle-switch.small input:checked + .toggle-slider:before {
+        transform: translateX(18px);
+    }
+    .ad-slots-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #2d3e50;
+    }
+    .ad-slots-section h4 {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+    .ad-slots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    .ad-slot-item {
+        background: #0d1520;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid #2d3e50;
+    }
+    .ad-slot-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .ad-slot-header span {
+        font-size: 12px;
+        color: #aaa;
+    }
+    .sitemap-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 15px;
+    }
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        border-radius: 6px;
+        font-size: 13px;
         font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+    .btn-primary {
+        background: linear-gradient(135deg, #00d4aa 0%, #00a896 100%);
+        color: #000;
     }
     .btn-primary:hover {
-        background: #00b894;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+    }
+    .btn-secondary {
+        background: #2d3e50;
+        color: #fff;
+    }
+    .btn-secondary:hover {
+        background: #3d4e60;
+    }
+    .btn-outline {
+        background: transparent;
+        border: 1px solid #2d3e50;
+        color: #aaa;
+    }
+    .btn-outline:hover {
+        border-color: #00d4aa;
+        color: #00d4aa;
+    }
+    .btn-lg {
+        padding: 14px 30px;
+        font-size: 15px;
+    }
+    .form-actions {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #2d3e50;
+    }
+    .alert {
+        padding: 12px 16px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 13px;
+    }
+    .alert-success {
+        background: rgba(0, 212, 170, 0.15);
+        color: #00d4aa;
+        border: 1px solid rgba(0, 212, 170, 0.3);
+    }
+    .alert-error {
+        background: rgba(255, 107, 107, 0.15);
+        color: #ff6b6b;
+        border: 1px solid rgba(255, 107, 107, 0.3);
+    }
+    @media (max-width: 768px) {
+        .settings-grid {
+            grid-template-columns: 1fr;
+        }
+        .color-grid {
+            grid-template-columns: 1fr;
+        }
+        .inline-group {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .ad-slots-grid {
+            grid-template-columns: 1fr;
+        }
+        .sitemap-actions {
+            flex-direction: column;
+        }
     }
 </style>
 {% endblock %}
