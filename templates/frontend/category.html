@@ -100,46 +100,48 @@
             {% endif %}
         </div>
         
-        <div class="seo-content-box">
-            <h2>{{ category.short_name }} - Live Score Updates</h2>
-            {% if category.content %}
-            <div class="category-intro-text">
-                {{ category.content|safe }}
+        <div class="seo-main-box">
+            <div class="seo-section">
+                <h2>{{ category.short_name }} - Live Score Updates</h2>
+                {% if category.content %}
+                <div class="category-intro-text">
+                    {{ category.content|safe }}
+                </div>
+                {% else %}
+                <p>
+                    Get the latest <strong>{{ category.short_name }}</strong> live cricket scores, ball-by-ball commentary, match schedule, and results. 
+                    Follow {{ category.name }} matches with real-time updates on Cricbuzz Live Score.
+                </p>
+                <p>
+                    The {{ category.short_name }} cricket rivalry is one of the most watched sporting events globally. 
+                    Whether it's Test matches, ODIs, or T20s, every {{ category.name }} encounter brings intense competition and memorable moments.
+                </p>
+                <p>
+                    Stay tuned for upcoming {{ category.short_name }} matches, player statistics, head-to-head records, and expert analysis. 
+                    Never miss a moment of the action with our comprehensive coverage.
+                </p>
+                {% endif %}
             </div>
-            {% else %}
-            <p>
-                Get the latest <strong>{{ category.short_name }}</strong> live cricket scores, ball-by-ball commentary, match schedule, and results. 
-                Follow {{ category.name }} matches with real-time updates on Cricbuzz Live Score.
-            </p>
-            <p>
-                The {{ category.short_name }} cricket rivalry is one of the most watched sporting events globally. 
-                Whether it's Test matches, ODIs, or T20s, every {{ category.name }} encounter brings intense competition and memorable moments.
-            </p>
-            <p>
-                Stay tuned for upcoming {{ category.short_name }} matches, player statistics, head-to-head records, and expert analysis. 
-                Never miss a moment of the action with our comprehensive coverage.
-            </p>
-            {% endif %}
-        </div>
-        
-        <div class="head-to-head-box">
-            <h2>{{ category.name }} Head to Head</h2>
-            <p>
-                The {{ category.short_name }} rivalry has produced some of the most memorable moments in cricket history. 
-                Both teams have shared intense battles across all formats of the game.
-            </p>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <div class="stat-number">--</div>
-                    <div class="stat-label">Test Matches</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">--</div>
-                    <div class="stat-label">ODI Matches</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-number">--</div>
-                    <div class="stat-label">T20I Matches</div>
+            
+            <div class="seo-section">
+                <h2>{{ category.name }} Head to Head</h2>
+                <p>
+                    The {{ category.short_name }} rivalry has produced some of the most memorable moments in cricket history. 
+                    Both teams have shared intense battles across all formats of the game.
+                </p>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number">--</div>
+                        <div class="stat-label">Test Matches</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">--</div>
+                        <div class="stat-label">ODI Matches</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">--</div>
+                        <div class="stat-label">T20I Matches</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -210,50 +212,41 @@
     margin: 0 auto;
     padding: 0 40px 40px;
 }
-.seo-content-box {
+.seo-main-box {
     background: #fff;
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     margin-bottom: 25px;
 }
-.seo-content-box h2 {
-    font-size: 1.5rem;
+.seo-section {
+    padding-bottom: 25px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #eee;
+}
+.seo-section:last-child {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+}
+.seo-section h2 {
+    font-size: 1.4rem;
     color: #1a1a2e;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 2px solid var(--primary-color, #046a38);
 }
-.seo-content-box p {
+.seo-section p {
     color: #555;
     line-height: 1.8;
     margin-bottom: 15px;
 }
-.seo-content-box p:last-child {
+.seo-section p:last-of-type {
     margin-bottom: 0;
 }
 .category-intro-text {
     color: #555;
     line-height: 1.8;
-}
-.head-to-head-box {
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    margin-bottom: 25px;
-}
-.head-to-head-box h2 {
-    font-size: 1.5rem;
-    color: #1a1a2e;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid var(--primary-color, #046a38);
-}
-.head-to-head-box > p {
-    color: #555;
-    line-height: 1.8;
-    margin-bottom: 20px;
 }
 .stats-grid {
     display: grid;
@@ -465,7 +458,7 @@
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    .seo-content-box, .head-to-head-box {
+    .seo-main-box {
         padding: 20px;
     }
     .category-sidebar {
