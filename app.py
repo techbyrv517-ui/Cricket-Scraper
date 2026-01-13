@@ -1448,6 +1448,34 @@ def api_delete_player(player_id):
     conn.close()
     return jsonify({'success': True, 'message': 'Player deleted'})
 
+@app.route('/api/scrape-player-profile/<int:player_id>', methods=['POST'])
+@login_required
+def api_scrape_player_profile(player_id):
+    from scraper import scrape_player_profile
+    result = scrape_player_profile(player_id)
+    return jsonify(result)
+
+@app.route('/api/get-players/<int:team_id>')
+@login_required
+def api_get_players(team_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM players WHERE team_id = %s ORDER BY role, name', (team_id,))
+    players = cur.fetchall()
+    cur.close()
+    conn.close()
+    players_list = []
+    for p in players:
+        players_list.append({
+            'id': p['id'],
+            'name': p['name'],
+            'role': p['role'],
+            'image_url': p['image_url'],
+            'profile_url': p.get('profile_url', ''),
+            'profile_scraped': p.get('profile_scraped', False)
+        })
+    return jsonify({'success': True, 'players': players_list})
+
 @app.route('/team/<slug>')
 def team_detail_page(slug):
     conn = get_db()

@@ -8,7 +8,7 @@
 </div>
 
 <div class="scrape-section" style="margin-bottom: 25px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
-    <h3 style="margin-bottom: 15px; color: #00d4aa;">Scrape Players from Team</h3>
+    <h3 style="margin-bottom: 15px; color: #00d4aa;">Manage Players</h3>
     <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
         <select id="teamSelect" style="padding: 10px 15px; border-radius: 6px; background: #2d3748; color: #fff; border: 1px solid #4a5568; min-width: 200px;">
             <option value="">Select Team</option>
@@ -16,48 +16,29 @@
             <option value="{{ team.id }}">{{ team.name }}</option>
             {% endfor %}
         </select>
-        <button class="btn btn-scrape" onclick="scrapePlayers()">Get Players</button>
+        <button class="btn btn-scrape" onclick="loadPlayers()">Show Players</button>
+        <button class="btn btn-primary" onclick="scrapePlayers()">Scrape New Players</button>
     </div>
     <div id="scrapeStatus" style="margin-top: 15px;"></div>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert" style="background: {% if category == 'success' %}rgba(0, 212, 170, 0.2){% else %}rgba(255, 107, 107, 0.2){% endif %}; color: {% if category == 'success' %}#00d4aa{% else %}#ff6b6b{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
-
-<div class="players-list">
-    {% if players %}
-        <table class="players-table">
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Team</th>
-                    <th>Role</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for player in players %}
-                <tr>
-                    <td>{{ player.name }}</td>
-                    <td>{{ player.team_name or 'Unknown' }}</td>
-                    <td><span class="role-badge {{ player.role|lower|replace('-', '')|replace(' ', '') if player.role else 'unknown' }}">{{ player.role or 'Unknown' }}</span></td>
-                    <td><button class="btn-delete-sm" onclick="deletePlayer({{ player.id }})">&times;</button></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <div class="no-players">
-            <p>No players found. Select a team and click "Get Players" to scrape players.</p>
-        </div>
-    {% endif %}
+<div id="playersContainer" style="display: none;">
+    <div class="players-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 id="teamTitle" style="color: #00d4aa; margin: 0;"></h3>
+        <span id="playerCount" style="color: #888;"></span>
+    </div>
+    <table class="players-table">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Role</th>
+                <th>Profile Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="playersBody">
+        </tbody>
+    </table>
 </div>
 
 <style>
@@ -67,8 +48,7 @@
     align-items: center;
     margin-bottom: 25px;
 }
-.btn-scrape {
-    background: #3498db;
+.btn-scrape, .btn-primary {
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -76,10 +56,19 @@
     cursor: pointer;
     font-weight: 600;
 }
+.btn-scrape {
+    background: #3498db;
+}
 .btn-scrape:hover {
     background: #2980b9;
 }
-.btn-scrape:disabled {
+.btn-primary {
+    background: #00d4aa;
+}
+.btn-primary:hover {
+    background: #00b894;
+}
+.btn-scrape:disabled, .btn-primary:disabled {
     opacity: 0.6;
     cursor: not-allowed;
 }
@@ -115,28 +104,102 @@
 .role-badge.allrounder { background: #9b59b6; color: #fff; }
 .role-badge.wicketkeeper { background: #f39c12; color: #fff; }
 .role-badge.unknown { background: #7f8c8d; color: #fff; }
+.btn-sm {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-right: 5px;
+}
+.btn-profile {
+    background: #9b59b6;
+    color: #fff;
+}
+.btn-profile:hover {
+    background: #8e44ad;
+}
+.btn-profile:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+}
 .btn-delete-sm {
     background: #ff6b6b;
     color: #fff;
-    border: none;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.1rem;
-    line-height: 1;
 }
 .btn-delete-sm:hover {
     background: #e74c3c;
 }
-.no-players {
-    text-align: center;
-    padding: 40px;
-    color: #888;
+.status-scraped {
+    color: #00d4aa;
+}
+.status-pending {
+    color: #f39c12;
 }
 </style>
 
 <script>
+let currentTeamId = null;
+let currentTeamName = '';
+
+function loadPlayers() {
+    const teamSelect = document.getElementById('teamSelect');
+    const teamId = teamSelect.value;
+    if (!teamId) {
+        alert('Please select a team first');
+        return;
+    }
+    
+    currentTeamId = teamId;
+    currentTeamName = teamSelect.options[teamSelect.selectedIndex].text;
+    
+    fetch(`/api/get-players/${teamId}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                displayPlayers(data.players);
+            } else {
+                alert(data.message || 'Error loading players');
+            }
+        })
+        .catch(err => alert('Error: ' + err.message));
+}
+
+function displayPlayers(players) {
+    const container = document.getElementById('playersContainer');
+    const tbody = document.getElementById('playersBody');
+    const title = document.getElementById('teamTitle');
+    const count = document.getElementById('playerCount');
+    
+    title.textContent = currentTeamName + ' Players';
+    count.textContent = players.length + ' players';
+    
+    if (players.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #888;">No players found. Click "Scrape New Players" to fetch players.</td></tr>';
+    } else {
+        tbody.innerHTML = players.map(p => {
+            const roleClass = (p.role || 'unknown').toLowerCase().replace('-', '').replace(' ', '');
+            const statusClass = p.profile_scraped ? 'status-scraped' : 'status-pending';
+            const statusText = p.profile_scraped ? 'Scraped' : 'Pending';
+            const btnDisabled = p.profile_scraped ? 'disabled' : '';
+            
+            return `
+                <tr>
+                    <td>${p.name}</td>
+                    <td><span class="role-badge ${roleClass}">${p.role || 'Unknown'}</span></td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>
+                        <button class="btn-sm btn-profile" onclick="scrapeProfile(${p.id}, '${p.name}')" ${btnDisabled}>Get Profile</button>
+                        <button class="btn-sm btn-delete-sm" onclick="deletePlayer(${p.id})">&times;</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    container.style.display = 'block';
+}
+
 function scrapePlayers() {
     const teamId = document.getElementById('teamSelect').value;
     if (!teamId) {
@@ -145,10 +208,6 @@ function scrapePlayers() {
     }
     
     const statusDiv = document.getElementById('scrapeStatus');
-    const btn = document.querySelector('.btn-scrape');
-    
-    btn.disabled = true;
-    btn.textContent = 'Scraping...';
     statusDiv.innerHTML = '<span style="color: #f39c12;">Scraping players, please wait...</span>';
     
     fetch(`/api/scrape-players/${teamId}`, { method: 'POST' })
@@ -156,17 +215,38 @@ function scrapePlayers() {
         .then(data => {
             if (data.success) {
                 statusDiv.innerHTML = `<span style="color: #00d4aa;">${data.message}</span>`;
-                setTimeout(() => location.reload(), 1500);
+                loadPlayers();
             } else {
                 statusDiv.innerHTML = `<span style="color: #ff6b6b;">${data.message}</span>`;
             }
         })
         .catch(err => {
             statusDiv.innerHTML = `<span style="color: #ff6b6b;">Error: ${err.message}</span>`;
+        });
+}
+
+function scrapeProfile(playerId, playerName) {
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = 'Scraping...';
+    
+    fetch(`/api/scrape-player-profile/${playerId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                btn.textContent = 'Done!';
+                btn.style.background = '#00d4aa';
+                loadPlayers();
+            } else {
+                alert(data.message);
+                btn.disabled = false;
+                btn.textContent = 'Get Profile';
+            }
         })
-        .finally(() => {
+        .catch(err => {
+            alert('Error: ' + err.message);
             btn.disabled = false;
-            btn.textContent = 'Get Players';
+            btn.textContent = 'Get Profile';
         });
 }
 
@@ -177,7 +257,7 @@ function deletePlayer(playerId) {
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                loadPlayers();
             } else {
                 alert(data.message);
             }
