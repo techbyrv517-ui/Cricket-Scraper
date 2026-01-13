@@ -3,102 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cricket Scraper - Admin Panel{% endblock %}</title>
+    <title>{% block title %}Admin Panel - Cricbuzz Live Score{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="layout">
         <aside class="sidebar">
             <div class="sidebar-header">
-                <h2>Cricket Scraper</h2>
-                <p style="font-size: 12px; color: #888; margin-top: 5px;">Admin Panel</p>
+                <h2>Cricbuzz Live Score</h2>
+                <p>Admin Panel</p>
             </div>
             
             <nav class="sidebar-nav">
-                <div class="nav-section">
-                    <span class="nav-section-title">Scraping</span>
-                    <button id="scrapeSeriesBtn" class="nav-item">
-                        <span class="nav-icon">📥</span>
-                        <span>Scrape Series</span>
-                    </button>
-                    <button id="clearSeriesBtn" class="nav-item nav-danger">
-                        <span class="nav-icon">🗑️</span>
-                        <span>Clear Series</span>
-                    </button>
-                    <button id="clearMatchesBtn" class="nav-item nav-danger">
-                        <span class="nav-icon">🗑️</span>
-                        <span>Clear Match</span>
-                    </button>
+                <div class="nav-card">
+                    <div class="nav-card-header">
+                        <div class="nav-card-icon">📥</div>
+                        <span class="nav-card-title">Scraping</span>
+                    </div>
+                    <div class="nav-card-body">
+                        <button id="scrapeSeriesBtn" class="nav-item">
+                            <span class="nav-icon">🔄</span>
+                            <span>Scrape Series</span>
+                        </button>
+                        <button id="clearSeriesBtn" class="nav-item nav-danger">
+                            <span class="nav-icon">🗑️</span>
+                            <span>Clear Series</span>
+                        </button>
+                        <button id="clearMatchesBtn" class="nav-item nav-danger">
+                            <span class="nav-icon">🗑️</span>
+                            <span>Clear Matches</span>
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="nav-section">
-                    <span class="nav-section-title">Data</span>
-                    <a href="{{ url_for('matches_page') }}" class="nav-item">
-                        <span class="nav-icon">🏏</span>
-                        <span>Matches</span>
-                    </a>
-                    <a href="{{ url_for('live_score') }}" class="nav-item">
-                        <span class="nav-icon">📡</span>
-                        <span>Live Score</span>
-                    </a>
-                    <a href="{{ url_for('scorecard') }}" class="nav-item">
-                        <span class="nav-icon">📊</span>
-                        <span>Scorecard</span>
-                    </a>
+                <div class="nav-card">
+                    <div class="nav-card-header">
+                        <div class="nav-card-icon">📊</div>
+                        <span class="nav-card-title">Data</span>
+                    </div>
+                    <div class="nav-card-body">
+                        <a href="{{ url_for('matches_page') }}" class="nav-item {{ 'active' if request.endpoint == 'matches_page' else '' }}">
+                            <span class="nav-icon">🏏</span>
+                            <span>Matches</span>
+                        </a>
+                        <a href="{{ url_for('live_score') }}" class="nav-item {{ 'active' if request.endpoint == 'live_score' else '' }}">
+                            <span class="nav-icon">📡</span>
+                            <span>Live Score</span>
+                        </a>
+                        <a href="{{ url_for('scorecard') }}" class="nav-item {{ 'active' if request.endpoint == 'scorecard' else '' }}">
+                            <span class="nav-icon">📋</span>
+                            <span>Scorecard</span>
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="nav-section">
-                    <span class="nav-section-title">CMS</span>
-                    <a href="{{ url_for('admin_settings') }}" class="nav-item">
-                        <span class="nav-icon">⚙️</span>
-                        <span>Site Settings</span>
-                    </a>
-                    <a href="{{ url_for('admin_pages') }}" class="nav-item">
-                        <span class="nav-icon">📄</span>
-                        <span>Pages</span>
-                    </a>
-                    <a href="{{ url_for('admin_teams') }}" class="nav-item">
-                        <span class="nav-icon">🏏</span>
-                        <span>Teams</span>
-                    </a>
+                <div class="nav-card">
+                    <div class="nav-card-header">
+                        <div class="nav-card-icon">⚙️</div>
+                        <span class="nav-card-title">Settings</span>
+                    </div>
+                    <div class="nav-card-body">
+                        <a href="{{ url_for('admin_settings') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_settings' else '' }}">
+                            <span class="nav-icon">🎨</span>
+                            <span>Site Settings</span>
+                        </a>
+                        <a href="{{ url_for('admin_pages') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_pages' else '' }}">
+                            <span class="nav-icon">📄</span>
+                            <span>Pages</span>
+                        </a>
+                        <a href="{{ url_for('admin_teams') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_teams' else '' }}">
+                            <span class="nav-icon">🏆</span>
+                            <span>Teams</span>
+                        </a>
+                    </div>
                 </div>
                 
-                <div class="nav-section">
-                    <span class="nav-section-title">Posts</span>
-                    <a href="{{ url_for('admin_posts') }}" class="nav-item">
-                        <span class="nav-icon">📝</span>
-                        <span>All Posts</span>
-                    </a>
-                    <a href="{{ url_for('admin_add_post') }}" class="nav-item">
-                        <span class="nav-icon">➕</span>
-                        <span>Add New Post</span>
-                    </a>
-                    <a href="{{ url_for('admin_post_categories') }}" class="nav-item">
-                        <span class="nav-icon">📁</span>
-                        <span>Categories</span>
-                    </a>
-                </div>
-                
-                <div class="nav-section">
-                    <span class="nav-section-title">Account</span>
-                    <a href="{{ url_for('admin_change_password') }}" class="nav-item">
-                        <span class="nav-icon">🔐</span>
-                        <span>Change Password</span>
-                    </a>
-                    <a href="/" target="_blank" class="nav-item">
-                        <span class="nav-icon">🌐</span>
-                        <span>View Website</span>
-                    </a>
-                    <a href="{{ url_for('admin_logout') }}" class="nav-item nav-danger">
-                        <span class="nav-icon">🚪</span>
-                        <span>Logout</span>
-                    </a>
+                <div class="nav-card">
+                    <div class="nav-card-header">
+                        <div class="nav-card-icon">📝</div>
+                        <span class="nav-card-title">Posts</span>
+                    </div>
+                    <div class="nav-card-body">
+                        <a href="{{ url_for('admin_posts') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_posts' else '' }}">
+                            <span class="nav-icon">📑</span>
+                            <span>All Posts</span>
+                        </a>
+                        <a href="{{ url_for('admin_add_post') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_add_post' else '' }}">
+                            <span class="nav-icon">➕</span>
+                            <span>Add New Post</span>
+                        </a>
+                        <a href="{{ url_for('admin_post_categories') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_post_categories' else '' }}">
+                            <span class="nav-icon">📁</span>
+                            <span>Categories</span>
+                        </a>
+                    </div>
                 </div>
             </nav>
             
+            <div class="sidebar-footer">
+                <a href="{{ url_for('admin_change_password') }}">
+                    <span>🔐</span>
+                    <span>Change Password</span>
+                </a>
+                <a href="/" target="_blank">
+                    <span>🌐</span>
+                    <span>View Website</span>
+                </a>
+                <a href="{{ url_for('admin_logout') }}" class="nav-danger">
+                    <span>🚪</span>
+                    <span>Logout</span>
+                </a>
+            </div>
         </aside>
         
         <main class="main-content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message {{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            
             {% block main_content %}
             <header>
                 <h1>Series List</h1>
@@ -130,9 +158,9 @@
                             <td>{{ s.date_range }}</td>
                             <td><a href="{{ s.series_url }}" target="_blank">View</a></td>
                             <td>
-                                <button class="btn btn-small scrape-matches" data-id="{{ s.id }}">Scrape Matches</button>
-                                <button class="btn btn-small btn-danger clear-series-matches" data-id="{{ s.id }}">Clear Matches</button>
-                                <a href="{{ url_for('view_matches', series_id=s.id) }}" class="btn btn-small btn-secondary">View Matches</a>
+                                <button class="btn btn-small btn-primary scrape-matches" data-id="{{ s.id }}">Scrape Matches</button>
+                                <button class="btn btn-small btn-danger clear-series-matches" data-id="{{ s.id }}">Clear</button>
+                                <a href="{{ url_for('view_matches', series_id=s.id) }}" class="btn btn-small btn-secondary">View</a>
                             </td>
                         </tr>
                         {% endfor %}
@@ -154,7 +182,7 @@
                 const status = document.getElementById('statusMessage');
                 
                 btn.disabled = true;
-                btn.textContent = 'Scraping...';
+                btn.innerHTML = '<span class="nav-icon">⏳</span><span>Scraping...</span>';
                 if(status) status.textContent = '';
                 
                 fetch('/api/scrape-series', { method: 'POST' })
@@ -165,7 +193,7 @@
                         status.className = 'status-message ' + (data.success ? 'success' : 'error');
                     }
                     btn.disabled = false;
-                    btn.innerHTML = '<span class="nav-icon">📥</span><span>Scrape Series</span>';
+                    btn.innerHTML = '<span class="nav-icon">🔄</span><span>Scrape Series</span>';
                     if(data.success) setTimeout(() => location.reload(), 1500);
                 })
                 .catch(error => {
@@ -174,7 +202,7 @@
                         status.className = 'status-message error';
                     }
                     btn.disabled = false;
-                    btn.innerHTML = '<span class="nav-icon">📥</span><span>Scrape Series</span>';
+                    btn.innerHTML = '<span class="nav-icon">🔄</span><span>Scrape Series</span>';
                 });
             });
         }
@@ -261,7 +289,7 @@
         
         document.querySelectorAll('.clear-series-matches').forEach(btn => {
             btn.addEventListener('click', function() {
-                if(!confirm('Are you sure you want to clear matches for this series?')) return;
+                if(!confirm('Clear matches for this series?')) return;
                 
                 const seriesId = this.dataset.id;
                 const button = this;
@@ -274,16 +302,18 @@
                 .then(data => {
                     alert(data.message);
                     button.disabled = false;
-                    button.textContent = 'Clear Matches';
+                    button.textContent = 'Clear';
                     if(data.success) location.reload();
                 })
                 .catch(error => {
                     alert('Error: ' + error);
                     button.disabled = false;
-                    button.textContent = 'Clear Matches';
+                    button.textContent = 'Clear';
                 });
             });
         });
     </script>
+    
+    {% block content %}{% endblock %}
 </body>
 </html>
