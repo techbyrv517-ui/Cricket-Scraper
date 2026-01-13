@@ -772,7 +772,7 @@ def series_detail_page(series_id):
         conn.close()
         return "Series not found", 404
     
-    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY id ASC', (series_id,))
+    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY match_id ASC', (series_id,))
     matches = cur.fetchall()
     
     cur.close()
