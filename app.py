@@ -98,6 +98,11 @@ def admin():
     sidebar = get_sidebar_data()
     return render_template('admin.html', series=series, sidebar=sidebar)
 
+@app.route('/live-score')
+def live_score():
+    sidebar = get_sidebar_data()
+    return render_template('live_score.html', sidebar=sidebar)
+
 @app.route('/admin/matches/<int:series_id>')
 def view_matches(series_id):
     conn = get_db()

@@ -144,10 +144,20 @@ body {
     border-radius: 8px;
     margin-bottom: 5px;
     transition: all 0.3s ease;
+    background: transparent;
+    border: none;
+    width: 100%;
+    cursor: pointer;
+    font-size: 1rem;
+    font-family: inherit;
 }
 
 .nav-item:hover, .nav-item.active {
     background: rgba(0,217,255,0.2);
+}
+
+.nav-item.nav-danger:hover {
+    background: rgba(255,71,87,0.2);
 }
 
 .nav-icon {

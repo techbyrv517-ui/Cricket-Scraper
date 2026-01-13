@@ -13,6 +13,29 @@
                 <h2>Cricket Scraper</h2>
             </div>
             
+            <nav class="sidebar-nav">
+                <button id="scrapeSeriesBtn" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span>Scrape Series</span>
+                </button>
+                <button id="scrapeAllMatchesBtn" class="nav-item">
+                    <span class="nav-icon">📥</span>
+                    <span>Scrape Match</span>
+                </button>
+                <button id="clearSeriesBtn" class="nav-item nav-danger">
+                    <span class="nav-icon">🗑️</span>
+                    <span>Clear Series</span>
+                </button>
+                <button id="clearMatchesBtn" class="nav-item nav-danger">
+                    <span class="nav-icon">🗑️</span>
+                    <span>Clear Match</span>
+                </button>
+                <a href="{{ url_for('live_score') }}" class="nav-item">
+                    <span class="nav-icon">🏏</span>
+                    <span>Live Score</span>
+                </a>
+            </nav>
+            
             <div class="sidebar-series-list">
                 <h3>Series ({{ sidebar.total_series }})</h3>
                 <div class="series-scroll">
@@ -23,15 +46,6 @@
                     </a>
                     {% endfor %}
                 </div>
-            </div>
-            
-            <div class="sidebar-actions">
-                <h3>Scrape Actions</h3>
-                <button id="scrapeSeriesBtn" class="btn btn-primary btn-full">Scrape Series</button>
-                <button id="scrapeAllMatchesBtn" class="btn btn-primary btn-full">Scrape All Matches</button>
-                <h3>Clear Data</h3>
-                <button id="clearMatchesBtn" class="btn btn-danger btn-full">Clear All Matches</button>
-                <button id="clearSeriesBtn" class="btn btn-danger btn-full">Clear All Series</button>
             </div>
         </aside>
         

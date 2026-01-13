@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matches - {{ series.series_name }}</title>
+    <title>Live Score - Cricket Scraper</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -30,7 +30,7 @@
                     <span class="nav-icon">🗑️</span>
                     <span>Clear Match</span>
                 </a>
-                <a href="{{ url_for('live_score') }}" class="nav-item">
+                <a href="{{ url_for('live_score') }}" class="nav-item active">
                     <span class="nav-icon">🏏</span>
                     <span>Live Score</span>
                 </a>
@@ -40,7 +40,7 @@
                 <h3>Series ({{ sidebar.total_series }})</h3>
                 <div class="series-scroll">
                     {% for s in sidebar.recent_series %}
-                    <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item {% if s.id == series.id %}active{% endif %}">
+                    <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item">
                         <span class="series-name">{{ s.series_name[:35] }}{% if s.series_name|length > 35 %}...{% endif %}</span>
                         <span class="series-badge">{{ s.match_count }}</span>
                     </a>
@@ -51,41 +51,11 @@
         
         <main class="main-content">
             <header>
-                <div>
-                    <h1>{{ series.series_name }}</h1>
-                    <p class="subtitle">{{ series.date_range }} | Series ID: {{ series.series_id or 'N/A' }}</p>
-                </div>
+                <h1>Live Score</h1>
             </header>
             
             <div class="table-container">
-                <h2>Matches ({{ matches|length }})</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Match ID</th>
-                            <th>Match Title</th>
-                            <th>Match Date</th>
-                            <th>Match URL</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for m in matches %}
-                        <tr>
-                            <td>{{ m.id }}</td>
-                            <td>{{ m.match_id }}</td>
-                            <td>{{ m.match_title }}</td>
-                            <td>{{ m.match_date or '-' }}</td>
-                            <td><a href="{{ m.match_url }}" target="_blank">View Match</a></td>
-                        </tr>
-                        {% endfor %}
-                        {% if not matches %}
-                        <tr>
-                            <td colspan="5" style="text-align: center;">No matches found. Click "Scrape Matches" to fetch data.</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+                <p style="text-align: center; padding: 40px; color: #888;">Live score feature coming soon...</p>
             </div>
         </main>
     </div>
