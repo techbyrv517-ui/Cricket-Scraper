@@ -223,22 +223,33 @@ def scrape_matches_from_series(series_id):
         if not match_belongs_to_series(match_slug):
             continue
         
-        if not title:
-            title = link.get_text(strip=True)
-        
         if not match_id or match_id in processed_match_ids:
             continue
         processed_match_ids.add(match_id)
         
+        if title:
+            match_title = re.sub(r'\s*-\s*(Preview|Live|Stumps|Result|Scheduled|Need \d+.*)\s*$', '', title).strip()
+            match_title = re.sub(r'\s*-\s*Preview\s*$', '', match_title).strip()
+        else:
+            match_title = link.get_text(strip=True)
+        
+        match_date = ''
+        parent = link.parent
+        while parent and parent.name != 'body':
+            date_elem = parent.find(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),'))
+            if date_elem:
+                match_date = date_elem.strip()
+                break
+            parent = parent.parent
+        
         match_url = f"https://www.cricbuzz.com{href}"
-        match_title = title.strip() if title else ''
         
         if match_title and len(match_title) > 2:
             cur.execute('SELECT id FROM matches WHERE match_id = %s AND series_id = %s', (match_id, series_id))
             if cur.fetchone() is None:
                 cur.execute(
                     'INSERT INTO matches (series_id, match_id, match_title, match_url, match_date) VALUES (%s, %s, %s, %s, %s)',
-                    (series_id, match_id, match_title, match_url, '')
+                    (series_id, match_id, match_title, match_url, match_date)
                 )
                 match_count += 1
     
