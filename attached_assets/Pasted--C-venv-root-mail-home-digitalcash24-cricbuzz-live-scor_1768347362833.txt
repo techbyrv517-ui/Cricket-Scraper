@@ -1,0 +1,52 @@
+> ^C
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# nginx -t && systemctl reload nginx
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# curl -Ik https://cricbuzz-live-score.comcat > /etc/nginx/conf.d/domains/004-cricbuzz-live-score.com.conf << 'EOF'
+> server {
+>     listen 80;
+>     server_name cricbuzz-live-score.com www.cricbuzz-live-score.com;
+>     return 301 https://$server_name$request_uri;
+> }
+>
+> server {
+>     listen 443 ssl http2;
+>     server_name cricbuzz-live-score.com www.cricbuzz-live-score.com;
+>
+>     ssl_certificate /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem;
+>     ssl_certificate_key /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem;
+>
+>     location / {
+>         proxy_pass http://127.0.0.1:5000;
+>         proxy_set_header Host $host;
+>         proxy_set_header X-Real-IP $remote_addr;
+>         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+>         proxy_set_header X-Forwarded-Proto $scheme;
+>     }
+>
+>     location /static {
+>         alias /home/digitalcash24/cricbuzz-live-score.com/static;
+>         expires 30d;
+>     }
+> }
+> EOF
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: cricbuzz-live-score.comcat
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# nginx -t && systemctl reload nginx && curl -Ik https://cricbuzz-live-score.com
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+HTTP/2 200
+server: nginx
+date: Tue, 13 Jan 2026 23:35:54 GMT
+content-type: text/html
+content-length: 3312
+vary: Accept-Encoding
+last-modified: Tue, 13 Jan 2026 23:29:22 GMT
+x-xss-protection: 1; mode=block
+x-content-type-options: nosniff
+x-nginx-upstream-cache-status: STALE
+x-server-powered-by: ZesleCP
+accept-ranges: bytes
+
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com#
