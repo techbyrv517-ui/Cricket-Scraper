@@ -1,111 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matches - Cricket Scraper</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-    <div class="layout">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>Cricket Scraper</h2>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <a href="{{ url_for('admin') }}" class="nav-item">
-                    <span class="nav-icon">📥</span>
-                    <span>Scrape Series</span>
-                </a>
-                <a href="{{ url_for('admin') }}" class="nav-item nav-danger">
-                    <span class="nav-icon">🗑️</span>
-                    <span>Clear Series</span>
-                </a>
-                <a href="{{ url_for('admin') }}" class="nav-item nav-danger">
-                    <span class="nav-icon">🗑️</span>
-                    <span>Clear Match</span>
-                </a>
-                <a href="{{ url_for('matches_page') }}" class="nav-item active">
-                    <span class="nav-icon">🏏</span>
-                    <span>Matches</span>
-                </a>
-                <a href="{{ url_for('live_score') }}" class="nav-item">
-                    <span class="nav-icon">📡</span>
-                    <span>Live Score</span>
-                </a>
-                <a href="{{ url_for('scorecard') }}" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span>Scorecard</span>
-                </a>
-            </nav>
-            
-        </aside>
-        
-        <main class="main-content">
-            <header>
-                <h1>Matches</h1>
-            </header>
-            
-            <div class="table-container">
-                <div class="series-selector">
-                    <label for="seriesSelect">Select Series:</label>
-                    <select id="seriesSelect">
-                        <option value="">-- Select a Series --</option>
-                        {% for s in all_series %}
-                        <option value="{{ s.id }}">{{ s.series_name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <div id="matchesContent">
-                    <p class="placeholder-text">Please select a series to view matches</p>
-                </div>
-            </div>
-        </main>
+{% extends 'admin.html' %}
+
+{% block title %}Matches - Cricbuzz Live Score{% endblock %}
+
+{% block main_content %}
+<header>
+    <h1>Matches</h1>
+</header>
+
+<div class="table-container">
+    <div class="series-selector">
+        <label for="seriesSelect">Select Series:</label>
+        <select id="seriesSelect">
+            <option value="">-- Select a Series --</option>
+            {% for s in all_series %}
+            <option value="{{ s.id }}">{{ s.series_name }}</option>
+            {% endfor %}
+        </select>
     </div>
     
-    <script>
-        document.getElementById('seriesSelect').addEventListener('change', function() {
-            const seriesId = this.value;
-            const content = document.getElementById('matchesContent');
-            
-            if(!seriesId) {
-                content.innerHTML = '<p class="placeholder-text">Please select a series to view matches</p>';
+    <div id="matchesContent">
+        <p class="placeholder-text">Please select a series to view matches</p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('seriesSelect').addEventListener('change', function() {
+        const seriesId = this.value;
+        const content = document.getElementById('matchesContent');
+        
+        if(!seriesId) {
+            content.innerHTML = '<p class="placeholder-text">Please select a series to view matches</p>';
+            return;
+        }
+        
+        content.innerHTML = '<p class="placeholder-text">Loading matches...</p>';
+        
+        fetch('/api/get-matches/' + seriesId)
+        .then(response => response.json())
+        .then(data => {
+            if(data.matches.length === 0) {
+                content.innerHTML = '<p class="placeholder-text">No matches found for this series</p>';
                 return;
             }
             
-            content.innerHTML = '<p class="placeholder-text">Loading matches...</p>';
+            let html = '<h2>' + data.series.series_name + '</h2>';
+            html += '<p class="series-info">' + (data.series.date_range || '') + '</p>';
+            html += '<table><thead><tr><th>ID</th><th>Match ID</th><th>Match Title</th><th>Match Date</th><th>Match URL</th></tr></thead><tbody>';
             
-            fetch('/api/get-matches/' + seriesId)
-            .then(response => response.json())
-            .then(data => {
-                if(data.matches.length === 0) {
-                    content.innerHTML = '<p class="placeholder-text">No matches found for this series</p>';
-                    return;
-                }
-                
-                let html = '<h2>' + data.series.series_name + '</h2>';
-                html += '<p class="series-info">' + (data.series.date_range || '') + '</p>';
-                html += '<table><thead><tr><th>ID</th><th>Match ID</th><th>Match Title</th><th>Match Date</th><th>Match URL</th></tr></thead><tbody>';
-                
-                data.matches.forEach(m => {
-                    html += '<tr>';
-                    html += '<td>' + m.id + '</td>';
-                    html += '<td>' + m.match_id + '</td>';
-                    html += '<td>' + m.match_title + '</td>';
-                    html += '<td>' + (m.match_date || '-') + '</td>';
-                    html += '<td><a href="' + m.match_url + '" target="_blank">View Match</a></td>';
-                    html += '</tr>';
-                });
-                
-                html += '</tbody></table>';
-                content.innerHTML = html;
-            })
-            .catch(error => {
-                content.innerHTML = '<p class="placeholder-text error">Error loading matches</p>';
+            data.matches.forEach(m => {
+                html += '<tr>';
+                html += '<td>' + m.id + '</td>';
+                html += '<td>' + m.match_id + '</td>';
+                html += '<td>' + m.match_title + '</td>';
+                html += '<td>' + (m.match_date || '-') + '</td>';
+                html += '<td><a href="' + m.match_url + '" target="_blank">View Match</a></td>';
+                html += '</tr>';
             });
+            
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        })
+        .catch(error => {
+            content.innerHTML = '<p class="placeholder-text error">Error loading matches</p>';
         });
-    </script>
-</body>
-</html>
+    });
+</script>
+{% endblock %}
