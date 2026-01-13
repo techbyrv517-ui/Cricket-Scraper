@@ -35,14 +35,23 @@ A PHP-based cricket data scraping website that scrapes series and match data fro
 
 ## Features Implemented
 1. Series data scraping from cricbuzz.com/cricket-schedule/series/all
-2. Match data scraping from individual series pages
+2. Match data scraping from individual series pages (JavaScript-rendered content via ScraperAPI)
 3. Admin panel to view and manage scraped data
+4. Smart match filtering using team abbreviations for all cricket nations
 
 ## Tech Stack
 - PHP 8.2
 - PostgreSQL Database
 - HTML/CSS
 - cURL for web scraping
+- ScraperAPI for JavaScript rendering (SCRAPER_API_KEY required)
+
+## Environment Variables
+- SCRAPER_API_KEY: Required for scraping JavaScript-rendered match data from Cricbuzz
+- DATABASE_URL: PostgreSQL connection string
 
 ## Recent Changes
+- January 2026: Added ScraperAPI integration for JavaScript-rendered content
+- January 2026: Fixed match filtering for abbreviated country codes (NZ, IND, etc.)
+- January 2026: Added support for 25+ cricket nations (including associate members)
 - January 2026: Initial project setup with admin panel and scraping functionality
