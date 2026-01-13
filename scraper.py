@@ -287,16 +287,23 @@ def scrape_scorecard(url):
     if not url or 'cricbuzz.com/live-cricket-scorecard' not in url:
         return {'success': False, 'message': 'Invalid scorecard URL'}
     
-    api_key = os.environ.get('SCRAPER_API_KEY', '')
+    from playwright.sync_api import sync_playwright
+    import subprocess
     
-    if not api_key:
-        return {'success': False, 'message': 'SCRAPER_API_KEY required for scorecard scraping (JavaScript rendering needed)'}
+    chromium_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
     
     try:
-        api_url = f"http://api.scraperapi.com?api_key={api_key}&url={url}&render=true"
-        response = requests.get(api_url, timeout=180)
-        response.raise_for_status()
-        html = response.text
+        with sync_playwright() as p:
+            browser = p.chromium.launch(
+                headless=True,
+                executable_path=chromium_path if chromium_path else None,
+                args=['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
+            )
+            page = browser.new_page()
+            page.goto(url, wait_until='networkidle', timeout=60000)
+            page.wait_for_timeout(3000)
+            html = page.content()
+            browser.close()
     except Exception as e:
         return {'success': False, 'message': f'Error fetching scorecard: {str(e)}'}
     
