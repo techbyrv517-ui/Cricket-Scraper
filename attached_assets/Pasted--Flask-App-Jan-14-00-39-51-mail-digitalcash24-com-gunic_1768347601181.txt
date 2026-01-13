@@ -1,0 +1,18 @@
+ Flask App...
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994763]: [2026-01-14 00:39:51 +0100] [3994763] [INFO] Worker exiting (pid: 3994763)
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994764]: [2026-01-14 00:39:51 +0100] [3994764] [INFO] Worker exiting (pid: 3994764)
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994746]: [2026-01-14 00:39:51 +0100] [3994746] [INFO] Handling signal: term
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994746]: [2026-01-14 00:39:51 +0100] [3994746] [ERROR] Worker (pid:3994763) was sent SIGTERM!
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994762]: [2026-01-14 00:39:51 +0100] [3994762] [INFO] Worker exiting (pid: 3994762)
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994746]: [2026-01-14 00:39:51 +0100] [3994746] [ERROR] Worker (pid:3994764) was sent SIGTERM!
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3994746]: [2026-01-14 00:39:51 +0100] [3994746] [INFO] Shutting down: Master
+Jan 14 00:39:51 mail.digitalcash24.com systemd[1]: cricbuzz.service: Succeeded.
+Jan 14 00:39:51 mail.digitalcash24.com systemd[1]: Stopped Cricbuzz Live Score Flask App.
+Jan 14 00:39:51 mail.digitalcash24.com systemd[1]: Started Cricbuzz Live Score Flask App.
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3995673]: [2026-01-14 00:39:51 +0100] [3995673] [INFO] Starting gunicorn 23.0.0
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3995673]: [2026-01-14 00:39:51 +0100] [3995673] [INFO] Listening at: http://127.0.0.1:5000 (3995673)
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3995673]: [2026-01-14 00:39:51 +0100] [3995673] [INFO] Using worker: sync
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3995693]: [2026-01-14 00:39:51 +0100] [3995693] [INFO] Booting worker with pid: 3995693
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3995694]: [2026-01-14 00:39:51 +0100] [3995694] [INFO] Booting worker with pid: 3995694
+Jan 14 00:39:51 mail.digitalcash24.com gunicorn[3995695]: [2026-01-14 00:39:51 +0100] [3995695] [INFO] Booting worker with pid: 3995695
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com#
