@@ -65,6 +65,41 @@
 
 <div class="category-container">
     <div class="main-content">
+        <div class="posts-section">
+            <h2>Latest {{ category.name }} News & Updates</h2>
+            
+            {% if posts %}
+            <div class="posts-grid">
+                {% for post in posts %}
+                <article class="post-card">
+                    <a href="/post/{{ post.slug }}" class="post-link">
+                        {% if post.featured_image %}
+                        <div class="post-image">
+                            <img src="{{ post.featured_image }}" alt="{{ post.title }}" loading="lazy">
+                        </div>
+                        {% else %}
+                        <div class="post-image post-image-placeholder">
+                            <span>{{ category.name }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="post-content">
+                            <h3>{{ post.title }}</h3>
+                            {% if post.excerpt %}
+                            <p>{{ post.excerpt }}</p>
+                            {% endif %}
+                            <span class="post-date">{{ post.created_at.strftime('%d %b %Y') if post.created_at else '' }}</span>
+                        </div>
+                    </a>
+                </article>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-posts">
+                <p>No posts yet in this category. Check back soon for updates!</p>
+            </div>
+            {% endif %}
+        </div>
+        
         <div class="seo-content-box">
             <h2>{{ category.short_name }} - Live Score Updates</h2>
             {% if category.content %}
@@ -107,41 +142,6 @@
                     <div class="stat-label">T20I Matches</div>
                 </div>
             </div>
-        </div>
-        
-        <div class="posts-section">
-            <h2>Latest {{ category.name }} News & Updates</h2>
-            
-            {% if posts %}
-            <div class="posts-grid">
-                {% for post in posts %}
-                <article class="post-card">
-                    <a href="/post/{{ post.slug }}" class="post-link">
-                        {% if post.featured_image %}
-                        <div class="post-image">
-                            <img src="{{ post.featured_image }}" alt="{{ post.title }}" loading="lazy">
-                        </div>
-                        {% else %}
-                        <div class="post-image post-image-placeholder">
-                            <span>{{ category.name }}</span>
-                        </div>
-                        {% endif %}
-                        <div class="post-content">
-                            <h3>{{ post.title }}</h3>
-                            {% if post.excerpt %}
-                            <p>{{ post.excerpt }}</p>
-                            {% endif %}
-                            <span class="post-date">{{ post.created_at.strftime('%d %b %Y') if post.created_at else '' }}</span>
-                        </div>
-                    </a>
-                </article>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="no-posts">
-                <p>No posts yet in this category. Check back soon for updates!</p>
-            </div>
-            {% endif %}
         </div>
     </div>
     
