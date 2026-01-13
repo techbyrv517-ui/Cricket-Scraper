@@ -7,7 +7,7 @@
 </div>
 
 <div class="card">
-    <form method="POST" enctype="multipart/form-data" class="post-form">
+    <form method="POST" enctype="multipart/form-data" class="post-form" id="postForm">
         <div class="form-section">
             <h3>Basic Information</h3>
             <div class="form-grid">
@@ -52,7 +52,8 @@
                 
                 <div class="form-group full-width">
                     <label for="content">Content</label>
-                    <textarea id="content" name="content" rows="15" placeholder="Full post content"></textarea>
+                    <div id="quill-editor"></div>
+                    <input type="hidden" id="content" name="content">
                 </div>
             </div>
         </div>
@@ -109,7 +110,8 @@
     </form>
 </div>
 
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 
 <style>
 .post-form {
@@ -204,6 +206,15 @@
     border-radius: 4px;
     object-fit: cover;
 }
+#quill-editor {
+    height: 350px;
+    background: #fff;
+    border-radius: 0 0 4px 4px;
+}
+.ql-toolbar {
+    border-radius: 4px 4px 0 0;
+    background: #f8f9fa;
+}
 @media (max-width: 768px) {
     .form-grid {
         grid-template-columns: 1fr;
@@ -212,37 +223,30 @@
 </style>
 
 <script>
-tinymce.init({
-    selector: '#content',
-    height: 400,
-    plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
-    toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
-    menubar: 'file edit view insert format tools table',
-    content_style: 'body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; }',
-    images_upload_url: '/api/upload-image',
-    automatic_uploads: true,
-    images_upload_handler: function (blobInfo, progress) {
-        return new Promise((resolve, reject) => {
-            const formData = new FormData();
-            formData.append('file', blobInfo.blob(), blobInfo.filename());
-            
-            fetch('/api/upload-image', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    resolve(result.url);
-                } else {
-                    reject(result.error);
-                }
-            })
-            .catch(error => {
-                reject('Image upload failed: ' + error);
-            });
-        });
+var quill = new Quill('#quill-editor', {
+    theme: 'snow',
+    placeholder: 'Write your post content here...',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            [{ 'font': [] }],
+            [{ 'size': ['small', false, 'large', 'huge'] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'script': 'sub'}, { 'script': 'super' }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'indent': '-1'}, { 'indent': '+1' }],
+            [{ 'direction': 'rtl' }],
+            [{ 'align': [] }],
+            ['link', 'image', 'video'],
+            ['blockquote', 'code-block'],
+            ['clean']
+        ]
     }
+});
+
+document.getElementById('postForm').addEventListener('submit', function(e) {
+    document.getElementById('content').value = quill.root.innerHTML;
 });
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
