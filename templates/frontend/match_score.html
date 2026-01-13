@@ -307,12 +307,15 @@
         .scorecard-container .batting-table,
         .scorecard-container .bowling-table {
             display: block;
-            width: 100%;
+            width: calc(100% - 20px);
+            margin-left: 10px;
+            margin-right: 10px;
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
             border-radius: 10px;
             box-shadow: 0 3px 12px rgba(0,0,0,0.1);
-            margin: 15px 0;
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
         
         .scorecard-container .batting-table thead,
