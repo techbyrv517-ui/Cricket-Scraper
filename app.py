@@ -759,6 +759,28 @@ def series_page():
     settings = get_site_settings()
     return render_template('frontend/series.html', series_by_year=series_by_year, settings=settings)
 
+@app.route('/series/<int:series_id>')
+def series_detail_page(series_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM series WHERE id = %s', (series_id,))
+    series = cur.fetchone()
+    
+    if not series:
+        cur.close()
+        conn.close()
+        return "Series not found", 404
+    
+    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY match_date DESC', (series_id,))
+    matches = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    settings = get_site_settings()
+    return render_template('frontend/series_detail.html', series=series, matches=matches, settings=settings)
+
 @app.route('/robots.txt')
 def robots():
     content = """User-agent: *
