@@ -12,12 +12,35 @@
             <div class="sidebar-header">
                 <h2>Cricket Scraper</h2>
             </div>
+            
+            <div class="sidebar-stats">
+                <div class="stat-item">
+                    <span class="stat-number">{{ sidebar.total_series }}</span>
+                    <span class="stat-label">Series</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">{{ sidebar.total_matches }}</span>
+                    <span class="stat-label">Matches</span>
+                </div>
+            </div>
+            
             <nav class="sidebar-nav">
                 <a href="{{ url_for('admin') }}" class="nav-item active">
                     <span class="nav-icon">📋</span>
-                    <span>Series List</span>
+                    <span>All Series</span>
                 </a>
             </nav>
+            
+            <div class="sidebar-series">
+                <h3>Recent Series</h3>
+                {% for s in sidebar.recent_series %}
+                <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item">
+                    <span class="series-name">{{ s.series_name[:30] }}{% if s.series_name|length > 30 %}...{% endif %}</span>
+                    <span class="series-badge">{{ s.match_count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            
             <div class="sidebar-actions">
                 <h3>Scrape Actions</h3>
                 <button id="scrapeSeriesBtn" class="btn btn-primary btn-full">Scrape Series</button>
@@ -133,6 +156,7 @@
                 status.textContent = data.message;
                 status.className = 'status-message ' + (data.success ? 'success' : 'error');
                 btn.disabled = false;
+                if(data.success) setTimeout(() => location.reload(), 1500);
             })
             .catch(error => {
                 status.textContent = 'Error: ' + error;
@@ -177,6 +201,7 @@
                     alert(data.message);
                     button.disabled = false;
                     button.textContent = 'Scrape Matches';
+                    location.reload();
                 })
                 .catch(error => {
                     alert('Error: ' + error);

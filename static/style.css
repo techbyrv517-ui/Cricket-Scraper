@@ -31,12 +31,87 @@ body {
 .sidebar-header h2 {
     color: #00d9ff;
     font-size: 1.4rem;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     text-align: center;
 }
 
+.sidebar-stats {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    flex: 1;
+    background: rgba(0,217,255,0.1);
+    border-radius: 10px;
+    padding: 15px 10px;
+    text-align: center;
+}
+
+.stat-number {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00d9ff;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+}
+
 .sidebar-nav {
-    margin-bottom: 30px;
+    margin-bottom: 15px;
+}
+
+.sidebar-series {
+    margin-bottom: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sidebar-series h3 {
+    color: #888;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.series-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    color: #ccc;
+    text-decoration: none;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.series-item:hover, .series-item.active {
+    background: rgba(0,217,255,0.15);
+    color: #fff;
+}
+
+.series-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.series-badge {
+    background: rgba(0,217,255,0.3);
+    color: #00d9ff;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 8px;
 }
 
 .nav-item {

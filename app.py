@@ -12,6 +12,35 @@ app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
 def get_db():
     return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
 
+def get_sidebar_data():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''
+        SELECT s.id, s.series_name, s.year, COUNT(m.id) as match_count 
+        FROM series s 
+        LEFT JOIN matches m ON s.id = m.series_id 
+        GROUP BY s.id, s.series_name, s.year 
+        ORDER BY s.year DESC, s.series_name ASC 
+        LIMIT 10
+    ''')
+    recent_series = cur.fetchall()
+    
+    cur.execute('SELECT COUNT(*) as total FROM series')
+    total_series = cur.fetchone()['total']
+    
+    cur.execute('SELECT COUNT(*) as total FROM matches')
+    total_matches = cur.fetchone()['total']
+    
+    cur.close()
+    conn.close()
+    
+    return {
+        'recent_series': recent_series,
+        'total_series': total_series,
+        'total_matches': total_matches
+    }
+
 def init_db():
     conn = get_db()
     cur = conn.cursor()
@@ -66,7 +95,8 @@ def admin():
     cur.close()
     conn.close()
     
-    return render_template('admin.html', series=series)
+    sidebar = get_sidebar_data()
+    return render_template('admin.html', series=series, sidebar=sidebar)
 
 @app.route('/admin/matches/<int:series_id>')
 def view_matches(series_id):
@@ -82,7 +112,8 @@ def view_matches(series_id):
     cur.close()
     conn.close()
     
-    return render_template('matches.html', series=series, matches=matches)
+    sidebar = get_sidebar_data()
+    return render_template('matches.html', series=series, matches=matches, sidebar=sidebar)
 
 @app.route('/api/scrape-series', methods=['POST'])
 def api_scrape_series():
