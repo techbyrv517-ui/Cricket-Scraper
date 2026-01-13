@@ -1,13 +1,217 @@
 {% extends 'admin.html' %}
 
-{% block title %}Live Score - Cricbuzz Live Score{% endblock %}
+{% block title %}Manage Live Matches - Admin Panel{% endblock %}
 
 {% block main_content %}
 <header>
-    <h1>Live Score</h1>
+    <h1>Manage Live Matches</h1>
 </header>
 
-<div class="table-container">
-    <p style="text-align: center; padding: 40px; color: #888;">Live score feature coming soon...</p>
+<div class="admin-card" style="margin-bottom: 25px;">
+    <h3 style="color: var(--admin-primary); margin-bottom: 20px; font-size: 1.1rem;">Add New Live Match</h3>
+    <form action="{{ url_for('admin_add_live_match') }}" method="POST">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label>Series Name</label>
+                <input type="text" name="series_name" placeholder="e.g., India Tour of Australia 2026" required>
+            </div>
+            <div class="form-group">
+                <label>Match Info</label>
+                <input type="text" name="match_info" placeholder="e.g., 1st Test, Day 2">
+            </div>
+            <div class="form-group">
+                <label>Match Date</label>
+                <input type="text" name="match_date" placeholder="e.g., Mon, Jan 13 2026">
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label>Team 1 Name</label>
+                <input type="text" name="team1_name" placeholder="e.g., India" required>
+            </div>
+            <div class="form-group">
+                <label>Team 1 Score</label>
+                <input type="text" name="team1_score" placeholder="e.g., 250-4">
+            </div>
+            <div class="form-group">
+                <label>Team 2 Name</label>
+                <input type="text" name="team2_name" placeholder="e.g., Australia" required>
+            </div>
+            <div class="form-group">
+                <label>Team 2 Score</label>
+                <input type="text" name="team2_score" placeholder="e.g., 180-10">
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div class="form-group">
+                <label>Status</label>
+                <input type="text" name="status" placeholder="e.g., India need 150 runs to win">
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 25px;">
+                <input type="checkbox" name="is_live" id="is_live" checked style="width: 20px; height: 20px;">
+                <label for="is_live" style="margin: 0; cursor: pointer;">Show as Live</label>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Live Match</button>
+    </form>
 </div>
+
+<div class="admin-card">
+    <h3 style="color: var(--admin-primary); margin-bottom: 20px; font-size: 1.1rem;">Current Live Matches ({{ live_matches|length }})</h3>
+    
+    {% if live_matches %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Series</th>
+                    <th>Match Info</th>
+                    <th>Team 1</th>
+                    <th>Score</th>
+                    <th>Team 2</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Live</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for match in live_matches %}
+                <tr>
+                    <td>{{ match.series_name }}</td>
+                    <td>{{ match.match_info }}</td>
+                    <td>{{ match.team1_name }}</td>
+                    <td>{{ match.team1_score }}</td>
+                    <td>{{ match.team2_name }}</td>
+                    <td>{{ match.team2_score }}</td>
+                    <td>{{ match.status }}</td>
+                    <td>
+                        {% if match.is_live %}
+                        <span style="color: #e53935; font-weight: 600;">LIVE</span>
+                        {% else %}
+                        <span style="color: #888;">Off</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-small btn-secondary" onclick="editMatch({{ match.id }}, '{{ match.series_name|e }}', '{{ match.match_info|e }}', '{{ match.match_date|e }}', '{{ match.team1_name|e }}', '{{ match.team1_score|e }}', '{{ match.team2_name|e }}', '{{ match.team2_score|e }}', '{{ match.status|e }}', {{ 'true' if match.is_live else 'false' }})">Edit</button>
+                        <form action="{{ url_for('admin_delete_live_match', match_id=match.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete this live match?')">
+                            <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 40px; color: #888;">
+        <p>No live matches added yet.</p>
+        <p style="font-size: 0.9rem;">Add a live match above to show it on the homepage Live tab.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+    <div style="background: #fff; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+        <h3 style="color: var(--admin-primary); margin-bottom: 20px;">Edit Live Match</h3>
+        <form id="editForm" method="POST">
+            <div class="form-group">
+                <label>Series Name</label>
+                <input type="text" name="series_name" id="edit_series_name" required>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Match Info</label>
+                    <input type="text" name="match_info" id="edit_match_info">
+                </div>
+                <div class="form-group">
+                    <label>Match Date</label>
+                    <input type="text" name="match_date" id="edit_match_date">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Team 1 Name</label>
+                    <input type="text" name="team1_name" id="edit_team1_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Team 1 Score</label>
+                    <input type="text" name="team1_score" id="edit_team1_score">
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label>Team 2 Name</label>
+                    <input type="text" name="team2_name" id="edit_team2_name" required>
+                </div>
+                <div class="form-group">
+                    <label>Team 2 Score</label>
+                    <input type="text" name="team2_score" id="edit_team2_score">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Status</label>
+                <input type="text" name="status" id="edit_status">
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" name="is_live" id="edit_is_live" style="width: 20px; height: 20px;">
+                <label for="edit_is_live" style="margin: 0; cursor: pointer;">Show as Live</label>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function editMatch(id, series, info, date, t1name, t1score, t2name, t2score, status, isLive) {
+    document.getElementById('editForm').action = '/admin/live-match/edit/' + id;
+    document.getElementById('edit_series_name').value = series;
+    document.getElementById('edit_match_info').value = info;
+    document.getElementById('edit_match_date').value = date;
+    document.getElementById('edit_team1_name').value = t1name;
+    document.getElementById('edit_team1_score').value = t1score;
+    document.getElementById('edit_team2_name').value = t2name;
+    document.getElementById('edit_team2_score').value = t2score;
+    document.getElementById('edit_status').value = status;
+    document.getElementById('edit_is_live').checked = isLive;
+    document.getElementById('editModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditModal();
+});
+</script>
+
+<style>
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e8e8e8;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+.form-group input[type="text"]:focus {
+    outline: none;
+    border-color: var(--admin-primary);
+    box-shadow: 0 0 0 3px rgba(4,106,56,0.1);
+}
+</style>
 {% endblock %}

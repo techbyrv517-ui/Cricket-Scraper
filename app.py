@@ -237,6 +237,25 @@ def init_db():
     ''')
     
     cur.execute('''
+        CREATE TABLE IF NOT EXISTS live_matches (
+            id SERIAL PRIMARY KEY,
+            match_id VARCHAR(50),
+            series_name VARCHAR(255),
+            match_info VARCHAR(255),
+            match_date VARCHAR(100),
+            team1_name VARCHAR(100),
+            team1_score VARCHAR(50),
+            team2_name VARCHAR(100),
+            team2_score VARCHAR(50),
+            status VARCHAR(100),
+            is_live BOOLEAN DEFAULT TRUE,
+            display_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS teams (
             id SERIAL PRIMARY KEY,
             name VARCHAR(100) NOT NULL,
@@ -508,10 +527,11 @@ def index():
     cur.execute('SELECT id, title, slug, featured_image, excerpt FROM posts WHERE is_published = TRUE ORDER BY created_at DESC LIMIT 10')
     sidebar_posts = cur.fetchall()
     
+    cur.execute('SELECT * FROM live_matches WHERE is_live = TRUE ORDER BY display_order ASC, id DESC')
+    live_matches = cur.fetchall()
+    
     cur.close()
     conn.close()
-    
-    live_matches = []
     
     return render_template('frontend/home.html', 
                           settings=settings,
@@ -577,8 +597,87 @@ def admin():
 
 @app.route('/live-score')
 def live_score():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM live_matches ORDER BY display_order ASC, id DESC')
+    live_matches = cur.fetchall()
+    cur.close()
+    conn.close()
     sidebar = get_sidebar_data()
-    return render_template('live_score.html', sidebar=sidebar)
+    return render_template('live_score.html', live_matches=live_matches, sidebar=sidebar)
+
+@app.route('/admin/live-match/add', methods=['POST'])
+@login_required
+def admin_add_live_match():
+    series_name = request.form.get('series_name', '')
+    match_info = request.form.get('match_info', '')
+    match_date = request.form.get('match_date', '')
+    team1_name = request.form.get('team1_name', '')
+    team1_score = request.form.get('team1_score', '')
+    team2_name = request.form.get('team2_name', '')
+    team2_score = request.form.get('team2_score', '')
+    status = request.form.get('status', '')
+    is_live = request.form.get('is_live') == 'on'
+    
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('''
+        INSERT INTO live_matches (series_name, match_info, match_date, team1_name, team1_score, team2_name, team2_score, status, is_live)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ''', (series_name, match_info, match_date, team1_name, team1_score, team2_name, team2_score, status, is_live))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Live match added successfully!', 'success')
+    return redirect(url_for('live_score'))
+
+@app.route('/admin/live-match/edit/<int:match_id>', methods=['POST'])
+@login_required
+def admin_edit_live_match(match_id):
+    series_name = request.form.get('series_name', '')
+    match_info = request.form.get('match_info', '')
+    match_date = request.form.get('match_date', '')
+    team1_name = request.form.get('team1_name', '')
+    team1_score = request.form.get('team1_score', '')
+    team2_name = request.form.get('team2_name', '')
+    team2_score = request.form.get('team2_score', '')
+    status = request.form.get('status', '')
+    is_live = request.form.get('is_live') == 'on'
+    
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('''
+        UPDATE live_matches SET series_name=%s, match_info=%s, match_date=%s, team1_name=%s, team1_score=%s, team2_name=%s, team2_score=%s, status=%s, is_live=%s, updated_at=CURRENT_TIMESTAMP
+        WHERE id=%s
+    ''', (series_name, match_info, match_date, team1_name, team1_score, team2_name, team2_score, status, is_live, match_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Live match updated successfully!', 'success')
+    return redirect(url_for('live_score'))
+
+@app.route('/admin/live-match/delete/<int:match_id>', methods=['POST'])
+@login_required
+def admin_delete_live_match(match_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM live_matches WHERE id = %s', (match_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Live match deleted successfully!', 'success')
+    return redirect(url_for('live_score'))
+
+@app.route('/api/clear-all-live-matches', methods=['POST'])
+def api_clear_all_live_matches():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM live_matches')
+    deleted_count = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'message': f'{deleted_count} live matches cleared successfully'})
 
 @app.route('/scorecard')
 def scorecard():

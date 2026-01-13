@@ -141,6 +141,10 @@
                             <span class="nav-icon">📄</span>
                             <span>Clear Scorecards</span>
                         </button>
+                        <button id="clearLiveMatchesBtn" class="nav-item nav-danger">
+                            <span class="nav-icon">📡</span>
+                            <span>Clear Live Matches</span>
+                        </button>
                     </div>
                 </div>
                 
@@ -364,6 +368,35 @@
                 btn.disabled = true;
                 
                 fetch('/api/clear-all-scorecards', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(status) {
+                        status.textContent = data.message;
+                        status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                    }
+                    btn.disabled = false;
+                    if(data.success) setTimeout(() => location.reload(), 1500);
+                })
+                .catch(error => {
+                    if(status) {
+                        status.textContent = 'Error: ' + error;
+                        status.className = 'status-message error';
+                    }
+                    btn.disabled = false;
+                });
+            });
+        }
+        
+        const clearLiveMatchesBtn = document.getElementById('clearLiveMatchesBtn');
+        if(clearLiveMatchesBtn) {
+            clearLiveMatchesBtn.addEventListener('click', function() {
+                if(!confirm('Are you sure you want to delete ALL live matches?')) return;
+                
+                const btn = this;
+                const status = document.getElementById('statusMessage');
+                btn.disabled = true;
+                
+                fetch('/api/clear-all-live-matches', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if(status) {
