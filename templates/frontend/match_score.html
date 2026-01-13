@@ -322,22 +322,34 @@
         
         .scorecard-container th,
         .scorecard-container td {
-            padding: 10px 8px;
+            padding: 6px 4px;
             font-size: 11px;
-            min-width: 40px;
-            word-wrap: break-word;
-            white-space: normal;
+            min-width: 28px;
+            max-width: 32px;
+            text-align: center;
         }
         
         .scorecard-container td:first-child,
         .scorecard-container th:first-child {
-            min-width: 90px;
-            max-width: 90px;
+            min-width: auto;
+            max-width: none;
+            width: 45%;
+            text-align: left;
+            padding: 8px 10px;
             word-wrap: break-word;
+            white-space: normal;
         }
         
         .scorecard-container th:first-child {
             background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
+        }
+        
+        .scorecard-container .batter-name {
+            font-size: 12px;
+        }
+        
+        .scorecard-container .dismissal-text {
+            font-size: 9px;
         }
         
         .scorecard-container .extras,
