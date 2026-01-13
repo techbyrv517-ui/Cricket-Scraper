@@ -86,11 +86,16 @@
                         <th>Mat</th>
                         <th>Inns</th>
                         <th>Balls</th>
+                        <th>Runs</th>
                         <th>Wkts</th>
+                        <th>Maidens</th>
                         <th>Avg</th>
                         <th>Econ</th>
+                        <th>SR</th>
                         <th>Best</th>
+                        <th>4W</th>
                         <th>5W</th>
+                        <th>10W</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,11 +105,16 @@
                         <td>{{ stats.get('Matches', '-') }}</td>
                         <td>{{ stats.get('Innings', '-') }}</td>
                         <td>{{ stats.get('Balls', '-') }}</td>
+                        <td>{{ stats.get('Runs', '-') }}</td>
                         <td>{{ stats.get('Wickets', '-') }}</td>
+                        <td>{{ stats.get('Maidens', '-') }}</td>
                         <td>{{ stats.get('Avg', '-') }}</td>
                         <td>{{ stats.get('Eco', '-') }}</td>
+                        <td>{{ stats.get('SR', '-') }}</td>
                         <td>{{ stats.get('Best', '-') }}</td>
+                        <td>{{ stats.get('4W', '-') }}</td>
                         <td>{{ stats.get('5W', '-') }}</td>
+                        <td>{{ stats.get('10W', '-') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
