@@ -350,7 +350,9 @@ def scrape_scorecard(url):
             overs_text = overs_span[-1].get_text(strip=True) if len(overs_span) > 1 else ''
             
             if team_text and score_text:
-                team_scores.append(f"{team_text} {score_text}")
+                score_entry = f"{team_text} {score_text}"
+                if score_entry not in team_scores:
+                    team_scores.append(score_entry)
             
             scorecard_html += f'<div class="innings-header">{team_text} <span class="innings-score">{score_text} {overs_text}</span></div>'
         
