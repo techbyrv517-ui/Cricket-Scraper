@@ -310,6 +310,52 @@
     .info-grid {
         grid-template-columns: 1fr 1fr;
     }
+    .career-stats-row {
+        flex-direction: column;
+    }
+    .stats-half {
+        min-width: 100%;
+    }
+    .stats-section {
+        padding: 15px;
+    }
+    .stats-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 12px;
+    }
+    .stats-table-wrapper {
+        overflow-x: visible;
+    }
+    .stats-table th, .stats-table td {
+        padding: 6px 4px;
+        font-size: 0.7rem;
+    }
+    .stats-table th {
+        font-size: 0.65rem;
+    }
+    .vertical-stats td:first-child {
+        font-size: 0.65rem;
+        font-weight: 600;
+    }
+}
+@media (max-width: 480px) {
+    .stats-table th, .stats-table td {
+        padding: 5px 3px;
+        font-size: 0.6rem;
+    }
+    .stats-table th {
+        font-size: 0.55rem;
+    }
+    .vertical-stats td:first-child {
+        font-size: 0.55rem;
+    }
+    .player-container {
+        padding: 15px 10px;
+    }
+    .stats-section {
+        padding: 10px;
+        margin-bottom: 15px;
+    }
 }
 </style>
 {% endblock %}
