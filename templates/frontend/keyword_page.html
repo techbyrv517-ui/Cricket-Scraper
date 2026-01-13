@@ -7,6 +7,16 @@
 {% block canonical_path %}/match/{{ keyword_page.slug }}{% endblock %}
 
 {% block extra_css %}
+<style>
+    @media (max-width: 900px) {
+        .keyword-layout {
+            grid-template-columns: 1fr !important;
+        }
+        .keyword-layout aside {
+            order: 2;
+        }
+    }
+</style>
 <script type="application/ld+json">
 {
     "@context": "https://schema.org",
@@ -31,7 +41,7 @@
 </section>
 
 <div class="container" style="padding-top: 40px;">
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+    <div class="keyword-layout" style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
         <div>
             <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px;">
                 <h2 class="section-title">{{ keyword_page.keyword }} - Live Score Updates</h2>

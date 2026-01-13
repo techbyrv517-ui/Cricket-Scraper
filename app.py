@@ -929,6 +929,17 @@ def api_clear_all_series():
     conn.close()
     return jsonify({'success': True, 'message': 'All series and matches cleared successfully'})
 
+@app.route('/api/clear-all-scorecards', methods=['POST'])
+def api_clear_all_scorecards():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM scorecards')
+    deleted_count = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'message': f'{deleted_count} scorecards cleared successfully'})
+
 @app.route('/api/scrape-teams/<team_type>', methods=['POST'])
 def api_scrape_teams(team_type):
     from scraper import scrape_teams
