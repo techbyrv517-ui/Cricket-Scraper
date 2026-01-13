@@ -1,20 +1,19 @@
 # Cricket Scraper Website
 
 ## Overview
-A PHP-based cricket data scraping website that scrapes series and match data from cricbuzz.com and stores it in a PostgreSQL database.
+A Python/Flask-based cricket data scraping website that scrapes series and match data from cricbuzz.com and stores it in a PostgreSQL database.
 
 ## Project Structure
 ```
 /
-├── config/
-│   ├── database.php    # Database connection
-│   └── init_db.php     # Database table initialization
-├── admin/
-│   ├── index.php       # Admin panel main page
-│   ├── scraper.php     # Scraping functions
-│   ├── matches.php     # View matches for a series
+├── app.py              # Main Flask application
+├── scraper.py          # Scraping functions with ScraperAPI integration
+├── templates/
+│   ├── admin.html      # Admin panel main page
+│   └── matches.html    # View matches for a series
+├── static/
 │   └── style.css       # Admin panel styling
-└── index.php           # Redirect to admin panel
+└── replit.md           # Project documentation
 ```
 
 ## Database Schema
@@ -32,6 +31,7 @@ A PHP-based cricket data scraping website that scrapes series and match data fro
 - match_id: Cricbuzz match ID (extracted from URL)
 - match_title: Title of the match
 - match_url: Full URL to the match page
+- match_date: Date of the match
 
 ## Features Implemented
 1. Series data scraping from cricbuzz.com/cricket-schedule/series/all
@@ -40,18 +40,28 @@ A PHP-based cricket data scraping website that scrapes series and match data fro
 4. Smart match filtering using team abbreviations for all cricket nations
 
 ## Tech Stack
-- PHP 8.2
+- Python 3.11 with Flask framework
 - PostgreSQL Database
-- HTML/CSS
-- cURL for web scraping
-- ScraperAPI for JavaScript rendering (SCRAPER_API_KEY required)
+- Jinja2 Templates
+- BeautifulSoup4 for HTML parsing
+- Requests for HTTP requests
+- ScraperAPI for JavaScript rendering
 
 ## Environment Variables
 - SCRAPER_API_KEY: Required for scraping JavaScript-rendered match data from Cricbuzz
 - DATABASE_URL: PostgreSQL connection string
+- SESSION_SECRET: Flask session secret key
+
+## API Endpoints
+- GET / - Redirects to admin panel
+- GET /admin - Admin panel with series list
+- GET /admin/matches/<series_id> - View matches for a specific series
+- POST /api/scrape-series - Scrape series data from Cricbuzz
+- POST /api/scrape-matches/<series_id> - Scrape matches for a specific series
+- POST /api/scrape-all-matches - Scrape matches for all series
 
 ## Recent Changes
+- January 2026: Migrated from PHP to Python/Flask framework
 - January 2026: Added ScraperAPI integration for JavaScript-rendered content
 - January 2026: Fixed match filtering for abbreviated country codes (NZ, IND, etc.)
 - January 2026: Added support for 25+ cricket nations (including associate members)
-- January 2026: Initial project setup with admin panel and scraping functionality

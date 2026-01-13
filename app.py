@@ -1,0 +1,108 @@
+import os
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
+
+load_dotenv()
+
+app = Flask(__name__)
+app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
+
+def get_db():
+    return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
+
+def init_db():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS series (
+            id SERIAL PRIMARY KEY,
+            month VARCHAR(20),
+            year VARCHAR(10),
+            series_name TEXT,
+            date_range VARCHAR(100),
+            series_url TEXT UNIQUE
+        )
+    ''')
+    
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS matches (
+            id SERIAL PRIMARY KEY,
+            series_id INTEGER REFERENCES series(id),
+            match_id VARCHAR(50),
+            match_title TEXT,
+            match_url TEXT,
+            match_date VARCHAR(50)
+        )
+    ''')
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+
+@app.route('/')
+def index():
+    return redirect(url_for('admin'))
+
+@app.route('/admin')
+def admin():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''
+        SELECT * FROM series ORDER BY year ASC, 
+        CASE month 
+            WHEN 'January' THEN 1 WHEN 'February' THEN 2 WHEN 'March' THEN 3 
+            WHEN 'April' THEN 4 WHEN 'May' THEN 5 WHEN 'June' THEN 6 
+            WHEN 'July' THEN 7 WHEN 'August' THEN 8 WHEN 'September' THEN 9 
+            WHEN 'October' THEN 10 WHEN 'November' THEN 11 WHEN 'December' THEN 12 
+        END ASC, series_name ASC
+    ''')
+    
+    series = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    return render_template('admin.html', series=series)
+
+@app.route('/admin/matches/<int:series_id>')
+def view_matches(series_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM series WHERE id = %s', (series_id,))
+    series = cur.fetchone()
+    
+    cur.execute('SELECT * FROM matches WHERE series_id = %s ORDER BY match_id', (series_id,))
+    matches = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    return render_template('matches.html', series=series, matches=matches)
+
+@app.route('/api/scrape-series', methods=['POST'])
+def api_scrape_series():
+    from scraper import scrape_series_data
+    result = scrape_series_data()
+    return jsonify(result)
+
+@app.route('/api/scrape-matches/<int:series_id>', methods=['POST'])
+def api_scrape_matches(series_id):
+    from scraper import scrape_matches_from_series
+    result = scrape_matches_from_series(series_id)
+    return jsonify(result)
+
+@app.route('/api/scrape-all-matches', methods=['POST'])
+def api_scrape_all_matches():
+    from scraper import scrape_all_matches
+    result = scrape_all_matches()
+    return jsonify(result)
+
+with app.app_context():
+    init_db()
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
