@@ -356,7 +356,7 @@ def scrape_scorecard(url):
         bat_grids = innings.find_all('div', class_=re.compile(r'scorecard-bat-grid'))
         
         if bat_grids:
-            scorecard_html += '<table class="batting-table"><thead><tr><th>Batter</th><th>Dismissal</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
+            scorecard_html += '<table class="batting-table"><thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
             
             for grid in bat_grids:
                 player_link = grid.find('a', href=re.compile(r'/profiles/'))
@@ -373,7 +373,7 @@ def scrape_scorecard(url):
                     sixes = all_divs[4].get_text(strip=True) if len(all_divs) > 4 else '-'
                     sr = all_divs[5].get_text(strip=True) if len(all_divs) > 5 else '-'
                     
-                    scorecard_html += f'<tr><td>{batter_name}</td><td class="dismissal">{dismissal}</td><td>{runs}</td><td>{balls}</td><td>{fours}</td><td>{sixes}</td><td>{sr}</td></tr>'
+                    scorecard_html += f'<tr><td><div class="batter-name">{batter_name}</div><div class="dismissal-text">{dismissal}</div></td><td>{runs}</td><td>{balls}</td><td>{fours}</td><td>{sixes}</td><td>{sr}</td></tr>'
             
             scorecard_html += '</tbody></table>'
         
