@@ -1369,7 +1369,7 @@ def view_post(slug):
     settings = get_site_settings()
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM posts WHERE slug = %s AND is_published = TRUE', (slug,))
+    cur.execute('SELECT p.*, pc.name as category, pc.slug as category_slug FROM posts p LEFT JOIN post_categories pc ON p.category_id = pc.id WHERE p.slug = %s AND p.is_published = TRUE', (slug,))
     post = cur.fetchone()
     
     if not post:
@@ -1377,12 +1377,12 @@ def view_post(slug):
         conn.close()
         return "Post not found", 404
     
-    cur.execute('SELECT id, title, slug, featured_image FROM posts WHERE is_published = TRUE AND id != %s ORDER BY created_at DESC LIMIT 5', (post['id'],))
-    related_posts = cur.fetchall()
+    cur.execute('SELECT id, title, slug, featured_image FROM posts WHERE is_published = TRUE ORDER BY created_at DESC LIMIT 10')
+    sidebar_posts = cur.fetchall()
     cur.close()
     conn.close()
     
-    return render_template('frontend/post.html', post=post, related_posts=related_posts, settings=settings)
+    return render_template('frontend/post.html', post=post, sidebar_posts=sidebar_posts, settings=settings)
 
 @app.route('/admin/teams/delete/<int:team_id>', methods=['POST'])
 @login_required
