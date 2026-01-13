@@ -44,12 +44,20 @@
                                 <span class="match-info-text">{{ match.match_info or '' }}{% if match.match_date %} • {{ match.match_date }}{% endif %}</span>
                             </div>
                             <div class="team-row">
+                                {% if match.team1_flag %}
+                                <img src="{{ match.team1_flag }}" alt="{{ match.team1_name }}" class="team-flag-img">
+                                {% else %}
                                 <div class="team-flag {{ match.team1_name|lower|replace(' ', '-') if match.team1_name else 'default' }}"></div>
+                                {% endif %}
                                 <span class="team-name">{{ match.team1_name or 'Team 1' }}</span>
                                 <span class="team-score">{{ match.team1_score or '' }}</span>
                             </div>
                             <div class="team-row">
+                                {% if match.team2_flag %}
+                                <img src="{{ match.team2_flag }}" alt="{{ match.team2_name }}" class="team-flag-img">
+                                {% else %}
                                 <div class="team-flag {{ match.team2_name|lower|replace(' ', '-') if match.team2_name else 'default' }}"></div>
+                                {% endif %}
                                 <span class="team-name">{{ match.team2_name or 'Team 2' }}</span>
                                 <span class="team-score bold">{{ match.team2_score or '' }}</span>
                             </div>

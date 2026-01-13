@@ -446,6 +446,8 @@ def index():
         match['team1_name'] = team1_name
         match['team2_name'] = team2_name
         match['match_info'] = match_info
+        match['team1_flag'] = get_team_flag(team1_name, cur)
+        match['team2_flag'] = get_team_flag(team2_name, cur)
         
         if match_date and match_date < today:
             recent_matches.append(match)
@@ -677,6 +679,8 @@ def api_recent_matches():
         match['team1_name'] = team1_name
         match['team2_name'] = team2_name
         match['match_info'] = match_info
+        match['team1_flag'] = get_team_flag(team1_name, cur)
+        match['team2_flag'] = get_team_flag(team2_name, cur)
         
         if match_date and match_date < today:
             recent_matches.append(match)
@@ -698,6 +702,8 @@ def api_recent_matches():
             'team2_name': m.get('team2_name', ''),
             'team1_score': m.get('team1_score', ''),
             'team2_score': m.get('team2_score', ''),
+            'team1_flag': m.get('team1_flag', ''),
+            'team2_flag': m.get('team2_flag', ''),
             'result': m.get('result', '')
         })
     
