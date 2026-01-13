@@ -1465,16 +1465,23 @@ def team_detail_page(slug):
     all_players = cur.fetchall()
     
     players_by_role = {
-        'Batter': [],
+        'Batsmen': [],
+        'All Rounder': [],
+        'Wicket Keeper': [],
         'Bowler': [],
-        'All-Rounder': [],
-        'Wicket-Keeper': [],
         'Unknown': []
+    }
+    role_mapping = {
+        'Batter': 'Batsmen',
+        'Bowler': 'Bowler',
+        'All-Rounder': 'All Rounder',
+        'Wicket-Keeper': 'Wicket Keeper'
     }
     for player in all_players:
         role = player.get('role') or 'Unknown'
-        if role in players_by_role:
-            players_by_role[role].append(player)
+        mapped_role = role_mapping.get(role, 'Unknown')
+        if mapped_role in players_by_role:
+            players_by_role[mapped_role].append(player)
         else:
             players_by_role['Unknown'].append(player)
     

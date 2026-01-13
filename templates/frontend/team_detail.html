@@ -20,19 +20,21 @@
 </div>
 
 <div class="players-container">
-    {% set role_icons = {'Batter': '🏏', 'Bowler': '🎯', 'All-Rounder': '⭐', 'Wicket-Keeper': '🧤', 'Unknown': '👤'} %}
-    {% set role_colors = {'Batter': '#3498db', 'Bowler': '#e74c3c', 'All-Rounder': '#9b59b6', 'Wicket-Keeper': '#f39c12', 'Unknown': '#7f8c8d'} %}
+    {% set role_icons = {'Batsmen': '🏏', 'Bowler': '🎯', 'All Rounder': '⭐', 'Wicket Keeper': '🧤', 'Unknown': '👤'} %}
+    {% set role_colors = {'Batsmen': '#3498db', 'Bowler': '#e74c3c', 'All Rounder': '#9b59b6', 'Wicket Keeper': '#f39c12', 'Unknown': '#7f8c8d'} %}
+    {% set role_order = ['Batsmen', 'All Rounder', 'Wicket Keeper', 'Bowler', 'Unknown'] %}
     
-    {% for role, players in players_by_role.items() %}
-        {% if players %}
+    {% for role in role_order %}
+        {% set players_list = players_by_role[role] %}
+        {% if players_list %}
         <section class="role-section">
             <div class="role-header" style="border-left-color: {{ role_colors[role] }}">
                 <span class="role-icon">{{ role_icons[role] }}</span>
-                <h2>{{ role }}s</h2>
-                <span class="player-count">{{ players|length }} Players</span>
+                <h2>{{ role }}</h2>
+                <span class="player-count">{{ players_list|length }} Players</span>
             </div>
             <div class="players-grid">
-                {% for player in players %}
+                {% for player in players_list %}
                 <div class="player-card">
                     {% if player.image_url %}
                     <img src="{{ player.image_url }}" alt="{{ player.name }}" class="player-img">
