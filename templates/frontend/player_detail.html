@@ -48,11 +48,17 @@
                         <th>Mat</th>
                         <th>Inns</th>
                         <th>Runs</th>
+                        <th>Balls</th>
                         <th>HS</th>
                         <th>Avg</th>
                         <th>SR</th>
-                        <th>100s</th>
+                        <th>NO</th>
+                        <th>4s</th>
+                        <th>6s</th>
+                        <th>Ducks</th>
                         <th>50s</th>
+                        <th>100s</th>
+                        <th>200s</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -62,11 +68,17 @@
                         <td>{{ stats.get('Matches', '-') }}</td>
                         <td>{{ stats.get('Innings', '-') }}</td>
                         <td>{{ stats.get('Runs', '-') }}</td>
+                        <td>{{ stats.get('Balls', '-') }}</td>
                         <td>{{ stats.get('Highest', '-') }}</td>
                         <td>{{ stats.get('Average', '-') }}</td>
                         <td>{{ stats.get('SR', '-') }}</td>
-                        <td>{{ stats.get('100s', '-') }}</td>
+                        <td>{{ stats.get('Not Out', '-') }}</td>
+                        <td>{{ stats.get('Fours', '-') }}</td>
+                        <td>{{ stats.get('Sixes', '-') }}</td>
+                        <td>{{ stats.get('Ducks', '-') }}</td>
                         <td>{{ stats.get('50s', '-') }}</td>
+                        <td>{{ stats.get('100s', '-') }}</td>
+                        <td>{{ stats.get('200s', '-') }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
