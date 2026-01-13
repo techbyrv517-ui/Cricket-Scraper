@@ -750,41 +750,53 @@ def scrape_player_profile(player_id):
     batting_stats = {}
     bowling_stats = {}
     
-    info_items = soup.find_all('div', class_=re.compile(r'cb-col.*cb-col-40'))
-    for item in info_items:
-        label = item.get_text(strip=True)
-        value_elem = item.find_next_sibling('div')
-        if value_elem:
-            value = value_elem.get_text(strip=True)
-            if label and value:
+    info_divs = soup.find_all('div', class_='cb-col-40')
+    for div in info_divs:
+        label = div.get_text(strip=True)
+        sibling = div.find_next_sibling()
+        if sibling:
+            value = sibling.get_text(strip=True)
+            if label and value and len(label) < 30:
                 personal_info[label] = value
     
+    page_text = soup.get_text()
+    
+    batting_headers = ['', 'Mat', 'Inns', 'NO', 'Runs', 'HS', 'Avg', 'BF', 'SR', '100s', '50s', '4s', '6s']
+    bowling_headers = ['', 'Mat', 'Inns', 'Balls', 'Runs', 'Wkts', 'BBI', 'BBM', 'Econ', 'Avg', 'SR', '5W', '10W']
+    
     tables = soup.find_all('table')
+    
     for table in tables:
+        table_html = str(table)
+        
+        is_batting_table = 'Runs' in table_html and ('100s' in table_html or '50s' in table_html) and 'Wkts' not in table_html
+        is_bowling_table = 'Wkts' in table_html and ('BBI' in table_html or 'Econ' in table_html)
+        
         rows = table.find_all('tr')
-        if not rows:
-            continue
         
-        headers_row = rows[0].find_all(['th', 'td'])
-        headers_text = [h.get_text(strip=True) for h in headers_row]
-        
-        is_batting = any(h in ['Mat', 'Runs', 'HS', 'Avg', '100s', '50s'] for h in headers_text)
-        is_bowling = any(h in ['Wkts', 'BBI', 'Econ', '5W', '10W'] for h in headers_text)
-        
-        for row in rows[1:]:
-            cells = row.find_all('td')
-            if len(cells) >= 2:
-                format_name = cells[0].get_text(strip=True)
-                if format_name in ['Test', 'ODI', 'T20I', 'T20', 'IPL', 'FC', 'List A']:
+        for row in rows:
+            cells = row.find_all(['td', 'th'])
+            if len(cells) >= 5:
+                first_cell = cells[0].get_text(strip=True)
+                
+                if first_cell in ['Test', 'ODI', 'T20I', 'T20', 'IPL', 'FC', 'List A', 'T20Is']:
+                    format_name = first_cell.replace('T20Is', 'T20I')
                     row_data = {}
-                    for i, header in enumerate(headers_text):
-                        if i < len(cells):
-                            row_data[header] = cells[i].get_text(strip=True)
                     
-                    if is_batting and not is_bowling:
-                        batting_stats[format_name] = row_data
-                    elif is_bowling:
-                        bowling_stats[format_name] = row_data
+                    if is_batting_table:
+                        headers = batting_headers
+                        for i, cell in enumerate(cells):
+                            if i < len(headers):
+                                row_data[headers[i]] = cell.get_text(strip=True)
+                        if row_data:
+                            batting_stats[format_name] = row_data
+                    elif is_bowling_table:
+                        headers = bowling_headers
+                        for i, cell in enumerate(cells):
+                            if i < len(headers):
+                                row_data[headers[i]] = cell.get_text(strip=True)
+                        if row_data:
+                            bowling_stats[format_name] = row_data
     
     cur.execute('''
         UPDATE players 
