@@ -118,6 +118,8 @@ function scrapeMatchesFromSeries($seriesId) {
     $seriesId_from_url = isset($seriesSlugMatch[1]) ? $seriesSlugMatch[1] : '';
     $seriesSlug = isset($seriesSlugMatch[2]) ? $seriesSlugMatch[2] : '';
     
+    $teamCodes = extractTeamCodes($series['series_name']);
+    
     $slugParts = preg_split('/[-_]/', $seriesSlug);
     $keyParts = array_filter($slugParts, function($p) {
         return strlen($p) > 2 && !preg_match('/^\d{4}$/', $p);
