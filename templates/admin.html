@@ -75,6 +75,10 @@
                             <span class="nav-icon">🏆</span>
                             <span>Teams</span>
                         </a>
+                        <a href="{{ url_for('admin_players') }}" class="nav-item {{ 'active' if request.endpoint == 'admin_players' else '' }}">
+                            <span class="nav-icon">👤</span>
+                            <span>Players</span>
+                        </a>
                     </div>
                 </div>
                 

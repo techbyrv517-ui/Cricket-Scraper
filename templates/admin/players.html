@@ -1,0 +1,223 @@
+{% extends 'admin.html' %}
+
+{% block title %}Players - Admin{% endblock %}
+
+{% block main_content %}
+<div class="content-header">
+    <h1>Players</h1>
+</div>
+
+<div class="scrape-section" style="margin-bottom: 25px; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px;">
+    <h3 style="margin-bottom: 15px; color: #00d4aa;">Scrape Players from Team</h3>
+    <div style="display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+        <select id="teamSelect" style="padding: 10px 15px; border-radius: 6px; background: #2d3748; color: #fff; border: 1px solid #4a5568; min-width: 200px;">
+            <option value="">Select Team</option>
+            {% for team in teams %}
+            <option value="{{ team.id }}">{{ team.name }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-scrape" onclick="scrapePlayers()">Get Players</button>
+    </div>
+    <div id="scrapeStatus" style="margin-top: 15px;"></div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert" style="background: {% if category == 'success' %}rgba(0, 212, 170, 0.2){% else %}rgba(255, 107, 107, 0.2){% endif %}; color: {% if category == 'success' %}#00d4aa{% else %}#ff6b6b{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="players-grid">
+    {% if players %}
+        {% set current_team = '' %}
+        {% for player in players %}
+            {% if player.team_name != current_team %}
+                {% if current_team != '' %}
+                    </div>
+                {% endif %}
+                {% set current_team = player.team_name %}
+                <div class="team-section">
+                    <h3 class="team-heading">{{ player.team_name or 'Unknown Team' }}</h3>
+            {% endif %}
+            <div class="player-card">
+                {% if player.image_url %}
+                <img src="{{ player.image_url }}" alt="{{ player.name }}" class="player-img">
+                {% else %}
+                <div class="player-img-placeholder">{{ player.name[:2] }}</div>
+                {% endif %}
+                <div class="player-info">
+                    <h4>{{ player.name }}</h4>
+                    <span class="role-badge {{ player.role|lower|replace('-', '')|replace(' ', '') if player.role else 'unknown' }}">{{ player.role or 'Unknown' }}</span>
+                </div>
+                <button class="btn-delete" onclick="deletePlayer({{ player.id }})" title="Delete">&times;</button>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="no-players">
+            <p>No players found. Select a team and click "Get Players" to scrape players.</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.btn-scrape {
+    background: #3498db;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.btn-scrape:hover {
+    background: #2980b9;
+}
+.btn-scrape:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+.team-section {
+    margin-bottom: 30px;
+}
+.team-heading {
+    color: #00d4aa;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #4a5568;
+}
+.players-grid .team-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+}
+.players-grid .team-heading {
+    grid-column: 1 / -1;
+}
+.player-card {
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    position: relative;
+}
+.player-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+.player-img-placeholder {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #4a5568;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-size: 1.5rem;
+    color: #fff;
+    text-transform: uppercase;
+}
+.player-info h4 {
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+    color: #fff;
+}
+.role-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.role-badge.batter { background: #3498db; color: #fff; }
+.role-badge.bowler { background: #e74c3c; color: #fff; }
+.role-badge.allrounder { background: #9b59b6; color: #fff; }
+.role-badge.wicketkeeper { background: #f39c12; color: #fff; }
+.role-badge.unknown { background: #7f8c8d; color: #fff; }
+.btn-delete {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #ff6b6b;
+    color: #fff;
+    border: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+}
+.btn-delete:hover {
+    background: #e74c3c;
+}
+.no-players {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+</style>
+
+<script>
+function scrapePlayers() {
+    const teamId = document.getElementById('teamSelect').value;
+    if (!teamId) {
+        alert('Please select a team first');
+        return;
+    }
+    
+    const statusDiv = document.getElementById('scrapeStatus');
+    const btn = document.querySelector('.btn-scrape');
+    
+    btn.disabled = true;
+    btn.textContent = 'Scraping...';
+    statusDiv.innerHTML = '<span style="color: #f39c12;">Scraping players, please wait...</span>';
+    
+    fetch(`/api/scrape-players/${teamId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                statusDiv.innerHTML = `<span style="color: #00d4aa;">${data.message}</span>`;
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                statusDiv.innerHTML = `<span style="color: #ff6b6b;">${data.message}</span>`;
+            }
+        })
+        .catch(err => {
+            statusDiv.innerHTML = `<span style="color: #ff6b6b;">Error: ${err.message}</span>`;
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.textContent = 'Get Players';
+        });
+}
+
+function deletePlayer(playerId) {
+    if (!confirm('Delete this player?')) return;
+    
+    fetch(`/api/delete-player/${playerId}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert(data.message);
+            }
+        });
+}
+</script>
+{% endblock %}

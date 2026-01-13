@@ -565,16 +565,21 @@ def scrape_teams(team_type='international'):
         }
         flag_color = color_map.get(team_slug.lower(), '#046A38')
         
-        cur.execute('SELECT id, flag_url FROM teams WHERE slug = %s', (team_slug,))
+        cricbuzz_team_id = team_id
+        
+        cur.execute('SELECT id, flag_url, cricbuzz_team_id FROM teams WHERE slug = %s', (team_slug,))
         existing = cur.fetchone()
         if existing is None:
             cur.execute('''
-                INSERT INTO teams (name, short_name, slug, country, flag_color, flag_url, team_type)
-                VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ''', (team_name, short_name, team_slug, team_name, flag_color, flag_url, team_type))
+                INSERT INTO teams (name, short_name, slug, country, flag_color, flag_url, team_type, cricbuzz_team_id)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ''', (team_name, short_name, team_slug, team_name, flag_color, flag_url, team_type, cricbuzz_team_id))
             team_count += 1
-        elif flag_url and (not existing.get('flag_url')):
-            cur.execute('UPDATE teams SET flag_url = %s WHERE slug = %s', (flag_url, team_slug))
+        else:
+            if flag_url and (not existing.get('flag_url')):
+                cur.execute('UPDATE teams SET flag_url = %s WHERE slug = %s', (flag_url, team_slug))
+            if cricbuzz_team_id and (not existing.get('cricbuzz_team_id')):
+                cur.execute('UPDATE teams SET cricbuzz_team_id = %s WHERE slug = %s', (cricbuzz_team_id, team_slug))
             team_count += 1
     
     conn.commit()
@@ -582,3 +587,122 @@ def scrape_teams(team_type='international'):
     conn.close()
     
     return {'success': True, 'message': f'Successfully scraped {team_count} {team_type} teams'}
+
+def scrape_players_from_team(team_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT id, name, slug, cricbuzz_team_id FROM teams WHERE id = %s', (team_id,))
+    team = cur.fetchone()
+    
+    if not team:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': 'Team not found'}
+    
+    team_slug = team['slug']
+    team_name = team['name']
+    cricbuzz_id = team.get('cricbuzz_team_id')
+    
+    if not cricbuzz_id:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': 'Cricbuzz team ID not found. Please re-scrape teams first.'}
+    
+    url = f"https://www.cricbuzz.com/cricket-team/{team_slug}/{cricbuzz_id}/players"
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    }
+    
+    scraper_api_key = os.environ.get('SCRAPER_API_KEY')
+    
+    try:
+        if scraper_api_key:
+            api_url = f"http://api.scraperapi.com?api_key={scraper_api_key}&url={url}"
+            response = requests.get(api_url, timeout=60)
+        else:
+            response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        html = response.text
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': f'Request error: {str(e)}'}
+    
+    soup = BeautifulSoup(html, 'lxml')
+    
+    player_count = 0
+    
+    role_sections = soup.find_all('div', class_=re.compile(r'cb-col.*cb-col-100'))
+    
+    current_role = 'Unknown'
+    
+    for section in soup.find_all(['div', 'a']):
+        role_header = section.find(class_=re.compile(r'cb-font-16.*cb-text-gray'))
+        if role_header:
+            role_text = role_header.get_text(strip=True).lower()
+            if 'batter' in role_text or 'batsman' in role_text:
+                current_role = 'Batter'
+            elif 'bowler' in role_text:
+                current_role = 'Bowler'
+            elif 'all-rounder' in role_text or 'allrounder' in role_text:
+                current_role = 'All-Rounder'
+            elif 'wicket' in role_text or 'keeper' in role_text:
+                current_role = 'Wicket-Keeper'
+    
+    player_links = soup.find_all('a', href=re.compile(r'/profiles/\d+/'))
+    
+    for link in player_links:
+        href = link.get('href', '')
+        player_match = re.search(r'/profiles/(\d+)/([^/]+)', href)
+        
+        if not player_match:
+            continue
+        
+        cricbuzz_id = player_match.group(1)
+        player_slug = player_match.group(2)
+        
+        player_name = link.get_text(strip=True)
+        if not player_name or len(player_name) < 2:
+            name_elem = link.find(class_=re.compile(r'cb-font-16'))
+            if name_elem:
+                player_name = name_elem.get_text(strip=True)
+        
+        if not player_name or len(player_name) < 2:
+            continue
+        
+        img = link.find('img')
+        image_url = ''
+        if img and img.get('src'):
+            image_url = img.get('src')
+            if image_url.startswith('//'):
+                image_url = 'https:' + image_url
+        
+        parent = link.parent
+        role = 'Unknown'
+        if parent:
+            parent_text = parent.get_text(strip=True).lower()
+            if 'batter' in parent_text or 'batsman' in parent_text:
+                role = 'Batter'
+            elif 'bowler' in parent_text:
+                role = 'Bowler'
+            elif 'all-rounder' in parent_text or 'allrounder' in parent_text:
+                role = 'All-Rounder'
+            elif 'wicket' in parent_text or 'keeper' in parent_text:
+                role = 'Wicket-Keeper'
+        
+        cur.execute('SELECT id FROM players WHERE cricbuzz_id = %s AND team_id = %s', (cricbuzz_id, team_id))
+        if cur.fetchone() is None:
+            cur.execute('''
+                INSERT INTO players (team_id, cricbuzz_id, name, slug, image_url, role)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            ''', (team_id, cricbuzz_id, player_name, player_slug, image_url, role))
+            player_count += 1
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return {'success': True, 'message': f'Successfully scraped {player_count} players for {team_name}'}

@@ -269,9 +269,26 @@ def init_db():
         )
     ''')
     
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS players (
+            id SERIAL PRIMARY KEY,
+            team_id INTEGER REFERENCES teams(id) ON DELETE CASCADE,
+            cricbuzz_id VARCHAR(50),
+            name VARCHAR(255) NOT NULL,
+            slug VARCHAR(255),
+            image_url TEXT,
+            role VARCHAR(100),
+            batting_style VARCHAR(100),
+            bowling_style VARCHAR(100),
+            is_published BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     try:
         cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS team_type VARCHAR(50) DEFAULT \'international\'')
         cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS flag_url TEXT')
+        cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS cricbuzz_team_id VARCHAR(20)')
     except:
         pass
     
@@ -1398,6 +1415,74 @@ def admin_delete_team(team_id):
     conn.close()
     flash('Team deleted successfully', 'success')
     return redirect(url_for('admin_teams'))
+
+@app.route('/admin/players')
+@login_required
+def admin_players():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM teams ORDER BY name')
+    teams = cur.fetchall()
+    cur.execute('SELECT p.*, t.name as team_name FROM players p LEFT JOIN teams t ON p.team_id = t.id ORDER BY t.name, p.role, p.name')
+    players = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/players.html', teams=teams, players=players, sidebar=sidebar)
+
+@app.route('/api/scrape-players/<int:team_id>', methods=['POST'])
+@login_required
+def api_scrape_players(team_id):
+    from scraper import scrape_players_from_team
+    result = scrape_players_from_team(team_id)
+    return jsonify(result)
+
+@app.route('/api/delete-player/<int:player_id>', methods=['POST'])
+@login_required
+def api_delete_player(player_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM players WHERE id = %s', (player_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True, 'message': 'Player deleted'})
+
+@app.route('/team/<slug>')
+def team_detail_page(slug):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT * FROM teams WHERE slug = %s AND is_published = TRUE', (slug,))
+    team = cur.fetchone()
+    
+    if not team:
+        cur.close()
+        conn.close()
+        return "Team not found", 404
+    
+    cur.execute('SELECT * FROM players WHERE team_id = %s ORDER BY role, name', (team['id'],))
+    all_players = cur.fetchall()
+    
+    players_by_role = {
+        'Batter': [],
+        'Bowler': [],
+        'All-Rounder': [],
+        'Wicket-Keeper': [],
+        'Unknown': []
+    }
+    for player in all_players:
+        role = player.get('role') or 'Unknown'
+        if role in players_by_role:
+            players_by_role[role].append(player)
+        else:
+            players_by_role['Unknown'].append(player)
+    
+    cur.close()
+    conn.close()
+    
+    settings = get_site_settings()
+    return render_template('frontend/team_detail.html', team=team, players_by_role=players_by_role, settings=settings)
 
 @app.route('/cricket-teams')
 @app.route('/teams')
