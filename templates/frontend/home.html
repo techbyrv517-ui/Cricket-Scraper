@@ -21,42 +21,15 @@
         </div>
         
         <div id="live" class="match-tab-content">
-            <div class="matches-list">
-                {% if live_matches %}
-                    {% for match in live_matches %}
-                    <a href="/cricket-match/{{ match.slug }}" class="cricbuzz-card">
-                        <div class="card-header">
-                            <span class="series-name">{{ match.series_name|upper }}</span>
-                            <span class="chevron">›</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="match-meta">
-                                <span class="live-dot"></span>
-                                <span class="match-info-text">{{ match.match_title }}</span>
-                            </div>
-                            <div class="team-row">
-                                <div class="team-flag {{ match.team1_code|lower if match.team1_code else 'default' }}"></div>
-                                <span class="team-name">{{ match.team1_code or 'Team 1' }}</span>
-                                <span class="team-score">{{ match.team1_score or '' }}</span>
-                            </div>
-                            <div class="team-row">
-                                <div class="team-flag {{ match.team2_code|lower if match.team2_code else 'default' }}"></div>
-                                <span class="team-name">{{ match.team2_code or 'Team 2' }}</span>
-                                <span class="team-score">{{ match.team2_score or '' }}</span>
-                            </div>
-                            {% if match.result %}
-                            <div class="match-result">{{ match.result }}</div>
-                            {% endif %}
-                        </div>
-                    </a>
-                    {% endfor %}
-                {% else %}
-                <div class="no-matches">
+            <div class="matches-list" id="live-matches-list">
+                <div class="no-matches" id="no-live-matches">
                     <div class="no-match-icon">🏏</div>
                     <p>No live matches at the moment</p>
                     <span>Check Recent or Upcoming matches</span>
                 </div>
-                {% endif %}
+            </div>
+            <div id="live-refresh-info" style="text-align: center; padding: 10px; color: #888; font-size: 12px; display: none;">
+                Auto-refreshing every 60 seconds
             </div>
         </div>
         
@@ -292,6 +265,45 @@ function showMatchTab(tabId) {
     .cricbuzz-card:hover {
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         transform: translateY(-2px);
+    }
+    
+    .cricbuzz-card.live-card {
+        border-left: 4px solid #e53935;
+    }
+    
+    .live-badge {
+        background: linear-gradient(135deg, #e53935 0%, #c62828 100%);
+        color: #fff;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 4px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+    
+    .live-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: #e53935;
+        border-radius: 50%;
+        margin-right: 6px;
+        animation: blink 1.5s infinite;
+    }
+    
+    @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.3; }
+    }
+    
+    .live-status {
+        color: #e53935 !important;
+        font-weight: 600;
     }
     
     .card-header {
@@ -530,5 +542,66 @@ function loadMoreMatches() {
             isLoading = false;
         });
 }
+
+function fetchLiveMatches() {
+    fetch('/api/live-matches')
+        .then(response => response.json())
+        .then(data => {
+            const liveList = document.getElementById('live-matches-list');
+            const noLive = document.getElementById('no-live-matches');
+            const refreshInfo = document.getElementById('live-refresh-info');
+            
+            liveList.innerHTML = '';
+            
+            if (data.matches && data.matches.length > 0) {
+                noLive.style.display = 'none';
+                refreshInfo.style.display = 'block';
+                
+                data.matches.forEach(match => {
+                    const card = document.createElement('a');
+                    card.href = `/match-score/${match.match_id}`;
+                    card.className = 'cricbuzz-card live-card';
+                    
+                    const team1Flag = match.team1_name ? match.team1_name.toLowerCase().replace(/ /g, '-') : 'default';
+                    const team2Flag = match.team2_name ? match.team2_name.toLowerCase().replace(/ /g, '-') : 'default';
+                    
+                    card.innerHTML = `
+                        <div class="card-header">
+                            <span class="series-name">${(match.series_name || 'LIVE MATCH').toUpperCase()}</span>
+                            <span class="live-badge">LIVE</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="match-meta">
+                                <span class="live-dot"></span>
+                                <span class="match-info-text">${match.match_info || match.match_title || ''}</span>
+                            </div>
+                            <div class="team-row">
+                                <div class="team-flag ${team1Flag}"></div>
+                                <span class="team-name">${match.team1_name || 'Team 1'}</span>
+                                <span class="team-score">${match.team1_score || ''}</span>
+                            </div>
+                            <div class="team-row">
+                                <div class="team-flag ${team2Flag}"></div>
+                                <span class="team-name">${match.team2_name || 'Team 2'}</span>
+                                <span class="team-score bold">${match.team2_score || ''}</span>
+                            </div>
+                            ${match.match_status ? `<div class="match-result live-status">${match.match_status}</div>` : ''}
+                        </div>
+                    `;
+                    liveList.appendChild(card);
+                });
+            } else {
+                liveList.appendChild(noLive);
+                noLive.style.display = 'block';
+                refreshInfo.style.display = 'none';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching live matches:', error);
+        });
+}
+
+fetchLiveMatches();
+setInterval(fetchLiveMatches, 60000);
 </script>
 {% endblock %}

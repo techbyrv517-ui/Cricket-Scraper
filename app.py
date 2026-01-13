@@ -1,66 +1,77 @@
 import os
 import re
-import atexit
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
 from functools import wraps
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
-from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
+
+scheduler_started = False
 
 def refresh_live_matches():
     """Background job to refresh live match scores"""
     try:
         from scraper import scrape_scorecard
-        import psycopg2
-        from psycopg2.extras import RealDictCursor
         
-        conn = psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
-        cur = conn.cursor()
-        
-        cur.execute('''
-            SELECT sc.match_id, m.match_url 
-            FROM scorecards sc
-            LEFT JOIN matches m ON sc.match_id::text = m.match_id::text
-            WHERE sc.is_live = TRUE
-        ''')
-        live_matches = cur.fetchall()
-        
-        for match in live_matches:
-            match_url = match.get('match_url')
-            if match_url:
-                scorecard_url = match_url.replace('/live-cricket-scores/', '/live-cricket-scorecard/')
-                result = scrape_scorecard(scorecard_url)
+        with psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor) as conn:
+            with conn.cursor() as cur:
+                cur.execute('''
+                    SELECT sc.match_id, m.match_url 
+                    FROM scorecards sc
+                    LEFT JOIN matches m ON sc.match_id::text = m.match_id::text
+                    WHERE sc.is_live = TRUE
+                ''')
+                live_matches = cur.fetchall()
                 
-                if result.get('success'):
-                    is_live = result.get('is_live', False)
-                    final_score = result.get('final_score', '')
-                    status_text = result.get('status_text', '')
-                    
-                    cur.execute('''
-                        UPDATE scorecards 
-                        SET scorecard_html = %s, 
-                            final_score = %s, 
-                            match_status = %s,
-                            is_live = %s, 
-                            last_updated = CURRENT_TIMESTAMP
-                        WHERE match_id = %s
-                    ''', (result['html'], final_score, status_text, is_live, match.get('match_id')))
-        
-        conn.commit()
-        cur.close()
-        conn.close()
-        print(f"Refreshed {len(live_matches)} live matches")
+                for match in live_matches:
+                    match_url = match.get('match_url')
+                    if match_url:
+                        scorecard_url = match_url.replace('/live-cricket-scores/', '/live-cricket-scorecard/')
+                        if '/cricket-match/' in match_url:
+                            scorecard_url = f"https://www.cricbuzz.com/live-cricket-scorecard/{match.get('match_id')}"
+                        
+                        result = scrape_scorecard(scorecard_url)
+                        
+                        if result.get('success'):
+                            is_live = result.get('is_live', False)
+                            final_score = result.get('final_score', '')
+                            status_text = result.get('status_text', '')
+                            
+                            cur.execute('''
+                                UPDATE scorecards 
+                                SET scorecard_html = %s, 
+                                    final_score = %s, 
+                                    match_status = %s,
+                                    is_live = %s, 
+                                    last_updated = CURRENT_TIMESTAMP
+                                WHERE match_id = %s
+                            ''', (result['html'], final_score, status_text, is_live, match.get('match_id')))
+                        else:
+                            cur.execute('''
+                                UPDATE scorecards SET is_live = FALSE WHERE match_id = %s
+                            ''', (match.get('match_id'),))
+                
+                conn.commit()
+                print(f"Refreshed {len(live_matches)} live matches")
     except Exception as e:
         print(f"Error refreshing live matches: {e}")
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=refresh_live_matches, trigger="interval", seconds=90)
-scheduler.start()
-atexit.register(lambda: scheduler.shutdown())
+def start_scheduler():
+    global scheduler_started
+    if scheduler_started:
+        return
+    
+    import atexit
+    from apscheduler.schedulers.background import BackgroundScheduler
+    
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=refresh_live_matches, trigger="interval", seconds=90, id='refresh_live_matches', replace_existing=True)
+    scheduler.start()
+    scheduler_started = True
+    atexit.register(lambda: scheduler.shutdown(wait=False))
 
 def slugify(text):
     if not text:
@@ -1223,4 +1234,6 @@ with app.app_context():
     seed_defaults()
 
 if __name__ == '__main__':
+    if not os.environ.get('WERKZEUG_RUN_MAIN'):
+        start_scheduler()
     app.run(host='0.0.0.0', port=5000, debug=True)
