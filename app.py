@@ -91,6 +91,19 @@ app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.context_processor
+def inject_nav_categories():
+    try:
+        conn = psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
+        cur = conn.cursor()
+        cur.execute('SELECT id, name, slug FROM post_categories WHERE is_published = TRUE AND show_in_nav = TRUE ORDER BY nav_order ASC, name ASC')
+        categories = cur.fetchall()
+        cur.close()
+        conn.close()
+        return dict(nav_categories=categories)
+    except:
+        return dict(nav_categories=[])
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 def allowed_file(filename):
@@ -115,6 +128,15 @@ def get_site_settings():
     for row in rows:
         settings[row['setting_key']] = row['setting_value']
     return settings
+
+def get_nav_categories():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT id, name, slug FROM post_categories WHERE is_published = TRUE AND show_in_nav = TRUE ORDER BY nav_order ASC, name ASC')
+    categories = cur.fetchall()
+    cur.close()
+    conn.close()
+    return categories
 
 def get_db():
     return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
@@ -1449,14 +1471,16 @@ def admin_edit_category(cat_id):
         canonical_url = request.form.get('canonical_url')
         og_image = request.form.get('og_image')
         is_published = request.form.get('is_published') == 'on'
+        show_in_nav = request.form.get('show_in_nav') == 'on'
+        nav_order = int(request.form.get('nav_order', 0) or 0)
         
         cur.execute('''
             UPDATE post_categories SET name=%s, short_name=%s, description=%s, hero_title=%s,
             hero_description=%s, content=%s, focus_keyword=%s, meta_title=%s, meta_description=%s,
-            canonical_url=%s, og_image=%s, is_published=%s, updated_at=CURRENT_TIMESTAMP
+            canonical_url=%s, og_image=%s, is_published=%s, show_in_nav=%s, nav_order=%s, updated_at=CURRENT_TIMESTAMP
             WHERE id=%s
         ''', (name, short_name, description, hero_title, hero_description, content, focus_keyword, 
-              meta_title, meta_description, canonical_url, og_image, is_published, cat_id))
+              meta_title, meta_description, canonical_url, og_image, is_published, show_in_nav, nav_order, cat_id))
         conn.commit()
         flash('Category updated successfully', 'success')
     
@@ -1467,6 +1491,59 @@ def admin_edit_category(cat_id):
     
     sidebar = get_sidebar_data()
     return render_template('admin/edit_category.html', category=category, sidebar=sidebar)
+
+@app.route('/admin/posts/categories/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_category():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        name = request.form.get('name')
+        short_name = request.form.get('short_name')
+        slug = slugify(name)
+        description = request.form.get('description')
+        hero_title = request.form.get('hero_title')
+        hero_description = request.form.get('hero_description')
+        content = request.form.get('content')
+        focus_keyword = request.form.get('focus_keyword')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        canonical_url = request.form.get('canonical_url')
+        og_image = request.form.get('og_image')
+        is_published = request.form.get('is_published') == 'on'
+        show_in_nav = request.form.get('show_in_nav') == 'on'
+        nav_order = int(request.form.get('nav_order', 0) or 0)
+        
+        cur.execute('''
+            INSERT INTO post_categories (name, short_name, slug, description, hero_title, hero_description, 
+            content, focus_keyword, meta_title, meta_description, canonical_url, og_image, is_published, 
+            show_in_nav, nav_order, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ''', (name, short_name, slug, description, hero_title, hero_description, content, focus_keyword, 
+              meta_title, meta_description, canonical_url, og_image, is_published, show_in_nav, nav_order))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash('Category added successfully', 'success')
+        return redirect(url_for('admin_post_categories'))
+    
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/add_category.html', sidebar=sidebar)
+
+@app.route('/admin/posts/categories/delete/<int:cat_id>', methods=['POST'])
+@login_required
+def admin_delete_category(cat_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM post_categories WHERE id = %s', (cat_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Category deleted successfully', 'success')
+    return redirect(url_for('admin_post_categories'))
 
 @app.route('/category/<slug>')
 def view_category(slug):

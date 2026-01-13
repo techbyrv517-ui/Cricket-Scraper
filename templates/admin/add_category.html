@@ -2,11 +2,8 @@
 
 {% block main_content %}
 <div class="content-header">
-    <h1>Edit Category: {{ category.name }}</h1>
-    <div>
-        <a href="/category/{{ category.slug }}" target="_blank" class="btn btn-info">View Page</a>
-        <a href="{{ url_for('admin_post_categories') }}" class="btn btn-secondary">Back to Categories</a>
-    </div>
+    <h1>Add New Category</h1>
+    <a href="{{ url_for('admin_post_categories') }}" class="btn btn-secondary">Back to Categories</a>
 </div>
 
 <div class="card">
@@ -15,18 +12,18 @@
             <h3>Category Information</h3>
             <div class="form-grid">
                 <div class="form-group">
-                    <label for="name">Category Name</label>
-                    <input type="text" id="name" name="name" value="{{ category.name }}" required>
+                    <label for="name">Category Name *</label>
+                    <input type="text" id="name" name="name" required placeholder="e.g., IND vs PAK">
                 </div>
                 
                 <div class="form-group">
                     <label for="short_name">Short Name</label>
-                    <input type="text" id="short_name" name="short_name" value="{{ category.short_name or '' }}">
+                    <input type="text" id="short_name" name="short_name" placeholder="e.g., India vs Pakistan">
                 </div>
                 
                 <div class="form-group full-width">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="2">{{ category.description or '' }}</textarea>
+                    <textarea id="description" name="description" rows="2" placeholder="Brief description of the category"></textarea>
                 </div>
             </div>
         </div>
@@ -36,17 +33,17 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="hero_title">Hero Title</label>
-                    <input type="text" id="hero_title" name="hero_title" value="{{ category.hero_title or '' }}" placeholder="e.g., India vs Pakistan Cricket">
+                    <input type="text" id="hero_title" name="hero_title" placeholder="e.g., India vs Pakistan Cricket">
                 </div>
                 
                 <div class="form-group">
                     <label for="og_image">Hero/OG Image URL</label>
-                    <input type="url" id="og_image" name="og_image" value="{{ category.og_image or '' }}" placeholder="https://example.com/image.jpg">
+                    <input type="url" id="og_image" name="og_image" placeholder="https://example.com/image.jpg">
                 </div>
                 
                 <div class="form-group full-width">
                     <label for="hero_description">Hero Description</label>
-                    <textarea id="hero_description" name="hero_description" rows="2">{{ category.hero_description or '' }}</textarea>
+                    <textarea id="hero_description" name="hero_description" rows="2" placeholder="Description shown in hero section"></textarea>
                 </div>
             </div>
         </div>
@@ -55,7 +52,7 @@
             <h3>Page Content</h3>
             <div class="form-group">
                 <label for="content">Page Content (HTML)</label>
-                <textarea id="content" name="content" rows="10">{{ category.content or '' }}</textarea>
+                <textarea id="content" name="content" rows="10" placeholder="Enter page content here..."></textarea>
             </div>
         </div>
         
@@ -64,31 +61,31 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="focus_keyword">Focus Keyword</label>
-                    <input type="text" id="focus_keyword" name="focus_keyword" value="{{ category.focus_keyword or '' }}" placeholder="e.g., India vs Pakistan">
+                    <input type="text" id="focus_keyword" name="focus_keyword" placeholder="e.g., India vs Pakistan">
                     <small>Primary keyword for SEO optimization</small>
                 </div>
                 
                 <div class="form-group">
                     <label for="meta_title">Meta Title</label>
-                    <input type="text" id="meta_title" name="meta_title" value="{{ category.meta_title or '' }}" maxlength="70">
-                    <small id="meta_title_count">{{ (category.meta_title|length) if category.meta_title else 0 }}/70 characters</small>
+                    <input type="text" id="meta_title" name="meta_title" maxlength="70" placeholder="SEO meta title (max 70 chars)">
+                    <small id="meta_title_count">0/70 characters</small>
                 </div>
                 
                 <div class="form-group full-width">
                     <label for="meta_description">Meta Description</label>
-                    <textarea id="meta_description" name="meta_description" rows="2" maxlength="170">{{ category.meta_description or '' }}</textarea>
-                    <small id="meta_desc_count">{{ (category.meta_description|length) if category.meta_description else 0 }}/170 characters</small>
+                    <textarea id="meta_description" name="meta_description" rows="2" maxlength="170" placeholder="SEO meta description (max 170 chars)"></textarea>
+                    <small id="meta_desc_count">0/170 characters</small>
                 </div>
                 
                 <div class="form-group">
                     <label for="canonical_url">Canonical URL</label>
-                    <input type="url" id="canonical_url" name="canonical_url" value="{{ category.canonical_url or '' }}">
+                    <input type="url" id="canonical_url" name="canonical_url" placeholder="Leave empty for auto-generated">
                     <small>Leave empty for auto-generated</small>
                 </div>
                 
                 <div class="form-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="is_published" {{ 'checked' if category.is_published else '' }}>
+                        <input type="checkbox" name="is_published">
                         <span>Published</span>
                     </label>
                 </div>
@@ -100,7 +97,7 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="show_in_nav" {{ 'checked' if category.show_in_nav else '' }}>
+                        <input type="checkbox" name="show_in_nav">
                         <span>Show in Sub-Navigation Bar</span>
                     </label>
                     <small>Category will appear in the top navigation menu</small>
@@ -108,14 +105,14 @@
                 
                 <div class="form-group">
                     <label for="nav_order">Navigation Order</label>
-                    <input type="number" id="nav_order" name="nav_order" value="{{ category.nav_order or 0 }}" min="0">
+                    <input type="number" id="nav_order" name="nav_order" value="0" min="0">
                     <small>Lower numbers appear first (0, 1, 2...)</small>
                 </div>
             </div>
         </div>
         
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update Category</button>
+            <button type="submit" class="btn btn-primary">Add Category</button>
             <a href="{{ url_for('admin_post_categories') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
@@ -177,10 +174,6 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-}
-.content-header div {
-    display: flex;
-    gap: 10px;
 }
 @media (max-width: 768px) {
     .form-grid {

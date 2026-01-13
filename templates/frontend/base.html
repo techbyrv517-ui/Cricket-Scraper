@@ -213,14 +213,14 @@
         
         .nav-sub {
             background: #f5f5f5;
-            padding: 10px 0;
+            padding: 8px 0;
         }
         
         .nav-sub .container {
-            background: #fff;
+            background: #1a1a1a;
             padding: 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -236,24 +236,24 @@
         
         .nav-sub li a {
             display: block;
-            padding: 12px 20px;
-            color: #333;
+            padding: 8px 16px;
+            color: #ccc;
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             transition: all 0.3s;
-            border-bottom: 3px solid transparent;
+            border-bottom: 2px solid transparent;
         }
         
         .nav-sub li a:hover {
-            background: #f8f8f8;
-            color: var(--primary);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
         }
         
         .nav-sub li a.active {
-            color: var(--primary);
-            border-bottom-color: var(--primary);
-            background: rgba(4,106,56,0.05);
+            color: var(--secondary);
+            border-bottom-color: var(--secondary);
+            background: rgba(255,107,0,0.1);
         }
         
         .main-content {
@@ -552,10 +552,9 @@
             <div class="container">
                 <ul>
                     <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
-                    <li><a href="/category/ind-vs-pak" class="{% if 'ind-vs-pak' in request.path %}active{% endif %}">IND vs PAK</a></li>
-                    <li><a href="/category/ind-vs-aus" class="{% if 'ind-vs-aus' in request.path %}active{% endif %}">IND vs AUS</a></li>
-                    <li><a href="/category/ind-vs-eng" class="{% if 'ind-vs-eng' in request.path %}active{% endif %}">IND vs ENG</a></li>
-                    <li><a href="/category/ind-vs-nz" class="{% if 'ind-vs-nz' in request.path %}active{% endif %}">IND vs NZ</a></li>
+                    {% for cat in nav_categories %}
+                    <li><a href="/category/{{ cat.slug }}" class="{% if cat.slug in request.path %}active{% endif %}">{{ cat.name }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
         </nav>
