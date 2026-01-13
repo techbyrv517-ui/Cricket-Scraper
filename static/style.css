@@ -230,6 +230,96 @@ body {
     margin-top: 20px;
 }
 
+.scorecard-data {
+    margin-top: 20px;
+}
+
+.scorecard-data .match-header h2 {
+    color: #00d9ff;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+.scorecard-data .match-status {
+    background: rgba(0,217,255,0.2);
+    color: #00d9ff;
+    padding: 8px 15px;
+    border-radius: 5px;
+    display: inline-block;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.scorecard-data .team-score {
+    background: rgba(255,255,255,0.05);
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.scorecard-data .team-name {
+    color: #fff;
+    font-weight: 600;
+}
+
+.scorecard-data .score {
+    color: #00d9ff;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.scorecard-data .innings-header {
+    background: linear-gradient(135deg, #00d9ff, #0099cc);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin: 20px 0 10px;
+    font-weight: 600;
+}
+
+.scorecard-data .batting-table {
+    width: 100%;
+    margin: 10px 0;
+    border-collapse: collapse;
+}
+
+.scorecard-data .batting-table th,
+.scorecard-data .batting-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+}
+
+.scorecard-data .batting-table th {
+    background: rgba(0,217,255,0.1);
+    color: #00d9ff;
+}
+
+.scorecard-data .extras,
+.scorecard-data .total {
+    background: rgba(255,255,255,0.05);
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin: 5px 0;
+    font-size: 0.85rem;
+}
+
+.scorecard-data .total {
+    font-weight: bold;
+    color: #00d9ff;
+}
+
+.scorecard-data .no-data {
+    text-align: center;
+    color: #888;
+    padding: 30px;
+}
+
 .sidebar-series {
     margin-bottom: 20px;
     max-height: 200px;
