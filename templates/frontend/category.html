@@ -109,6 +109,28 @@
     
     <aside class="category-sidebar">
         <div class="sidebar-widget">
+            <h3 class="sidebar-title">Latest Posts</h3>
+            <div class="sidebar-posts">
+                {% if sidebar_posts %}
+                    {% for sp in sidebar_posts %}
+                    <a href="/post/{{ sp.slug }}" class="sidebar-post-item">
+                        {% if sp.featured_image %}
+                        <img src="{{ sp.featured_image }}" alt="{{ sp.title }}" class="sidebar-post-img">
+                        {% else %}
+                        <div class="sidebar-post-img no-image"></div>
+                        {% endif %}
+                        <h4 class="sidebar-post-title">{{ sp.title }}</h4>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                <div class="no-posts-msg">
+                    <p>No posts yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="sidebar-widget" style="margin-top: 20px;">
             <h3>All Categories</h3>
             <ul class="category-list">
                 {% for cat in all_categories %}
@@ -234,7 +256,7 @@
 }
 .sidebar-widget {
     background: white;
-    padding: 20px;
+    padding: 15px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
@@ -244,6 +266,59 @@
     color: #333;
     border-bottom: 2px solid var(--primary-color, #046a38);
     padding-bottom: 10px;
+}
+.sidebar-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a2e;
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #046a38;
+}
+.sidebar-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.sidebar-post-item {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    color: #333;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    background: #f9f9f9;
+}
+.sidebar-post-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.sidebar-post-img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+}
+.sidebar-post-img.no-image {
+    background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
+    height: 140px;
+}
+.sidebar-post-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+    padding: 12px;
+    margin: 0;
+    color: #1a1a2e;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.no-posts-msg {
+    text-align: center;
+    padding: 20px;
+    color: #999;
 }
 .category-list {
     list-style: none;

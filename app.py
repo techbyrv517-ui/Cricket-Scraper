@@ -1359,10 +1359,13 @@ def view_category(slug):
     cur.execute('SELECT * FROM post_categories WHERE is_published = TRUE ORDER BY name')
     all_categories = cur.fetchall()
     
+    cur.execute('SELECT id, title, slug, featured_image FROM posts WHERE is_published = TRUE ORDER BY created_at DESC LIMIT 10')
+    sidebar_posts = cur.fetchall()
+    
     cur.close()
     conn.close()
     
-    return render_template('frontend/category.html', category=category, posts=posts, all_categories=all_categories, settings=settings)
+    return render_template('frontend/category.html', category=category, posts=posts, all_categories=all_categories, sidebar_posts=sidebar_posts, settings=settings)
 
 @app.route('/post/<slug>')
 def view_post(slug):
