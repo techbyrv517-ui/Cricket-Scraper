@@ -83,8 +83,23 @@ A full-featured cricket data website with Cricbuzz-style frontend, admin panel w
 - featured_image: Image URL
 - excerpt: Short description for sidebar
 - content: Full post content (HTML)
-- category: Post category
+- category_id: Foreign key to post_categories
+- focus_keyword: Primary SEO keyword
 - meta_title, meta_description: SEO meta tags
+- canonical_url: Canonical URL for SEO
+- og_image: OpenGraph/social sharing image
+- is_published: Published status
+- created_at, updated_at: Timestamps
+
+### Post Categories Table (India Matchups)
+- id: Auto-increment primary key
+- name: Category name (IND vs PAK, IND vs AUS, etc.)
+- slug: URL slug (ind-vs-pak, ind-vs-aus)
+- short_name: Full name (India vs Pakistan)
+- description, hero_title, hero_description: Category page content
+- content: Page content (HTML)
+- focus_keyword, meta_title, meta_description: Advanced SEO
+- canonical_url, og_image: SEO URLs and images
 - is_published: Published status
 - created_at, updated_at: Timestamps
 
