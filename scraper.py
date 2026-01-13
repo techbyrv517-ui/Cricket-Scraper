@@ -405,6 +405,13 @@ def scrape_scorecard(url):
         bat_grids = innings.find_all('div', class_=re.compile(r'scorecard-bat-grid'))
         
         if bat_grids:
+            innings_label = ''
+            if 'innings-1' in innings_id:
+                innings_label = '1st Innings'
+            elif 'innings-2' in innings_id:
+                innings_label = '2nd Innings'
+            team_header = f"{team_text} - {innings_label}" if team_text else innings_label
+            scorecard_html += f'<div class="innings-header"><h3 class="team-innings-title">{team_header}</h3>{f"<span class=team-score-badge>{score_text}</span>" if score_text else ""}</div>'
             scorecard_html += '<div class="table-scroll"><table class="batting-table"><thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
             
             for grid in bat_grids:
