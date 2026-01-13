@@ -569,23 +569,26 @@ def api_scrape_scorecard():
             match_title = title_el.get_text(strip=True) if title_el else ''
             
             status_el = soup.find('div', class_='match-status')
-            match_status = status_el.get_text(strip=True) if status_el else ''
+            match_status = result.get('status_text', '') or (status_el.get_text(strip=True) if status_el else '')
             
             final_score = result.get('final_score', '')
+            is_live = result.get('is_live', False)
             
             conn = get_db()
             cur = conn.cursor()
             
             cur.execute('''
-                INSERT INTO scorecards (match_id, match_title, match_status, scorecard_html, final_score)
-                VALUES (%s, %s, %s, %s, %s)
+                INSERT INTO scorecards (match_id, match_title, match_status, scorecard_html, final_score, is_live, last_updated)
+                VALUES (%s, %s, %s, %s, %s, %s, CURRENT_TIMESTAMP)
                 ON CONFLICT (match_id) DO UPDATE SET
                     match_title = EXCLUDED.match_title,
                     match_status = EXCLUDED.match_status,
                     scorecard_html = EXCLUDED.scorecard_html,
                     final_score = EXCLUDED.final_score,
+                    is_live = EXCLUDED.is_live,
+                    last_updated = CURRENT_TIMESTAMP,
                     scraped_at = CURRENT_TIMESTAMP
-            ''', (match_id, match_title, match_status, result['html'], final_score))
+            ''', (match_id, match_title, match_status, result['html'], final_score, is_live))
             
             conn.commit()
             cur.close()

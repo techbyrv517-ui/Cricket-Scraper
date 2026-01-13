@@ -332,6 +332,16 @@ def scrape_scorecard(url):
     status_div = soup.find('div', class_='text-cbComplete')
     status_text = status_div.get_text(strip=True) if status_div else ''
     
+    is_live = False
+    live_indicators = soup.find_all('div', class_=re.compile(r'text-live|cb-text-live|live-score'))
+    if live_indicators:
+        is_live = True
+    live_text_check = soup.find(string=re.compile(r'\bLive\b|\bIn Progress\b|\bDay \d+\b', re.I))
+    if live_text_check and 'won' not in status_text.lower() and 'drawn' not in status_text.lower():
+        is_live = True
+    if status_text and ('won' in status_text.lower() or 'drawn' in status_text.lower() or 'match' in status_text.lower()):
+        is_live = False
+    
     innings_divs = soup.find_all('div', id=re.compile(r'^scard-team-\d+-innings-\d+$'))
     
     for innings in innings_divs:
@@ -439,7 +449,7 @@ def scrape_scorecard(url):
     else:
         scorecard_html = match_summary + '<div class="scorecard-data">' + scorecard_html + '</div>'
     
-    return {'success': True, 'html': scorecard_html, 'final_score': final_score}
+    return {'success': True, 'html': scorecard_html, 'final_score': final_score, 'is_live': is_live, 'status_text': status_text}
 
 def scrape_teams(team_type='international'):
     urls = {
