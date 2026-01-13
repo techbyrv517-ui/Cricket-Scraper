@@ -287,115 +287,125 @@ def scrape_scorecard(url):
     if not url or 'cricbuzz.com/live-cricket-scorecard' not in url:
         return {'success': False, 'message': 'Invalid scorecard URL'}
     
-    from playwright.sync_api import sync_playwright
-    import subprocess
-    
-    chromium_path = subprocess.run(['which', 'chromium'], capture_output=True, text=True).stdout.strip()
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+    }
     
     try:
-        with sync_playwright() as p:
-            browser = p.chromium.launch(
-                headless=True,
-                executable_path=chromium_path if chromium_path else None,
-                args=['--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
-            )
-            page = browser.new_page()
-            page.goto(url, wait_until='networkidle', timeout=60000)
-            page.wait_for_timeout(3000)
-            html = page.content()
-            browser.close()
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        html = response.text
     except Exception as e:
         return {'success': False, 'message': f'Error fetching scorecard: {str(e)}'}
     
     soup = BeautifulSoup(html, 'html.parser')
     scorecard_html = ''
     
-    match_title = soup.find('h1')
-    if match_title:
-        scorecard_html += f'<div class="match-header"><h2>{match_title.get_text(strip=True)}</h2></div>'
+    title = soup.find('title')
+    if title:
+        title_text = title.get_text(strip=True).replace('Cricket scorecard | ', '').replace(' | Cricbuzz.com', '')
+        scorecard_html += f'<div class="match-header"><h2>{title_text}</h2></div>'
     
-    status_div = soup.find('div', class_=re.compile(r'cb-col-100.*cb-min-stts'))
-    if not status_div:
-        status_div = soup.find('div', class_=re.compile(r'cb-text-complete|cb-text-live'))
+    status_div = soup.find('div', class_='text-cbComplete')
     if status_div:
         scorecard_html += f'<div class="match-status">{status_div.get_text(strip=True)}</div>'
     
-    innings_containers = soup.find_all('div', id=re.compile(r'^innings_\d+$'))
+    innings_divs = soup.find_all('div', id=re.compile(r'^scard-team-\d+-innings-\d+$'))
     
-    for innings in innings_containers:
-        team_header = innings.find('div', class_=re.compile(r'cb-col-100.*cb-scrd-hdr-rw'))
-        if team_header:
-            team_name_el = team_header.find('span')
-            team_score_el = team_header.find('span', class_=re.compile(r'pull-right|float-right'))
-            team_name = team_name_el.get_text(strip=True) if team_name_el else ''
-            team_score = team_score_el.get_text(strip=True) if team_score_el else ''
-            scorecard_html += f'<div class="innings-header">{team_name} <span class="innings-score">{team_score}</span></div>'
+    for innings in innings_divs:
+        innings_id = innings.get('id', '')
+        header_id = innings_id.replace('scard-', '')
+        header_div = soup.find('div', id=header_id)
         
-        scorecard_html += '<table class="batting-table"><thead><tr><th>Batter</th><th>Dismissal</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
+        if header_div:
+            team_name = header_div.find('div', class_='font-bold')
+            team_score = header_div.find('span', class_='font-bold')
+            overs_span = header_div.find_all('span')
+            
+            team_text = team_name.get_text(strip=True) if team_name else ''
+            score_text = team_score.get_text(strip=True) if team_score else ''
+            overs_text = overs_span[-1].get_text(strip=True) if len(overs_span) > 1 else ''
+            
+            scorecard_html += f'<div class="innings-header">{team_text} <span class="innings-score">{score_text} {overs_text}</span></div>'
         
-        bat_rows = innings.find_all('div', class_=re.compile(r'cb-col-100.*cb-scrd-itms'))
-        for row in bat_rows:
-            all_divs = row.find_all('div', recursive=False)
-            if len(all_divs) >= 7:
-                batter_div = all_divs[0]
-                batter_name = batter_div.get_text(strip=True)
-                
-                if batter_name and batter_name not in ['Extras', 'Total', 'Did not Bat', 'Fall of Wickets', 'Bowler', 'Yet to Bat']:
-                    dismissal = all_divs[1].get_text(strip=True) if len(all_divs) > 1 else '-'
-                    runs = all_divs[2].get_text(strip=True) if len(all_divs) > 2 else '-'
-                    balls = all_divs[3].get_text(strip=True) if len(all_divs) > 3 else '-'
-                    fours = all_divs[4].get_text(strip=True) if len(all_divs) > 4 else '-'
-                    sixes = all_divs[5].get_text(strip=True) if len(all_divs) > 5 else '-'
-                    sr = all_divs[6].get_text(strip=True) if len(all_divs) > 6 else '-'
+        bat_grids = innings.find_all('div', class_=re.compile(r'scorecard-bat-grid'))
+        
+        if bat_grids:
+            scorecard_html += '<table class="batting-table"><thead><tr><th>Batter</th><th>Dismissal</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead><tbody>'
+            
+            for grid in bat_grids:
+                player_link = grid.find('a', href=re.compile(r'/profiles/'))
+                if player_link:
+                    batter_name = player_link.get_text(strip=True)
                     
-                    if runs.replace('-','').isdigit() or runs == '-':
-                        scorecard_html += f'<tr><td>{batter_name}</td><td class="dismissal">{dismissal}</td><td>{runs}</td><td>{balls}</td><td>{fours}</td><td>{sixes}</td><td>{sr}</td></tr>'
+                    dismissal_div = grid.find('div', class_='text-cbTxtSec')
+                    dismissal = dismissal_div.get_text(strip=True) if dismissal_div else 'not out'
+                    
+                    all_divs = grid.find_all('div', recursive=False)
+                    runs = all_divs[1].get_text(strip=True) if len(all_divs) > 1 else '-'
+                    balls = all_divs[2].get_text(strip=True) if len(all_divs) > 2 else '-'
+                    fours = all_divs[3].get_text(strip=True) if len(all_divs) > 3 else '-'
+                    sixes = all_divs[4].get_text(strip=True) if len(all_divs) > 4 else '-'
+                    sr = all_divs[5].get_text(strip=True) if len(all_divs) > 5 else '-'
+                    
+                    scorecard_html += f'<tr><td>{batter_name}</td><td class="dismissal">{dismissal}</td><td>{runs}</td><td>{balls}</td><td>{fours}</td><td>{sixes}</td><td>{sr}</td></tr>'
+            
+            scorecard_html += '</tbody></table>'
         
-        scorecard_html += '</tbody></table>'
-        
-        extras_row = innings.find('div', string=re.compile(r'Extras'))
-        if extras_row:
-            extras_parent = extras_row.find_parent('div', class_=re.compile(r'cb-scrd-itms'))
+        extras_div = innings.find('div', class_='font-bold', string='Extras')
+        if extras_div:
+            extras_parent = extras_div.find_parent('div', class_='flex')
             if extras_parent:
-                scorecard_html += f'<div class="extras">{extras_parent.get_text(" ", strip=True)}</div>'
+                extras_val = extras_parent.find_all('span')
+                if extras_val:
+                    extras_text = ' '.join([s.get_text(strip=True) for s in extras_val])
+                    scorecard_html += f'<div class="extras">Extras: {extras_text}</div>'
         
-        total_row = innings.find('div', string=re.compile(r'^Total$'))
-        if total_row:
-            total_parent = total_row.find_parent('div', class_=re.compile(r'cb-scrd-itms'))
+        total_div = innings.find('div', class_='font-bold', string='Total')
+        if total_div:
+            total_parent = total_div.find_parent('div', class_='flex')
             if total_parent:
-                scorecard_html += f'<div class="total">{total_parent.get_text(" ", strip=True)}</div>'
+                total_spans = total_parent.find_all('span')
+                if total_spans:
+                    total_text = ' '.join([s.get_text(strip=True) for s in total_spans])
+                    scorecard_html += f'<div class="total">Total: {total_text}</div>'
         
-        dnb_row = innings.find('div', string=re.compile(r'Did not Bat'))
-        if dnb_row:
-            dnb_parent = dnb_row.find_parent('div', class_=re.compile(r'cb-col-100'))
+        dnb_div = innings.find('div', class_='font-bold', string='Did not Bat')
+        if dnb_div:
+            dnb_parent = dnb_div.find_parent('div', class_='flex')
             if dnb_parent:
-                scorecard_html += f'<div class="did-not-bat">{dnb_parent.get_text(" ", strip=True)}</div>'
+                dnb_links = dnb_parent.find_all('a')
+                if dnb_links:
+                    dnb_names = ', '.join([a.get_text(strip=True) for a in dnb_links])
+                    scorecard_html += f'<div class="did-not-bat">Did not bat: {dnb_names}</div>'
         
-        bowling_header = innings.find('div', string=re.compile(r'Bowler'))
-        if bowling_header:
+        bowl_grids = innings.find_all('div', class_=re.compile(r'scorecard-bowl-grid'))
+        
+        if bowl_grids:
             scorecard_html += '<table class="bowling-table"><thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>NB</th><th>WD</th><th>ECO</th></tr></thead><tbody>'
             
-            bowling_parent = bowling_header.find_parent('div', class_=re.compile(r'cb-scrd-itms'))
-            if bowling_parent:
-                next_rows = bowling_parent.find_next_siblings('div', class_=re.compile(r'cb-scrd-itms'))
-                for brow in next_rows:
-                    bcols = brow.find_all('div', recursive=False)
-                    if len(bcols) >= 8:
-                        bowler_name = bcols[0].get_text(strip=True)
-                        if bowler_name and not bowler_name.startswith('Fall'):
-                            overs = bcols[1].get_text(strip=True)
-                            maidens = bcols[2].get_text(strip=True)
-                            bruns = bcols[3].get_text(strip=True)
-                            wickets = bcols[4].get_text(strip=True)
-                            noballs = bcols[5].get_text(strip=True)
-                            wides = bcols[6].get_text(strip=True)
-                            eco = bcols[7].get_text(strip=True)
-                            scorecard_html += f'<tr><td>{bowler_name}</td><td>{overs}</td><td>{maidens}</td><td>{bruns}</td><td class="wickets">{wickets}</td><td>{noballs}</td><td>{wides}</td><td>{eco}</td></tr>'
+            for grid in bowl_grids:
+                bowler_link = grid.find('a', href=re.compile(r'/profiles/'))
+                if bowler_link:
+                    bowler_name = bowler_link.get_text(strip=True)
+                    
+                    all_divs = grid.find_all('div', recursive=False)
+                    overs = all_divs[0].get_text(strip=True) if len(all_divs) > 0 else '-'
+                    maidens = all_divs[1].get_text(strip=True) if len(all_divs) > 1 else '-'
+                    bruns = all_divs[2].get_text(strip=True) if len(all_divs) > 2 else '-'
+                    wickets = all_divs[3].get_text(strip=True) if len(all_divs) > 3 else '-'
+                    noballs = all_divs[4].get_text(strip=True) if len(all_divs) > 4 else '-'
+                    wides = all_divs[5].get_text(strip=True) if len(all_divs) > 5 else '-'
+                    eco = all_divs[6].get_text(strip=True) if len(all_divs) > 6 else '-'
+                    
+                    scorecard_html += f'<tr><td>{bowler_name}</td><td>{overs}</td><td>{maidens}</td><td>{bruns}</td><td class="wickets">{wickets}</td><td>{noballs}</td><td>{wides}</td><td>{eco}</td></tr>'
             
             scorecard_html += '</tbody></table>'
     
-    if not scorecard_html or scorecard_html == '':
-        scorecard_html = '<p class="no-data">Scorecard data not available. Match may not have started yet.</p>'
+    if not scorecard_html or '<table' not in scorecard_html:
+        scorecard_html = '<p class="no-data">Scorecard data not available. Match may not have started yet or the page structure has changed.</p>'
     else:
         scorecard_html = '<div class="scorecard-data">' + scorecard_html + '</div>'
     
