@@ -131,7 +131,7 @@ function scrapeMatchesFromSeries($seriesId) {
         curl_setopt($ch, CURLOPT_URL, $apiUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 120);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         $html = curl_exec($ch);
         curl_close($ch);
     } else {
@@ -140,7 +140,7 @@ function scrapeMatchesFromSeries($seriesId) {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
         $html = curl_exec($ch);
         curl_close($ch);
     }
@@ -185,7 +185,11 @@ function scrapeMatchesFromSeries($seriesId) {
                 'india' => 'ind', 'new zealand' => 'nz', 'australia' => 'aus',
                 'england' => 'eng', 'pakistan' => 'pak', 'south africa' => 'sa',
                 'sri lanka' => 'sl', 'bangladesh' => 'ban', 'west indies' => 'wi',
-                'afghanistan' => 'afg', 'zimbabwe' => 'zim', 'ireland' => 'ire'
+                'afghanistan' => 'afg', 'zimbabwe' => 'zim', 'ireland' => 'ire',
+                'uae' => 'uae', 'usa' => 'usa', 'nepal' => 'nep', 'namibia' => 'nam',
+                'netherlands' => 'ned', 'scotland' => 'sco', 'oman' => 'oman',
+                'canada' => 'can', 'kenya' => 'ken', 'hong kong' => 'hk',
+                'papua new guinea' => 'png', 'bermuda' => 'ber', 'jersey' => 'jer'
             ];
             
             $seriesNameLower = strtolower($series['series_name']);
@@ -209,12 +213,12 @@ function scrapeMatchesFromSeries($seriesId) {
                 $yearMatch = true;
             }
             
-            if($teamsFound >= 2 && $yearMatch) {
+            if($teamsFound >= 2) {
                 $matchBelongsToSeries = true;
             }
             
             if(!$matchBelongsToSeries && strpos($seriesNameLower, 'tour') !== false) {
-                if(strpos($matchUrlLower, 'tour') !== false && $yearMatch && $teamsFound >= 1) {
+                if(strpos($matchUrlLower, 'tour') !== false && $teamsFound >= 1) {
                     $matchBelongsToSeries = true;
                 }
             }
