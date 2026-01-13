@@ -131,6 +131,18 @@
         </section>
         
         <aside class="posts-sidebar">
+            {% if settings.get('adsense_enabled') == 'true' and settings.get('ad_sidebar_enabled') == 'true' and settings.get('ad_slot_sidebar') %}
+            <div class="ad-sidebar">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-client="{{ settings.get('adsense_publisher_id') }}"
+                     data-ad-slot="{{ settings.get('ad_slot_sidebar') }}"
+                     data-ad-format="auto"
+                     data-full-width-responsive="true"></ins>
+                <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+            </div>
+            {% endif %}
+            
             <h3 class="sidebar-title">Latest Posts</h3>
             <div class="sidebar-posts">
                 {% if sidebar_posts %}

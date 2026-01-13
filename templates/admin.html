@@ -5,10 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Panel - Cricbuzz Live Score{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .mobile-header {
+            display: none;
+            background: linear-gradient(135deg, #046a38 0%, #023d20 100%);
+            padding: 15px 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .mobile-header h2 {
+            color: #fff;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .menu-toggle {
+            background: rgba(255,255,255,0.15);
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        @media (max-width: 768px) {
+            .mobile-header {
+                display: flex;
+            }
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1000;
+                transition: transform 0.3s ease;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .sidebar-overlay.active {
+                display: block;
+            }
+            .main-content {
+                padding-top: 80px;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="mobile-header">
+        <h2>Cricbuzz Admin</h2>
+        <button class="menu-toggle" id="menuToggle">&#9776;</button>
+    </div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    
     <div class="layout">
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <h2>Cricbuzz Live Score</h2>
                 <p>Admin Panel</p>
@@ -316,6 +381,22 @@
                 });
             });
         });
+        
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        if(menuToggle && sidebar) {
+            menuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('open');
+                sidebarOverlay.classList.toggle('active');
+            });
+            
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('open');
+                sidebarOverlay.classList.remove('active');
+            });
+        }
     </script>
     
     {% block content %}{% endblock %}
