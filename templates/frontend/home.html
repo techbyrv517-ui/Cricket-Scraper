@@ -1,0 +1,94 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}{{ settings.get('site_name', 'Cricbuzz Live Score') }} - Live Cricket Scores, Match Updates{% endblock %}
+
+{% block meta_description %}Get live cricket scores, match updates, schedules and results for India vs Pakistan, India vs Australia, India vs England and more. Your trusted source for cricket news.{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="container">
+        <h1>{{ settings.get('site_tagline', 'Live Cricket Scores, Match Updates & News') }}</h1>
+        <p>Your trusted source for live cricket scores, match schedules, and results</p>
+    </div>
+</section>
+
+<div class="container">
+    <section style="margin-top: 40px;">
+        <h2 class="section-title">Popular Matchups</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <a href="/match/india-vs-pakistan" class="match-card" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF9933 50%, #046A38 50%); border-radius: 50%;"></div>
+                    <div>
+                        <h3 style="margin-bottom: 5px; color: var(--accent);">India vs Pakistan</h3>
+                        <p style="color: #666; font-size: 14px;">The greatest rivalry in cricket</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/match/india-vs-australia" class="match-card" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF9933 50%, #FFCD00 50%); border-radius: 50%;"></div>
+                    <div>
+                        <h3 style="margin-bottom: 5px; color: var(--accent);">India vs Australia</h3>
+                        <p style="color: #666; font-size: 14px;">Border-Gavaskar Trophy rivals</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/match/india-vs-england" class="match-card" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF9933 50%, #012169 50%); border-radius: 50%;"></div>
+                    <div>
+                        <h3 style="margin-bottom: 5px; color: var(--accent);">India vs England</h3>
+                        <p style="color: #666; font-size: 14px;">Test cricket at its finest</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/match/india-vs-new-zealand" class="match-card" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF9933 50%, #000000 50%); border-radius: 50%;"></div>
+                    <div>
+                        <h3 style="margin-bottom: 5px; color: var(--accent);">India vs New Zealand</h3>
+                        <p style="color: #666; font-size: 14px;">World Test Championship battles</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/match/india-vs-south-africa" class="match-card" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF9933 50%, #007A4D 50%); border-radius: 50%;"></div>
+                    <div>
+                        <h3 style="margin-bottom: 5px; color: var(--accent);">India vs South Africa</h3>
+                        <p style="color: #666; font-size: 14px;">Freedom Trophy clashes</p>
+                    </div>
+                </div>
+            </a>
+            
+            <a href="/match/india-vs-sri-lanka" class="match-card" style="text-decoration: none; color: inherit;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; background: linear-gradient(135deg, #FF9933 50%, #8B0000 50%); border-radius: 50%;"></div>
+                    <div>
+                        <h3 style="margin-bottom: 5px; color: var(--accent);">India vs Sri Lanka</h3>
+                        <p style="color: #666; font-size: 14px;">Subcontinent neighbors</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </section>
+    
+    <section style="margin-top: 50px; padding: 30px; background: #fff; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 class="section-title">About Cricbuzz Live Score</h2>
+        <p style="color: #555; line-height: 1.8; margin-bottom: 15px;">
+            Welcome to <strong>Cricbuzz Live Score</strong> - your ultimate destination for live cricket scores, match updates, and comprehensive coverage of all international cricket matches. We bring you real-time updates for India vs Pakistan, India vs Australia, India vs England, and all major cricket matchups.
+        </p>
+        <p style="color: #555; line-height: 1.8; margin-bottom: 15px;">
+            Whether you're following the intense <strong>Ind vs Pak</strong> rivalry, the competitive <strong>Ind vs Aus</strong> Border-Gavaskar Trophy, or the historic <strong>Ind vs Eng</strong> Test series, we've got you covered with ball-by-ball commentary, scorecards, and match highlights.
+        </p>
+        <p style="color: #555; line-height: 1.8;">
+            Stay updated with live scores for T20 World Cup, ODI World Cup, IPL, Asia Cup, and all bilateral series. Track your favorite teams - India, Pakistan, Australia, England, New Zealand, South Africa, Sri Lanka, Bangladesh, Afghanistan, and West Indies.
+        </p>
+    </section>
+</div>
+{% endblock %}

@@ -412,6 +412,20 @@ body {
     margin-left: 8px;
 }
 
+.nav-section {
+    margin-bottom: 20px;
+}
+
+.nav-section-title {
+    display: block;
+    color: #888;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    padding-left: 15px;
+}
+
 .nav-item {
     display: flex;
     align-items: center;

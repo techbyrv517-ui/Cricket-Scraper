@@ -1,0 +1,131 @@
+{% extends 'admin.html' %}
+
+{% block title %}Site Settings - Admin{% endblock %}
+
+{% block main_content %}
+<div class="content-header">
+    <h1>Site Settings</h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="background: {% if category == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if category == 'success' %}#155724{% else %}#721c24{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" class="settings-form">
+    <div class="settings-section">
+        <h3>General Settings</h3>
+        <div class="form-group">
+            <label>Site Name</label>
+            <input type="text" name="site_name" value="{{ settings.get('site_name', '') }}" class="form-input">
+        </div>
+        <div class="form-group">
+            <label>Site URL</label>
+            <input type="text" name="site_url" value="{{ settings.get('site_url', '') }}" class="form-input">
+        </div>
+        <div class="form-group">
+            <label>Site Tagline</label>
+            <input type="text" name="site_tagline" value="{{ settings.get('site_tagline', '') }}" class="form-input">
+        </div>
+        <div class="form-group">
+            <label>Header Logo Text</label>
+            <input type="text" name="header_logo" value="{{ settings.get('header_logo', '') }}" class="form-input">
+        </div>
+        <div class="form-group">
+            <label>Footer Text</label>
+            <input type="text" name="footer_text" value="{{ settings.get('footer_text', '') }}" class="form-input">
+        </div>
+    </div>
+    
+    <div class="settings-section">
+        <h3>Theme Colors</h3>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div class="form-group">
+                <label>Primary Color</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="color" name="theme_primary" value="{{ settings.get('theme_primary', '#046A38') }}" style="width: 50px; height: 40px; border: none; cursor: pointer;">
+                    <input type="text" value="{{ settings.get('theme_primary', '#046A38') }}" class="form-input" readonly style="flex: 1;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Secondary Color</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="color" name="theme_secondary" value="{{ settings.get('theme_secondary', '#FF6B00') }}" style="width: 50px; height: 40px; border: none; cursor: pointer;">
+                    <input type="text" value="{{ settings.get('theme_secondary', '#FF6B00') }}" class="form-input" readonly style="flex: 1;">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Accent Color</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="color" name="theme_accent" value="{{ settings.get('theme_accent', '#1A1A2E') }}" style="width: 50px; height: 40px; border: none; cursor: pointer;">
+                    <input type="text" value="{{ settings.get('theme_accent', '#1A1A2E') }}" class="form-input" readonly style="flex: 1;">
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="settings-section">
+        <h3>SEO Settings</h3>
+        <div class="form-group">
+            <label>Meta Keywords</label>
+            <textarea name="meta_keywords" class="form-input" rows="3">{{ settings.get('meta_keywords', '') }}</textarea>
+            <small style="color: #666;">Comma-separated keywords for SEO</small>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary" style="padding: 12px 30px; font-size: 16px;">Save Settings</button>
+</form>
+
+<style>
+    .settings-section {
+        background: #1e2a3a;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+    }
+    .settings-section h3 {
+        color: #00d4aa;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #2d3e50;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ccc;
+        font-weight: 500;
+    }
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        background: #16202c;
+        border: 1px solid #2d3e50;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #00d4aa;
+    }
+    .btn-primary {
+        background: #00d4aa;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+    .btn-primary:hover {
+        background: #00b894;
+    }
+</style>
+{% endblock %}

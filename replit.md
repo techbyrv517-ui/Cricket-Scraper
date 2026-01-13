@@ -1,87 +1,165 @@
-# Cricket Scraper Website
+# Cricbuzz Live Score - Cricket Data Website
 
 ## Overview
-A Python/Flask-based cricket data scraping website that scrapes series and match data from cricbuzz.com and stores it in a PostgreSQL database. Uses pure Python (requests + BeautifulSoup) for all scraping - no external APIs required.
+A full-featured cricket data website with Cricbuzz-style frontend, admin panel with authentication, and advanced SEO optimization. Scrapes series, match, and scorecard data from cricbuzz.com using pure Python (requests + BeautifulSoup).
+
+**Website:** https://cricbuzz-live-score.com  
+**Name:** Cricbuzz Live Score
 
 ## Project Structure
 ```
 /
-├── app.py              # Main Flask application
-├── scraper.py          # Scraping functions (pure Python, no external API)
+├── app.py                          # Main Flask application
+├── scraper.py                      # Scraping functions (pure Python)
 ├── templates/
-│   ├── admin.html      # Admin panel main page
-│   ├── matches_page.html # View matches for a series
-│   ├── scorecard.html  # Scorecard viewing page
-│   └── live_score.html # Live score page
+│   ├── admin.html                  # Admin panel base template
+│   ├── admin/
+│   │   ├── login.html              # Admin login page
+│   │   ├── settings.html           # Site settings management
+│   │   ├── pages.html              # Pages list
+│   │   └── edit_page.html          # Edit page content
+│   ├── frontend/
+│   │   ├── base.html               # Frontend base template with SEO
+│   │   ├── home.html               # Homepage with matchups
+│   │   ├── page.html               # Static pages (About, Contact, etc.)
+│   │   └── keyword_page.html       # SEO keyword landing pages
+│   ├── matches_page.html           # View matches for a series
+│   ├── scorecard.html              # Scorecard viewing page
+│   └── live_score.html             # Live score page
 ├── static/
-│   └── style.css       # Admin panel styling
-└── replit.md           # Project documentation
+│   └── style.css                   # Admin panel styling
+└── replit.md                       # Project documentation
 ```
 
 ## Database Schema
-### Series Table
+
+### Users Table
 - id: Auto-increment primary key
-- month: Month name (e.g., January)
-- year: Year (e.g., 2025)
-- series_name: Name of the cricket series
-- date_range: Date range when series runs
-- series_url: URL to the series matches page
+- username: Unique username
+- password_hash: Hashed password (werkzeug)
+- role: User role (admin)
+- created_at: Account creation timestamp
+- last_login: Last login timestamp
+
+### Site Settings Table
+- id: Auto-increment primary key
+- setting_key: Unique setting name
+- setting_value: Setting value
+- updated_at: Last update timestamp
+
+### Pages Table (AdSense)
+- id: Auto-increment primary key
+- slug: URL slug (about, contact, privacy-policy, disclaimer, terms)
+- title: Page title
+- content: HTML content
+- meta_title: SEO meta title
+- meta_description: SEO meta description
+- is_published: Published status
+- created_at, updated_at: Timestamps
+
+### Keyword Pages Table (SEO)
+- id: Auto-increment primary key
+- keyword: Full keyword (India vs Pakistan)
+- short_keyword: Short form (Ind vs Pak)
+- slug: URL slug (india-vs-pakistan)
+- hero_title, hero_description: Hero section content
+- content: Page content
+- meta_title, meta_description: SEO meta tags
+- is_published: Published status
+
+### Series Table
+- id, series_id, month, year, series_name, date_range, series_url
 
 ### Matches Table
-- id: Auto-increment primary key
-- series_id: Foreign key to series table
-- match_id: Cricbuzz match ID (extracted from URL)
-- match_title: Title of the match
-- match_url: Full URL to the match page
-- match_date: Date of the match
+- id, series_id, match_id, match_title, match_url, match_date
 
 ### Scorecards Table
-- id: Auto-increment primary key
-- match_id: Cricbuzz match ID (unique)
-- match_title: Title of the match
-- match_status: Current match status
-- scorecard_html: Full HTML of the scraped scorecard
-- scraped_at: Timestamp of when scorecard was scraped
+- id, match_id, match_title, match_status, scorecard_html, scraped_at
 
-## Features Implemented
-1. Series data scraping from cricbuzz.com/cricket-schedule/series/all
-2. Match data scraping from individual series pages
-3. Scorecard scraping with batting & bowling tables (pure Python)
-4. Admin panel with sidebar navigation
-5. Smart match filtering using team abbreviations for all cricket nations
+## Features
 
-## Tech Stack
-- Python 3.11 with Flask framework
-- PostgreSQL Database
-- Jinja2 Templates
-- BeautifulSoup4 for HTML parsing
-- Requests for HTTP requests
-- lxml for faster HTML parsing
+### Frontend (Public)
+1. Cricbuzz-style responsive design
+2. Dynamic header/footer from admin settings
+3. Homepage with popular matchups
+4. SEO keyword landing pages (India vs Pakistan, etc.)
+5. 5 AdSense-required static pages
+
+### Admin Panel
+1. Secure login with password hashing
+2. Site settings management (name, URL, tagline)
+3. Theme color customization (primary, secondary, accent)
+4. Dynamic header/footer editing
+5. Page content management (WYSIWYG HTML)
+6. Series/Match/Scorecard scraping
+
+### SEO Features
+1. Dynamic meta titles and descriptions
+2. OpenGraph and Twitter Card tags
+3. Canonical URLs
+4. Structured data (JSON-LD) for WebSite and SportsEvent
+5. XML Sitemap (/sitemap.xml)
+6. Robots.txt (/robots.txt)
+7. Keyword-optimized landing pages
+
+## Target Keywords
+- India vs Pakistan, Ind vs Pak
+- India vs Australia, Ind vs Aus
+- India vs England, Ind vs Eng
+- India vs New Zealand, Ind vs NZ
+- India vs South Africa, Ind vs SA
+- India vs Sri Lanka, Ind vs SL
+- India vs Bangladesh, Ind vs Ban
+- India vs Afghanistan, Ind vs Afg
+- India vs West Indies, Ind vs WI
+- Cricbuzz
+
+## Default Admin Credentials
+- Username: admin
+- Password: admin123
+(Change after first login)
 
 ## Environment Variables
 - DATABASE_URL: PostgreSQL connection string
 - SESSION_SECRET: Flask session secret key
 
-## Pages
-- GET / - Redirects to admin panel
-- GET /admin - Admin panel with series scraping
-- GET /matches - View matches page with series selector
-- GET /scorecard - Scorecard viewing with series/match selectors
-- GET /live-score - Live score page
+## Routes
 
-## API Endpoints
-- POST /api/scrape-series - Scrape series data from Cricbuzz
-- POST /api/scrape-matches/<series_id> - Scrape matches for a specific series
-- POST /api/scrape-all-matches - Scrape matches for all series
-- POST /api/scrape-scorecard - Scrape scorecard for a match (saves to database)
-- GET /api/matches/<series_id> - Get matches for a series (JSON)
-- GET /api/get-scorecard/<match_id> - Get saved scorecard from database
-- GET /api/saved-scorecards - List all saved scorecards
+### Public Routes
+- GET / - Homepage
+- GET /match/<slug> - Keyword landing pages
+- GET /page/<slug> - Static pages (about, contact, etc.)
+- GET /sitemap.xml - XML sitemap
+- GET /robots.txt - Robots file
+
+### Admin Routes
+- GET /admin/login - Login page
+- GET /admin/logout - Logout
+- GET /admin - Series list (protected)
+- GET /admin/settings - Site settings (protected)
+- GET /admin/pages - Manage pages (protected)
+- GET /admin/pages/edit/<id> - Edit page (protected)
+
+### API Endpoints
+- POST /api/scrape-series - Scrape series
+- POST /api/scrape-matches/<id> - Scrape matches
+- POST /api/scrape-scorecard - Scrape scorecard
+- GET /api/get-scorecard/<id> - Get saved scorecard
+- GET /api/saved-scorecards - List scorecards
+
+## Tech Stack
+- Python 3.11 with Flask
+- PostgreSQL Database
+- Jinja2 Templates
+- BeautifulSoup4 + lxml for scraping
+- Werkzeug for password hashing
 
 ## Recent Changes
-- January 2026: Added database storage for scorecards with ON CONFLICT UPDATE
-- January 2026: Migrated from PHP to Python/Flask framework
-- January 2026: Removed ScraperAPI dependency - now uses pure Python requests
-- January 2026: Added scorecard scraping with batting/bowling tables
-- January 2026: Restructured sidebar navigation with dedicated pages
-- January 2026: Fixed HTML parsing for Cricbuzz's Next.js structure
+- January 2026: Added frontend with Cricbuzz-style design
+- January 2026: Implemented admin authentication system
+- January 2026: Added site settings and theme customization
+- January 2026: Created 5 AdSense-required pages
+- January 2026: Built 9 SEO keyword landing pages
+- January 2026: Added sitemap.xml and robots.txt
+- January 2026: Implemented structured data (JSON-LD)
+- January 2026: Added OpenGraph and Twitter Card meta tags

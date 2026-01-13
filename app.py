@@ -1,13 +1,35 @@
 import os
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, flash
+from functools import wraps
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
+from werkzeug.security import generate_password_hash, check_password_hash
 
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SESSION_SECRET', 'dev-secret-key')
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            return redirect(url_for('admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def get_site_settings():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT setting_key, setting_value FROM site_settings')
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    settings = {}
+    for row in rows:
+        settings[row['setting_key']] = row['setting_value']
+    return settings
 
 def get_db():
     return psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor)
@@ -79,15 +101,170 @@ def init_db():
         )
     ''')
     
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(50) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            role VARCHAR(20) DEFAULT 'admin',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            last_login TIMESTAMP
+        )
+    ''')
+    
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS site_settings (
+            id SERIAL PRIMARY KEY,
+            setting_key VARCHAR(100) UNIQUE NOT NULL,
+            setting_value TEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS pages (
+            id SERIAL PRIMARY KEY,
+            slug VARCHAR(100) UNIQUE NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            content TEXT,
+            meta_title VARCHAR(255),
+            meta_description TEXT,
+            is_published BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS keyword_pages (
+            id SERIAL PRIMARY KEY,
+            keyword VARCHAR(100) NOT NULL,
+            short_keyword VARCHAR(50),
+            slug VARCHAR(100) UNIQUE NOT NULL,
+            hero_title VARCHAR(255),
+            hero_description TEXT,
+            content TEXT,
+            meta_title VARCHAR(255),
+            meta_description TEXT,
+            is_published BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+
+def seed_defaults():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT COUNT(*) as cnt FROM users')
+    if cur.fetchone()['cnt'] == 0:
+        default_password = generate_password_hash('admin123')
+        cur.execute('''
+            INSERT INTO users (username, password_hash, role) 
+            VALUES (%s, %s, %s)
+        ''', ('admin', default_password, 'admin'))
+    
+    default_settings = {
+        'site_name': 'Cricbuzz Live Score',
+        'site_url': 'https://cricbuzz-live-score.com',
+        'site_tagline': 'Live Cricket Scores, Match Updates & News',
+        'theme_primary': '#046A38',
+        'theme_secondary': '#FF6B00',
+        'theme_accent': '#1A1A2E',
+        'header_logo': 'Cricbuzz Live Score',
+        'footer_text': '© 2026 Cricbuzz Live Score. All Rights Reserved.',
+        'meta_keywords': 'cricket, live score, India vs Pakistan, Ind vs Pak, Cricbuzz, cricket match, IPL, T20, ODI, Test match'
+    }
+    
+    for key, value in default_settings.items():
+        cur.execute('''
+            INSERT INTO site_settings (setting_key, setting_value)
+            VALUES (%s, %s)
+            ON CONFLICT (setting_key) DO NOTHING
+        ''', (key, value))
+    
+    adsense_pages = [
+        ('about', 'About Us', 'Learn about Cricbuzz Live Score - your trusted source for live cricket scores and updates.'),
+        ('contact', 'Contact Us', 'Get in touch with Cricbuzz Live Score team for queries and feedback.'),
+        ('privacy-policy', 'Privacy Policy', 'Privacy Policy for Cricbuzz Live Score website.'),
+        ('disclaimer', 'Disclaimer', 'Disclaimer for Cricbuzz Live Score website.'),
+        ('terms', 'Terms of Service', 'Terms and conditions for using Cricbuzz Live Score website.')
+    ]
+    
+    for slug, title, desc in adsense_pages:
+        cur.execute('''
+            INSERT INTO pages (slug, title, meta_description, content)
+            VALUES (%s, %s, %s, %s)
+            ON CONFLICT (slug) DO NOTHING
+        ''', (slug, title, desc, f'<h1>{title}</h1><p>{desc}</p>'))
+    
+    keywords = [
+        ('India vs Pakistan', 'Ind vs Pak', 'india-vs-pakistan'),
+        ('India vs England', 'Ind vs Eng', 'india-vs-england'),
+        ('India vs Australia', 'Ind vs Aus', 'india-vs-australia'),
+        ('India vs New Zealand', 'Ind vs NZ', 'india-vs-new-zealand'),
+        ('India vs South Africa', 'Ind vs SA', 'india-vs-south-africa'),
+        ('India vs Sri Lanka', 'Ind vs SL', 'india-vs-sri-lanka'),
+        ('India vs Bangladesh', 'Ind vs Ban', 'india-vs-bangladesh'),
+        ('India vs Afghanistan', 'Ind vs Afg', 'india-vs-afghanistan'),
+        ('India vs West Indies', 'Ind vs WI', 'india-vs-west-indies')
+    ]
+    
+    for keyword, short, slug in keywords:
+        cur.execute('''
+            INSERT INTO keyword_pages (keyword, short_keyword, slug, hero_title, meta_title, meta_description)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            ON CONFLICT (slug) DO NOTHING
+        ''', (keyword, short, slug, 
+              f'{keyword} Live Score & Match Updates',
+              f'{keyword} Live Score, Schedule, Results | Cricbuzz Live Score',
+              f'Get live {keyword} cricket score, match schedule, results, highlights and news. Watch {short} live updates on Cricbuzz Live Score.'))
+    
     conn.commit()
     cur.close()
     conn.close()
 
 @app.route('/')
 def index():
-    return redirect(url_for('admin'))
+    settings = get_site_settings()
+    return render_template('frontend/home.html', settings=settings)
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE username = %s', (username,))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+        
+        if user and check_password_hash(user['password_hash'], password):
+            session['user_id'] = user['id']
+            session['username'] = user['username']
+            cur = get_db().cursor()
+            cur.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = %s', (user['id'],))
+            cur.connection.commit()
+            cur.close()
+            return redirect(url_for('admin'))
+        else:
+            flash('Invalid username or password', 'error')
+    
+    return render_template('admin/login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+    session.clear()
+    return redirect(url_for('admin_login'))
 
 @app.route('/admin')
+@login_required
 def admin():
     conn = get_db()
     cur = conn.cursor()
@@ -281,8 +458,190 @@ def api_saved_scorecards():
     conn.close()
     return jsonify({'success': True, 'scorecards': [dict(s) for s in scorecards]})
 
+@app.route('/page/<slug>')
+def view_page(slug):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM pages WHERE slug = %s AND is_published = TRUE', (slug,))
+    page = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    if not page:
+        return 'Page not found', 404
+    
+    settings = get_site_settings()
+    return render_template('frontend/page.html', page=page, settings=settings)
+
+@app.route('/match/<slug>')
+def keyword_page(slug):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM keyword_pages WHERE slug = %s AND is_published = TRUE', (slug,))
+    keyword_page = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    if not keyword_page:
+        return 'Page not found', 404
+    
+    settings = get_site_settings()
+    return render_template('frontend/keyword_page.html', keyword_page=keyword_page, settings=settings)
+
+@app.route('/admin/settings', methods=['GET', 'POST'])
+@login_required
+def admin_settings():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        settings_to_update = ['site_name', 'site_url', 'site_tagline', 'theme_primary', 
+                             'theme_secondary', 'theme_accent', 'header_logo', 'footer_text', 'meta_keywords']
+        for key in settings_to_update:
+            value = request.form.get(key, '')
+            cur.execute('''
+                INSERT INTO site_settings (setting_key, setting_value)
+                VALUES (%s, %s)
+                ON CONFLICT (setting_key) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = CURRENT_TIMESTAMP
+            ''', (key, value))
+        conn.commit()
+        flash('Settings updated successfully', 'success')
+    
+    cur.execute('SELECT setting_key, setting_value FROM site_settings')
+    rows = cur.fetchall()
+    settings = {row['setting_key']: row['setting_value'] for row in rows}
+    cur.close()
+    conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/settings.html', settings=settings, sidebar=sidebar)
+
+@app.route('/admin/change-password', methods=['GET', 'POST'])
+@login_required
+def admin_change_password():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM users WHERE id = %s', (session['user_id'],))
+        user = cur.fetchone()
+        
+        if not check_password_hash(user['password_hash'], current_password):
+            flash('Current password is incorrect', 'error')
+        elif new_password != confirm_password:
+            flash('New passwords do not match', 'error')
+        elif len(new_password) < 8:
+            flash('Password must be at least 8 characters', 'error')
+        else:
+            new_hash = generate_password_hash(new_password)
+            cur.execute('UPDATE users SET password_hash = %s WHERE id = %s', (new_hash, session['user_id']))
+            conn.commit()
+            flash('Password changed successfully', 'success')
+        
+        cur.close()
+        conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/change_password.html', sidebar=sidebar)
+
+@app.route('/admin/pages')
+@login_required
+def admin_pages():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM pages ORDER BY title')
+    pages = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/pages.html', pages=pages, sidebar=sidebar)
+
+@app.route('/admin/pages/edit/<int:page_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_page(page_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        content = request.form.get('content')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        
+        cur.execute('''
+            UPDATE pages SET title=%s, content=%s, meta_title=%s, meta_description=%s, updated_at=CURRENT_TIMESTAMP
+            WHERE id=%s
+        ''', (title, content, meta_title, meta_description, page_id))
+        conn.commit()
+        flash('Page updated successfully', 'success')
+    
+    cur.execute('SELECT * FROM pages WHERE id = %s', (page_id,))
+    page = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/edit_page.html', page=page, sidebar=sidebar)
+
+@app.route('/robots.txt')
+def robots():
+    content = """User-agent: *
+Allow: /
+Sitemap: https://cricbuzz-live-score.com/sitemap.xml
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+"""
+    return content, 200, {'Content-Type': 'text/plain'}
+
+@app.route('/sitemap.xml')
+def sitemap():
+    from datetime import datetime
+    
+    pages = [
+        ('/', '1.0', 'daily'),
+        ('/page/about', '0.8', 'monthly'),
+        ('/page/contact', '0.8', 'monthly'),
+        ('/page/privacy-policy', '0.6', 'monthly'),
+        ('/page/disclaimer', '0.6', 'monthly'),
+        ('/page/terms', '0.6', 'monthly'),
+        ('/match/india-vs-pakistan', '0.9', 'daily'),
+        ('/match/india-vs-australia', '0.9', 'daily'),
+        ('/match/india-vs-england', '0.9', 'daily'),
+        ('/match/india-vs-new-zealand', '0.9', 'daily'),
+        ('/match/india-vs-south-africa', '0.9', 'daily'),
+        ('/match/india-vs-sri-lanka', '0.9', 'daily'),
+        ('/match/india-vs-bangladesh', '0.9', 'daily'),
+        ('/match/india-vs-afghanistan', '0.9', 'daily'),
+        ('/match/india-vs-west-indies', '0.9', 'daily'),
+    ]
+    
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    
+    base_url = 'https://cricbuzz-live-score.com'
+    today = datetime.now().strftime('%Y-%m-%d')
+    
+    for url, priority, freq in pages:
+        xml += f'''  <url>
+    <loc>{base_url}{url}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>{freq}</changefreq>
+    <priority>{priority}</priority>
+  </url>\n'''
+    
+    xml += '</urlset>'
+    return xml, 200, {'Content-Type': 'application/xml'}
+
 with app.app_context():
     init_db()
+    seed_defaults()
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -1,0 +1,110 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}{{ keyword_page.meta_title or keyword_page.hero_title }} | {{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}
+
+{% block meta_description %}{{ keyword_page.meta_description }}{% endblock %}
+
+{% block canonical_path %}/match/{{ keyword_page.slug }}{% endblock %}
+
+{% block extra_css %}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "SportsEvent",
+    "name": "{{ keyword_page.keyword }} Cricket Match",
+    "description": "{{ keyword_page.meta_description }}",
+    "sport": "Cricket",
+    "organizer": {
+        "@type": "SportsOrganization",
+        "name": "International Cricket Council"
+    }
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<section class="hero" style="padding: 50px 0;">
+    <div class="container">
+        <h1>{{ keyword_page.hero_title or keyword_page.keyword }}</h1>
+        <p style="max-width: 700px; margin: 0 auto;">{{ keyword_page.hero_description or 'Live scores, match schedule, results and news' }}</p>
+    </div>
+</section>
+
+<div class="container" style="padding-top: 40px;">
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 30px;">
+        <div>
+            <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 25px;">
+                <h2 class="section-title">{{ keyword_page.keyword }} - Live Score Updates</h2>
+                
+                {% if keyword_page.content %}
+                    <div style="color: #555; line-height: 1.8;">
+                        {{ keyword_page.content | safe }}
+                    </div>
+                {% else %}
+                    <p style="color: #555; line-height: 1.8; margin-bottom: 15px;">
+                        Get the latest <strong>{{ keyword_page.keyword }}</strong> live cricket scores, ball-by-ball commentary, match schedule, and results. 
+                        Follow {{ keyword_page.short_keyword }} matches with real-time updates on Cricbuzz Live Score.
+                    </p>
+                    <p style="color: #555; line-height: 1.8; margin-bottom: 15px;">
+                        The {{ keyword_page.keyword }} cricket rivalry is one of the most watched sporting events globally. 
+                        Whether it's Test matches, ODIs, or T20s, every {{ keyword_page.short_keyword }} encounter brings intense competition and memorable moments.
+                    </p>
+                    <p style="color: #555; line-height: 1.8;">
+                        Stay tuned for upcoming {{ keyword_page.keyword }} matches, player statistics, head-to-head records, and expert analysis. 
+                        Never miss a moment of the action with our comprehensive coverage.
+                    </p>
+                {% endif %}
+            </div>
+            
+            <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                <h2 class="section-title">{{ keyword_page.short_keyword }} Head to Head</h2>
+                <p style="color: #555; line-height: 1.8; margin-bottom: 20px;">
+                    The {{ keyword_page.keyword }} rivalry has produced some of the most memorable moments in cricket history. 
+                    Both teams have shared intense battles across all formats of the game.
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center; margin-top: 25px;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--primary);">--</div>
+                        <div style="color: #666; font-size: 14px;">Test Matches</div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--secondary);">--</div>
+                        <div style="color: #666; font-size: 14px;">ODI Matches</div>
+                    </div>
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                        <div style="font-size: 32px; font-weight: 700; color: var(--accent);">--</div>
+                        <div style="color: #666; font-size: 14px;">T20I Matches</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <aside>
+            <div style="background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px;">
+                <h3 style="color: var(--accent); margin-bottom: 15px; font-size: 18px;">Related Matches</h3>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-pakistan" style="color: #555; text-decoration: none;">India vs Pakistan</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-australia" style="color: #555; text-decoration: none;">India vs Australia</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-england" style="color: #555; text-decoration: none;">India vs England</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-new-zealand" style="color: #555; text-decoration: none;">India vs New Zealand</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-south-africa" style="color: #555; text-decoration: none;">India vs South Africa</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-sri-lanka" style="color: #555; text-decoration: none;">India vs Sri Lanka</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-bangladesh" style="color: #555; text-decoration: none;">India vs Bangladesh</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/match/india-vs-afghanistan" style="color: #555; text-decoration: none;">India vs Afghanistan</a></li>
+                    <li><a href="/match/india-vs-west-indies" style="color: #555; text-decoration: none;">India vs West Indies</a></li>
+                </ul>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%); padding: 25px; border-radius: 12px; color: #fff;">
+                <h3 style="margin-bottom: 15px; font-size: 18px;">Quick Links</h3>
+                <ul style="list-style: none;">
+                    <li style="margin-bottom: 10px;"><a href="/" style="color: #fff; text-decoration: none; opacity: 0.9;">Home</a></li>
+                    <li style="margin-bottom: 10px;"><a href="/page/about" style="color: #fff; text-decoration: none; opacity: 0.9;">About Us</a></li>
+                    <li><a href="/page/contact" style="color: #fff; text-decoration: none; opacity: 0.9;">Contact</a></li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cricket Scraper - Admin Panel</title>
+    <title>{% block title %}Cricket Scraper - Admin Panel{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -11,38 +11,75 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <h2>Cricket Scraper</h2>
+                <p style="font-size: 12px; color: #888; margin-top: 5px;">Admin Panel</p>
             </div>
             
             <nav class="sidebar-nav">
-                <button id="scrapeSeriesBtn" class="nav-item">
-                    <span class="nav-icon">📥</span>
-                    <span>Scrape Series</span>
-                </button>
-                <button id="clearSeriesBtn" class="nav-item nav-danger">
-                    <span class="nav-icon">🗑️</span>
-                    <span>Clear Series</span>
-                </button>
-                <button id="clearMatchesBtn" class="nav-item nav-danger">
-                    <span class="nav-icon">🗑️</span>
-                    <span>Clear Match</span>
-                </button>
-                <a href="{{ url_for('matches_page') }}" class="nav-item">
-                    <span class="nav-icon">🏏</span>
-                    <span>Matches</span>
-                </a>
-                <a href="{{ url_for('live_score') }}" class="nav-item">
-                    <span class="nav-icon">📡</span>
-                    <span>Live Score</span>
-                </a>
-                <a href="{{ url_for('scorecard') }}" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span>Scorecard</span>
-                </a>
+                <div class="nav-section">
+                    <span class="nav-section-title">Scraping</span>
+                    <button id="scrapeSeriesBtn" class="nav-item">
+                        <span class="nav-icon">📥</span>
+                        <span>Scrape Series</span>
+                    </button>
+                    <button id="clearSeriesBtn" class="nav-item nav-danger">
+                        <span class="nav-icon">🗑️</span>
+                        <span>Clear Series</span>
+                    </button>
+                    <button id="clearMatchesBtn" class="nav-item nav-danger">
+                        <span class="nav-icon">🗑️</span>
+                        <span>Clear Match</span>
+                    </button>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-section-title">Data</span>
+                    <a href="{{ url_for('matches_page') }}" class="nav-item">
+                        <span class="nav-icon">🏏</span>
+                        <span>Matches</span>
+                    </a>
+                    <a href="{{ url_for('live_score') }}" class="nav-item">
+                        <span class="nav-icon">📡</span>
+                        <span>Live Score</span>
+                    </a>
+                    <a href="{{ url_for('scorecard') }}" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        <span>Scorecard</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-section-title">CMS</span>
+                    <a href="{{ url_for('admin_settings') }}" class="nav-item">
+                        <span class="nav-icon">⚙️</span>
+                        <span>Site Settings</span>
+                    </a>
+                    <a href="{{ url_for('admin_pages') }}" class="nav-item">
+                        <span class="nav-icon">📄</span>
+                        <span>Pages</span>
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <span class="nav-section-title">Account</span>
+                    <a href="{{ url_for('admin_change_password') }}" class="nav-item">
+                        <span class="nav-icon">🔐</span>
+                        <span>Change Password</span>
+                    </a>
+                    <a href="/" target="_blank" class="nav-item">
+                        <span class="nav-icon">🌐</span>
+                        <span>View Website</span>
+                    </a>
+                    <a href="{{ url_for('admin_logout') }}" class="nav-item nav-danger">
+                        <span class="nav-icon">🚪</span>
+                        <span>Logout</span>
+                    </a>
+                </div>
             </nav>
             
         </aside>
         
         <main class="main-content">
+            {% block main_content %}
             <header>
                 <h1>Series List</h1>
                 <span id="statusMessage" class="status-message"></span>
@@ -81,78 +118,101 @@
                     </tbody>
                 </table>
             </div>
+            {% endblock %}
         </main>
     </div>
     
     <script>
-        document.getElementById('scrapeSeriesBtn').addEventListener('click', function() {
-            const btn = this;
-            const status = document.getElementById('statusMessage');
-            
-            btn.disabled = true;
-            btn.textContent = 'Scraping...';
-            status.textContent = '';
-            
-            fetch('/api/scrape-series', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                status.textContent = data.message;
-                status.className = 'status-message ' + (data.success ? 'success' : 'error');
-                btn.disabled = false;
-                btn.textContent = 'Scrape Series';
-                if(data.success) setTimeout(() => location.reload(), 1500);
-            })
-            .catch(error => {
-                status.textContent = 'Error: ' + error;
-                status.className = 'status-message error';
-                btn.disabled = false;
-                btn.textContent = 'Scrape Series';
-            });
-        });
+        const scrapeSeriesBtn = document.getElementById('scrapeSeriesBtn');
+        const clearMatchesBtn = document.getElementById('clearMatchesBtn');
+        const clearSeriesBtn = document.getElementById('clearSeriesBtn');
         
-        document.getElementById('clearMatchesBtn').addEventListener('click', function() {
-            if(!confirm('Are you sure you want to delete ALL matches?')) return;
-            
-            const btn = this;
-            const status = document.getElementById('statusMessage');
-            btn.disabled = true;
-            
-            fetch('/api/clear-all-matches', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                status.textContent = data.message;
-                status.className = 'status-message ' + (data.success ? 'success' : 'error');
-                btn.disabled = false;
-                if(data.success) setTimeout(() => location.reload(), 1500);
-            })
-            .catch(error => {
-                status.textContent = 'Error: ' + error;
-                status.className = 'status-message error';
-                btn.disabled = false;
+        if(scrapeSeriesBtn) {
+            scrapeSeriesBtn.addEventListener('click', function() {
+                const btn = this;
+                const status = document.getElementById('statusMessage');
+                
+                btn.disabled = true;
+                btn.textContent = 'Scraping...';
+                if(status) status.textContent = '';
+                
+                fetch('/api/scrape-series', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(status) {
+                        status.textContent = data.message;
+                        status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="nav-icon">📥</span><span>Scrape Series</span>';
+                    if(data.success) setTimeout(() => location.reload(), 1500);
+                })
+                .catch(error => {
+                    if(status) {
+                        status.textContent = 'Error: ' + error;
+                        status.className = 'status-message error';
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="nav-icon">📥</span><span>Scrape Series</span>';
+                });
             });
-        });
+        }
         
-        document.getElementById('clearSeriesBtn').addEventListener('click', function() {
-            if(!confirm('Are you sure you want to delete ALL series and matches?')) return;
-            
-            const btn = this;
-            const status = document.getElementById('statusMessage');
-            btn.disabled = true;
-            
-            fetch('/api/clear-all-series', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                status.textContent = data.message;
-                status.className = 'status-message ' + (data.success ? 'success' : 'error');
-                btn.disabled = false;
-                if(data.success) setTimeout(() => location.reload(), 1500);
-            })
-            .catch(error => {
-                status.textContent = 'Error: ' + error;
-                status.className = 'status-message error';
-                btn.disabled = false;
+        if(clearMatchesBtn) {
+            clearMatchesBtn.addEventListener('click', function() {
+                if(!confirm('Are you sure you want to delete ALL matches?')) return;
+                
+                const btn = this;
+                const status = document.getElementById('statusMessage');
+                btn.disabled = true;
+                
+                fetch('/api/clear-all-matches', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(status) {
+                        status.textContent = data.message;
+                        status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                    }
+                    btn.disabled = false;
+                    if(data.success) setTimeout(() => location.reload(), 1500);
+                })
+                .catch(error => {
+                    if(status) {
+                        status.textContent = 'Error: ' + error;
+                        status.className = 'status-message error';
+                    }
+                    btn.disabled = false;
+                });
             });
-        });
+        }
+        
+        if(clearSeriesBtn) {
+            clearSeriesBtn.addEventListener('click', function() {
+                if(!confirm('Are you sure you want to delete ALL series and matches?')) return;
+                
+                const btn = this;
+                const status = document.getElementById('statusMessage');
+                btn.disabled = true;
+                
+                fetch('/api/clear-all-series', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(status) {
+                        status.textContent = data.message;
+                        status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                    }
+                    btn.disabled = false;
+                    if(data.success) setTimeout(() => location.reload(), 1500);
+                })
+                .catch(error => {
+                    if(status) {
+                        status.textContent = 'Error: ' + error;
+                        status.className = 'status-message error';
+                    }
+                    btn.disabled = false;
+                });
+            });
+        }
         
         document.querySelectorAll('.scrape-matches').forEach(btn => {
             btn.addEventListener('click', function() {

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    
+    <title>{% block title %}{{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ settings.get('site_tagline', 'Live Cricket Scores, Match Updates & News') }}{% endblock %}">
+    <meta name="keywords" content="{{ settings.get('meta_keywords', 'cricket, live score, India vs Pakistan') }}">
+    
+    <meta property="og:title" content="{% block og_title %}{{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}">
+    <meta property="og:description" content="{{ settings.get('site_tagline', 'Live Cricket Scores') }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ settings.get('site_name', 'Cricbuzz Live Score') }}">
+    
+    <link rel="canonical" href="{{ settings.get('site_url', '') }}{% block canonical_path %}{% endblock %}">
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "{{ settings.get('site_name', 'Cricbuzz Live Score') }}",
+        "url": "{{ settings.get('site_url', 'https://cricbuzz-live-score.com') }}",
+        "description": "{{ settings.get('site_tagline', 'Live Cricket Scores') }}"
+    }
+    </script>
+    
+    <style>
+        :root {
+            --primary: {{ settings.get('theme_primary', '#046A38') }};
+            --secondary: {{ settings.get('theme_secondary', '#FF6B00') }};
+            --accent: {{ settings.get('theme_accent', '#1A1A2E') }};
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--accent);
+            padding: 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .header-top {
+            background: var(--primary);
+            padding: 8px 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-top .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+        }
+        
+        .logo span {
+            color: var(--secondary);
+        }
+        
+        .nav-main {
+            background: var(--accent);
+        }
+        
+        .nav-main ul {
+            list-style: none;
+            display: flex;
+            gap: 0;
+        }
+        
+        .nav-main li a {
+            display: block;
+            padding: 14px 20px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+        
+        .nav-main li a:hover,
+        .nav-main li a.active {
+            background: var(--secondary);
+        }
+        
+        .main-content {
+            padding: 20px 0;
+            min-height: calc(100vh - 300px);
+        }
+        
+        .footer {
+            background: var(--accent);
+            color: #fff;
+            padding: 40px 0 20px;
+            margin-top: 40px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .footer-section h3 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-section ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .footer-section ul li a:hover {
+            color: var(--secondary);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #333;
+            padding-top: 20px;
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .match-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .match-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        
+        .section-title {
+            font-size: 22px;
+            color: var(--accent);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary);
+            display: inline-block;
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            color: #fff;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+        
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-main ul {
+                flex-wrap: wrap;
+            }
+            .nav-main li a {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+            .hero h1 {
+                font-size: 28px;
+            }
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-top">
+            <div class="container">
+                <a href="/" class="logo">{{ settings.get('header_logo', 'Cricbuzz') }} <span>Live Score</span></a>
+            </div>
+        </div>
+        <nav class="nav-main">
+            <div class="container">
+                <ul>
+                    <li><a href="/" class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
+                    <li><a href="/match/india-vs-pakistan">IND vs PAK</a></li>
+                    <li><a href="/match/india-vs-australia">IND vs AUS</a></li>
+                    <li><a href="/match/india-vs-england">IND vs ENG</a></li>
+                    <li><a href="/match/india-vs-new-zealand">IND vs NZ</a></li>
+                    <li><a href="/page/about">About</a></li>
+                    <li><a href="/page/contact">Contact</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/page/about">About Us</a></li>
+                        <li><a href="/page/contact">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Popular Matches</h3>
+                    <ul>
+                        <li><a href="/match/india-vs-pakistan">India vs Pakistan</a></li>
+                        <li><a href="/match/india-vs-australia">India vs Australia</a></li>
+                        <li><a href="/match/india-vs-england">India vs England</a></li>
+                        <li><a href="/match/india-vs-new-zealand">India vs New Zealand</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>More Matches</h3>
+                    <ul>
+                        <li><a href="/match/india-vs-south-africa">India vs South Africa</a></li>
+                        <li><a href="/match/india-vs-sri-lanka">India vs Sri Lanka</a></li>
+                        <li><a href="/match/india-vs-bangladesh">India vs Bangladesh</a></li>
+                        <li><a href="/match/india-vs-west-indies">India vs West Indies</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Legal</h3>
+                    <ul>
+                        <li><a href="/page/privacy-policy">Privacy Policy</a></li>
+                        <li><a href="/page/disclaimer">Disclaimer</a></li>
+                        <li><a href="/page/terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>{{ settings.get('footer_text', '© 2026 Cricbuzz Live Score. All Rights Reserved.') }}</p>
+            </div>
+        </div>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
