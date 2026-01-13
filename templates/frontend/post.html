@@ -1,6 +1,6 @@
 {% extends 'frontend/base.html' %}
 
-{% block title %}{{ post.meta_title or post.title }} | {{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}
+{% block title %}{{ post.meta_title or post.title }}{% endblock %}
 
 {% block meta_description %}{{ post.meta_description or post.excerpt or '' }}{% endblock %}
 

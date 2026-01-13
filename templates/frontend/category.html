@@ -1,6 +1,6 @@
 {% extends 'frontend/base.html' %}
 
-{% block title %}{{ category.meta_title or (category.short_name ~ ' - Live Scores, News & Updates | ' ~ settings.site_name) }}{% endblock %}
+{% block title %}{{ category.meta_title or category.short_name }}{% endblock %}
 
 {% block meta %}
 <meta name="description" content="{{ category.meta_description or category.description }}">

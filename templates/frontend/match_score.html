@@ -1,6 +1,6 @@
 {% extends 'frontend/base.html' %}
 
-{% block title %}{% if match %}{{ match.match_title }}{% else %}Match Score{% endif %} - {{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}
+{% block title %}{% if match %}{{ match.match_title }}{% else %}Match Score{% endif %}{% endblock %}
 {% block meta_description %}{% if scorecard %}{{ scorecard.match_title }} - {{ scorecard.match_status }}{% else %}Match scorecard and live scores{% endif %}{% endblock %}
 
 {% block content %}
