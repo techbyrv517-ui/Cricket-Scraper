@@ -19,6 +19,7 @@ $series = $pdo->query("SELECT * FROM series ORDER BY created_at DESC")->fetchAll
         
         <div class="actions">
             <button id="scrapeSeriesBtn" class="btn btn-primary">Scrape Series Data</button>
+            <button id="scrapeAllMatchesBtn" class="btn btn-primary">Scrape All Matches</button>
             <span id="statusMessage" class="status-message"></span>
         </div>
         
@@ -85,6 +86,35 @@ $series = $pdo->query("SELECT * FROM series ORDER BY created_at DESC")->fetchAll
                 status.className = 'status-message error';
                 btn.disabled = false;
                 btn.textContent = 'Scrape Series Data';
+            });
+        });
+        
+        document.getElementById('scrapeAllMatchesBtn').addEventListener('click', function() {
+            const btn = this;
+            const status = document.getElementById('statusMessage');
+            
+            btn.disabled = true;
+            btn.textContent = 'Scraping All Matches...';
+            status.textContent = 'This may take a few minutes...';
+            status.className = 'status-message';
+            
+            fetch('scraper.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'action=scrape_all_matches'
+            })
+            .then(response => response.json())
+            .then(data => {
+                status.textContent = data.message;
+                status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                btn.disabled = false;
+                btn.textContent = 'Scrape All Matches';
+            })
+            .catch(error => {
+                status.textContent = 'Error: ' + error;
+                status.className = 'status-message error';
+                btn.disabled = false;
+                btn.textContent = 'Scrape All Matches';
             });
         });
         

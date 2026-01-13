@@ -157,6 +157,27 @@ function scrapeMatchesFromSeries($seriesId) {
     return ['success' => true, 'message' => "Successfully scraped $matchCount new matches"];
 }
 
+function scrapeAllMatches() {
+    global $pdo;
+    
+    $allSeries = $pdo->query("SELECT id, series_name FROM series ORDER BY id")->fetchAll(PDO::FETCH_ASSOC);
+    
+    $totalMatches = 0;
+    $seriesProcessed = 0;
+    
+    foreach($allSeries as $series) {
+        $result = scrapeMatchesFromSeries($series['id']);
+        if($result['success']) {
+            preg_match('/(\d+)/', $result['message'], $m);
+            $totalMatches += isset($m[1]) ? (int)$m[1] : 0;
+        }
+        $seriesProcessed++;
+        usleep(500000);
+    }
+    
+    return ['success' => true, 'message' => "Scraped $totalMatches matches from $seriesProcessed series"];
+}
+
 if(isset($_POST['action'])) {
     header('Content-Type: application/json');
     
@@ -164,6 +185,8 @@ if(isset($_POST['action'])) {
         echo json_encode(scrapeSeriesData());
     } else if($_POST['action'] === 'scrape_matches' && isset($_POST['series_id'])) {
         echo json_encode(scrapeMatchesFromSeries($_POST['series_id']));
+    } else if($_POST['action'] === 'scrape_all_matches') {
+        echo json_encode(scrapeAllMatches());
     }
     exit;
 }
