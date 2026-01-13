@@ -118,17 +118,18 @@
     }
     
     .scorecard-container .innings-header {
-        margin-top: 20px;
         background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
         color: #fff;
-        padding: 18px 25px;
+        padding: 20px 25px;
         font-size: 18px;
         font-weight: 700;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 0;
+        margin-top: 25px;
+        margin-bottom: 20px;
         border-left: 5px solid #046a38;
+        border-radius: 10px;
     }
     
     .scorecard-container .innings-header .innings-score {
@@ -144,13 +145,21 @@
         padding: 25px;
     }
     
+    .scorecard-container .batting-table,
+    .scorecard-container .bowling-table {
+        margin-top: 25px;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+    
     .scorecard-container table {
         width: 100%;
         border-collapse: collapse;
-        border-radius: 10px;
+        border-radius: 12px;
         overflow: hidden;
-        margin-bottom: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     }
     
     .scorecard-container th,
