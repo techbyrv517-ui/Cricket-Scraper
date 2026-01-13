@@ -477,6 +477,54 @@ def scorecard():
     sidebar = get_sidebar_data()
     return render_template('scorecard.html', all_series=all_series, sidebar=sidebar)
 
+@app.route('/api/live-matches')
+def api_live_matches():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''
+        SELECT sc.*, m.match_title as m_title, m.match_url, s.series_name
+        FROM scorecards sc
+        LEFT JOIN matches m ON sc.match_id::text = m.match_id::text
+        LEFT JOIN series s ON m.series_id = s.id
+        WHERE sc.is_live = TRUE
+        ORDER BY sc.last_updated DESC
+    ''')
+    live_scorecards = cur.fetchall()
+    cur.close()
+    conn.close()
+    
+    matches_data = []
+    for row in live_scorecards:
+        match = dict(row)
+        team1_name, team2_name, match_info = parse_team_names(match.get('match_title') or match.get('m_title'))
+        
+        final_score = match.get('final_score', '')
+        team1_score = ''
+        team2_score = ''
+        if final_score and ' vs ' in final_score:
+            score_parts = final_score.split(' vs ')
+            if len(score_parts) >= 2:
+                t1_parts = score_parts[0].strip().rsplit(' ', 1)
+                t2_parts = score_parts[1].strip().rsplit(' ', 1)
+                team1_score = t1_parts[1] if len(t1_parts) > 1 else ''
+                team2_score = t2_parts[1] if len(t2_parts) > 1 else ''
+        
+        matches_data.append({
+            'match_id': match.get('match_id'),
+            'match_title': match.get('match_title') or match.get('m_title'),
+            'series_name': match.get('series_name', 'LIVE MATCH'),
+            'match_info': match_info or '',
+            'team1_name': team1_name or '',
+            'team2_name': team2_name or '',
+            'team1_score': team1_score,
+            'team2_score': team2_score,
+            'match_status': match.get('match_status', ''),
+            'last_updated': match.get('last_updated').isoformat() if match.get('last_updated') else ''
+        })
+    
+    return jsonify({'matches': matches_data, 'count': len(matches_data)})
+
 @app.route('/api/recent-matches')
 def api_recent_matches():
     from datetime import datetime
