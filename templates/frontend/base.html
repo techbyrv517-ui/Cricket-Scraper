@@ -54,9 +54,9 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         
-        .header-top {
+        .header-main {
             background: var(--primary);
-            padding: 8px 0;
+            padding: 0;
         }
         
         .container {
@@ -65,25 +65,36 @@
             padding: 0 15px;
         }
         
-        .header-top .container {
+        .header-main .container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 40px;
         }
         
         .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #fff;
             text-decoration: none;
+            padding: 10px 0;
         }
         
-        .logo span {
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            display: block;
+            line-height: 1;
+        }
+        
+        .logo-subtext {
+            font-size: 14px;
+            font-weight: 500;
             color: var(--secondary);
+            display: block;
+            margin-top: 2px;
         }
         
         .nav-main {
-            background: var(--accent);
+            display: flex;
+            align-items: center;
         }
         
         .nav-main ul {
@@ -94,17 +105,17 @@
         
         .nav-main li a {
             display: block;
-            padding: 14px 20px;
+            padding: 20px 25px;
             color: #fff;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 500;
             transition: background 0.3s;
         }
         
         .nav-main li a:hover,
         .nav-main li a.active {
-            background: var(--secondary);
+            background: rgba(255,255,255,0.1);
         }
         
         .nav-sub {
@@ -245,20 +256,21 @@
 </head>
 <body>
     <header class="header">
-        <div class="header-top">
+        <div class="header-main">
             <div class="container">
-                <a href="/" class="logo">{{ settings.get('header_logo', 'Cricbuzz') }} <span>Live Score</span></a>
+                <a href="/" class="logo">
+                    <span class="logo-text">Cricbuzz</span>
+                    <span class="logo-subtext">Live Score</span>
+                </a>
+                <nav class="nav-main">
+                    <ul>
+                        <li><a href="/" class="active">Live Scores</a></li>
+                        <li><a href="/teams">Teams</a></li>
+                        <li><a href="/series">Series</a></li>
+                    </ul>
+                </nav>
             </div>
         </div>
-        <nav class="nav-main">
-            <div class="container">
-                <ul>
-                    <li><a href="/" class="active">Live Scores</a></li>
-                    <li><a href="/teams">Teams</a></li>
-                    <li><a href="/series">Series</a></li>
-                </ul>
-            </div>
-        </nav>
         <nav class="nav-sub">
             <div class="container">
                 <ul>
