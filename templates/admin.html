@@ -170,6 +170,10 @@
                             <span class="nav-icon">👤</span>
                             <span>Manage Players</span>
                         </a>
+                        <a href="{{ url_for('admin_matchups') }}" class="nav-item {{ 'active' if 'matchup' in request.endpoint else '' }}">
+                            <span class="nav-icon">🏏</span>
+                            <span>Popular Matchups</span>
+                        </a>
                     </div>
                 </div>
                 

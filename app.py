@@ -552,12 +552,16 @@ def index():
     cur.execute('SELECT * FROM live_matches WHERE is_live = TRUE ORDER BY display_order ASC, id DESC')
     live_matches = cur.fetchall()
     
+    cur.execute('SELECT * FROM matchups WHERE is_published = TRUE ORDER BY display_order ASC, id ASC')
+    matchups = cur.fetchall()
+    
     cur.close()
     conn.close()
     
     return render_template('frontend/home.html', 
                           settings=settings,
                           live_matches=live_matches,
+                          matchups=matchups,
                           recent_matches=initial_recent,
                           upcoming_matches=upcoming_matches,
                           has_more_recent=has_more_recent,
@@ -1544,6 +1548,106 @@ def admin_delete_category(cat_id):
     conn.close()
     flash('Category deleted successfully', 'success')
     return redirect(url_for('admin_post_categories'))
+
+@app.route('/admin/matchups')
+@login_required
+def admin_matchups():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM matchups ORDER BY display_order ASC, id ASC')
+    matchups = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/matchups.html', matchups=matchups, sidebar=sidebar)
+
+@app.route('/admin/matchups/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_matchup():
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        slug = slugify(title)
+        short_description = request.form.get('short_description')
+        content = request.form.get('content')
+        link_url = request.form.get('link_url')
+        image_url = request.form.get('image_url')
+        color1 = request.form.get('color1', '#FF9933')
+        color2 = request.form.get('color2', '#046A38')
+        display_order = int(request.form.get('display_order', 0) or 0)
+        focus_keyword = request.form.get('focus_keyword')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        is_published = request.form.get('is_published') == 'on'
+        
+        cur.execute('''
+            INSERT INTO matchups (title, slug, short_description, content, link_url, image_url, 
+            color1, color2, display_order, focus_keyword, meta_title, meta_description, is_published)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (title, slug, short_description, content, link_url, image_url, color1, color2,
+              display_order, focus_keyword, meta_title, meta_description, is_published))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash('Matchup added successfully', 'success')
+        return redirect(url_for('admin_matchups'))
+    
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/add_matchup.html', sidebar=sidebar)
+
+@app.route('/admin/matchups/edit/<int:matchup_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_matchup(matchup_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        title = request.form.get('title')
+        short_description = request.form.get('short_description')
+        content = request.form.get('content')
+        link_url = request.form.get('link_url')
+        image_url = request.form.get('image_url')
+        color1 = request.form.get('color1', '#FF9933')
+        color2 = request.form.get('color2', '#046A38')
+        display_order = int(request.form.get('display_order', 0) or 0)
+        focus_keyword = request.form.get('focus_keyword')
+        meta_title = request.form.get('meta_title')
+        meta_description = request.form.get('meta_description')
+        is_published = request.form.get('is_published') == 'on'
+        
+        cur.execute('''
+            UPDATE matchups SET title=%s, short_description=%s, content=%s, link_url=%s, 
+            image_url=%s, color1=%s, color2=%s, display_order=%s, focus_keyword=%s, 
+            meta_title=%s, meta_description=%s, is_published=%s, updated_at=CURRENT_TIMESTAMP
+            WHERE id=%s
+        ''', (title, short_description, content, link_url, image_url, color1, color2,
+              display_order, focus_keyword, meta_title, meta_description, is_published, matchup_id))
+        conn.commit()
+        flash('Matchup updated successfully', 'success')
+    
+    cur.execute('SELECT * FROM matchups WHERE id = %s', (matchup_id,))
+    matchup = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/edit_matchup.html', matchup=matchup, sidebar=sidebar)
+
+@app.route('/admin/matchups/delete/<int:matchup_id>', methods=['POST'])
+@login_required
+def admin_delete_matchup(matchup_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM matchups WHERE id = %s', (matchup_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Matchup deleted successfully', 'success')
+    return redirect(url_for('admin_matchups'))
 
 @app.route('/category/<slug>')
 def view_category(slug):
