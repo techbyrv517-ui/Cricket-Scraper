@@ -1,0 +1,111 @@
+{% extends 'frontend/base.html' %}
+
+{% block title %}Cricket Teams - {{ settings.get('site_name', 'Cricbuzz Live Score') }}{% endblock %}
+{% block meta_description %}Explore all cricket teams from around the world. Get team profiles, player lists, and match schedules.{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <div class="container">
+        <h1>Cricket Teams</h1>
+        <p>Explore all international cricket teams</p>
+    </div>
+</div>
+
+<div class="container">
+    <div style="padding: 40px 0;">
+        <h2 class="section-title">All Teams</h2>
+        
+        <div class="teams-grid">
+            {% for team in teams %}
+            <div class="team-card">
+                <div class="team-flag" style="background: {{ team.flag_color }}">
+                    <span>{{ team.short_name }}</span>
+                </div>
+                <div class="team-info">
+                    <h3>{{ team.name }}</h3>
+                    <p>{{ team.country }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .teams-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+    }
+    
+    .team-card {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+    }
+    
+    .team-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .team-flag {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .team-flag span {
+        font-size: 36px;
+        font-weight: 700;
+        color: #fff;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .team-info {
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .team-info h3 {
+        font-size: 20px;
+        color: #1a1a2e;
+        margin-bottom: 5px;
+    }
+    
+    .team-info p {
+        color: #666;
+        font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+        .teams-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .team-flag {
+            height: 80px;
+        }
+        
+        .team-flag span {
+            font-size: 24px;
+        }
+        
+        .team-info {
+            padding: 15px;
+        }
+        
+        .team-info h3 {
+            font-size: 16px;
+        }
+    }
+</style>
+{% endblock %}

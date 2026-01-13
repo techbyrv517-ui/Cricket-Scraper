@@ -1,0 +1,119 @@
+{% extends 'admin.html' %}
+
+{% block title %}Edit Team - Admin{% endblock %}
+
+{% block main_content %}
+<div class="content-header">
+    <h1>Edit Team: {{ team.name }}</h1>
+    <a href="{{ url_for('admin_teams') }}" class="btn btn-secondary">Back to Teams</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert" style="background: {% if category == 'success' %}rgba(0, 212, 170, 0.2){% else %}rgba(255, 107, 107, 0.2){% endif %}; color: {% if category == 'success' %}#00d4aa{% else %}#ff6b6b{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<form method="POST" class="team-form">
+    <div class="form-section">
+        <div class="form-group">
+            <label>Team Name</label>
+            <input type="text" name="name" class="form-input" required value="{{ team.name }}">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Short Name</label>
+                <input type="text" name="short_name" class="form-input" required value="{{ team.short_name }}">
+            </div>
+            <div class="form-group">
+                <label>Slug</label>
+                <input type="text" name="slug" class="form-input" value="{{ team.slug }}" readonly style="opacity:0.6">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Country</label>
+                <input type="text" name="country" class="form-input" value="{{ team.country }}">
+            </div>
+            <div class="form-group">
+                <label>Flag Color</label>
+                <input type="color" name="flag_color" class="form-input" value="{{ team.flag_color }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-input" rows="4">{{ team.description or '' }}</textarea>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Update Team</button>
+</form>
+
+<style>
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    .form-section {
+        background: #1e2a3a;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        max-width: 600px;
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ccc;
+        font-weight: 500;
+    }
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        background: #16202c;
+        border: 1px solid #2d3e50;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #00d4aa;
+    }
+    input[type="color"] {
+        height: 45px;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background: #00d4aa;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        padding: 12px 30px;
+        font-size: 14px;
+    }
+    .btn-secondary {
+        background: #2d3e50;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

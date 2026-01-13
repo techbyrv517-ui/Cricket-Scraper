@@ -1,0 +1,109 @@
+{% extends 'admin.html' %}
+
+{% block title %}Add Team - Admin{% endblock %}
+
+{% block main_content %}
+<div class="content-header">
+    <h1>Add New Team</h1>
+    <a href="{{ url_for('admin_teams') }}" class="btn btn-secondary">Back to Teams</a>
+</div>
+
+<form method="POST" class="team-form">
+    <div class="form-section">
+        <div class="form-group">
+            <label>Team Name</label>
+            <input type="text" name="name" class="form-input" required placeholder="India">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Short Name</label>
+                <input type="text" name="short_name" class="form-input" required placeholder="IND">
+            </div>
+            <div class="form-group">
+                <label>Slug</label>
+                <input type="text" name="slug" class="form-input" required placeholder="india">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Country</label>
+                <input type="text" name="country" class="form-input" placeholder="India">
+            </div>
+            <div class="form-group">
+                <label>Flag Color</label>
+                <input type="color" name="flag_color" class="form-input" value="#046A38">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" class="form-input" rows="4" placeholder="Team description..."></textarea>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Add Team</button>
+</form>
+
+<style>
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    .form-section {
+        background: #1e2a3a;
+        padding: 25px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        max-width: 600px;
+    }
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    .form-group {
+        margin-bottom: 20px;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ccc;
+        font-weight: 500;
+    }
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        background: #16202c;
+        border: 1px solid #2d3e50;
+        border-radius: 6px;
+        color: #fff;
+        font-size: 14px;
+    }
+    .form-input:focus {
+        outline: none;
+        border-color: #00d4aa;
+    }
+    input[type="color"] {
+        height: 45px;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background: #00d4aa;
+        color: #000;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        padding: 12px 30px;
+        font-size: 14px;
+    }
+    .btn-secondary {
+        background: #2d3e50;
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

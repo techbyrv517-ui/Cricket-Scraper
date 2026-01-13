@@ -151,6 +151,20 @@ def init_db():
         )
     ''')
     
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS teams (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            short_name VARCHAR(20),
+            slug VARCHAR(100) UNIQUE NOT NULL,
+            country VARCHAR(100),
+            flag_color VARCHAR(20) DEFAULT '#046A38',
+            description TEXT,
+            is_published BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
     conn.commit()
     cur.close()
     conn.close()
@@ -222,6 +236,26 @@ def seed_defaults():
               f'{keyword} Live Score & Match Updates',
               f'{keyword} Live Score, Schedule, Results | Cricbuzz Live Score',
               f'Get live {keyword} cricket score, match schedule, results, highlights and news. Watch {short} live updates on Cricbuzz Live Score.'))
+    
+    default_teams = [
+        ('India', 'IND', 'india', 'India', '#FF9933'),
+        ('Pakistan', 'PAK', 'pakistan', 'Pakistan', '#01411C'),
+        ('Australia', 'AUS', 'australia', 'Australia', '#FFCD00'),
+        ('England', 'ENG', 'england', 'England', '#002366'),
+        ('New Zealand', 'NZ', 'new-zealand', 'New Zealand', '#000000'),
+        ('South Africa', 'SA', 'south-africa', 'South Africa', '#007A4D'),
+        ('Sri Lanka', 'SL', 'sri-lanka', 'Sri Lanka', '#0033A0'),
+        ('Bangladesh', 'BAN', 'bangladesh', 'Bangladesh', '#006A4E'),
+        ('Afghanistan', 'AFG', 'afghanistan', 'Afghanistan', '#000000'),
+        ('West Indies', 'WI', 'west-indies', 'West Indies', '#7B0041')
+    ]
+    
+    for name, short, slug, country, color in default_teams:
+        cur.execute('''
+            INSERT INTO teams (name, short_name, slug, country, flag_color)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (slug) DO NOTHING
+        ''', (name, short, slug, country, color))
     
     conn.commit()
     cur.close()
@@ -585,6 +619,95 @@ def admin_edit_page(page_id):
     
     sidebar = get_sidebar_data()
     return render_template('admin/edit_page.html', page=page, sidebar=sidebar)
+
+@app.route('/admin/teams')
+@login_required
+def admin_teams():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM teams ORDER BY name')
+    teams = cur.fetchall()
+    cur.close()
+    conn.close()
+    sidebar = get_sidebar_data()
+    return render_template('admin/teams.html', teams=teams, sidebar=sidebar)
+
+@app.route('/admin/teams/add', methods=['GET', 'POST'])
+@login_required
+def admin_add_team():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        short_name = request.form.get('short_name')
+        slug = request.form.get('slug')
+        country = request.form.get('country')
+        flag_color = request.form.get('flag_color', '#046A38')
+        description = request.form.get('description')
+        
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute('''
+            INSERT INTO teams (name, short_name, slug, country, flag_color, description)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (name, short_name, slug, country, flag_color, description))
+        conn.commit()
+        cur.close()
+        conn.close()
+        flash('Team added successfully', 'success')
+        return redirect(url_for('admin_teams'))
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/add_team.html', sidebar=sidebar)
+
+@app.route('/admin/teams/edit/<int:team_id>', methods=['GET', 'POST'])
+@login_required
+def admin_edit_team(team_id):
+    conn = get_db()
+    cur = conn.cursor()
+    
+    if request.method == 'POST':
+        name = request.form.get('name')
+        short_name = request.form.get('short_name')
+        country = request.form.get('country')
+        flag_color = request.form.get('flag_color')
+        description = request.form.get('description')
+        
+        cur.execute('''
+            UPDATE teams SET name=%s, short_name=%s, country=%s, flag_color=%s, description=%s
+            WHERE id=%s
+        ''', (name, short_name, country, flag_color, description, team_id))
+        conn.commit()
+        flash('Team updated successfully', 'success')
+    
+    cur.execute('SELECT * FROM teams WHERE id = %s', (team_id,))
+    team = cur.fetchone()
+    cur.close()
+    conn.close()
+    
+    sidebar = get_sidebar_data()
+    return render_template('admin/edit_team.html', team=team, sidebar=sidebar)
+
+@app.route('/admin/teams/delete/<int:team_id>', methods=['POST'])
+@login_required
+def admin_delete_team(team_id):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('DELETE FROM teams WHERE id = %s', (team_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash('Team deleted successfully', 'success')
+    return redirect(url_for('admin_teams'))
+
+@app.route('/teams')
+def teams_page():
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM teams WHERE is_published = TRUE ORDER BY name')
+    teams = cur.fetchall()
+    cur.close()
+    conn.close()
+    settings = get_site_settings()
+    return render_template('frontend/teams.html', teams=teams, settings=settings)
 
 @app.route('/robots.txt')
 def robots():

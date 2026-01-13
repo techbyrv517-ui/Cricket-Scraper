@@ -1,0 +1,73 @@
+{% extends 'admin.html' %}
+
+{% block title %}Teams - Admin{% endblock %}
+
+{% block main_content %}
+<div class="content-header">
+    <h1>Teams</h1>
+    <a href="{{ url_for('admin_add_team') }}" class="btn btn-primary">Add New Team</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert" style="background: {% if category == 'success' %}rgba(0, 212, 170, 0.2){% else %}rgba(255, 107, 107, 0.2){% endif %}; color: {% if category == 'success' %}#00d4aa{% else %}#ff6b6b{% endif %}; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Color</th>
+                <th>Name</th>
+                <th>Short</th>
+                <th>Country</th>
+                <th>Slug</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for team in teams %}
+            <tr>
+                <td><span style="display:inline-block;width:30px;height:30px;border-radius:50%;background:{{ team.flag_color }}"></span></td>
+                <td>{{ team.name }}</td>
+                <td>{{ team.short_name }}</td>
+                <td>{{ team.country }}</td>
+                <td>{{ team.slug }}</td>
+                <td>
+                    <a href="{{ url_for('admin_edit_team', team_id=team.id) }}" class="btn btn-small">Edit</a>
+                    <form action="{{ url_for('admin_delete_team', team_id=team.id) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this team?')">
+                        <button type="submit" class="btn btn-small btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+    .btn-primary {
+        background: #00d4aa;
+        color: #000;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .btn-danger {
+        background: #ff6b6b !important;
+        color: #fff !important;
+    }
+</style>
+{% endblock %}
