@@ -290,38 +290,46 @@
             padding: 10px;
         }
         
-        .scorecard-container table {
+        .scorecard-container .batting-table,
+        .scorecard-container .bowling-table {
             display: block;
+            width: 100%;
             overflow-x: auto;
-            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
             border-radius: 10px;
             box-shadow: 0 3px 12px rgba(0,0,0,0.1);
             margin: 15px 0;
         }
         
+        .scorecard-container .batting-table thead,
+        .scorecard-container .batting-table tbody,
+        .scorecard-container .batting-table tr,
+        .scorecard-container .bowling-table thead,
+        .scorecard-container .bowling-table tbody,
+        .scorecard-container .bowling-table tr {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+        
         .scorecard-container th,
         .scorecard-container td {
-            padding: 10px 12px;
-            font-size: 12px;
-            min-width: 45px;
+            padding: 10px 8px;
+            font-size: 11px;
+            min-width: 40px;
+            word-wrap: break-word;
+            white-space: normal;
         }
         
         .scorecard-container td:first-child,
         .scorecard-container th:first-child {
-            position: sticky;
-            left: 0;
-            background: #fff;
-            z-index: 1;
-            min-width: 100px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            min-width: 90px;
+            max-width: 90px;
+            word-wrap: break-word;
         }
         
         .scorecard-container th:first-child {
             background: linear-gradient(135deg, #046a38 0%, #034d29 100%);
-        }
-        
-        .scorecard-container tbody tr:nth-child(even) td:first-child {
-            background: #f8f9fa;
         }
         
         .scorecard-container .extras,
