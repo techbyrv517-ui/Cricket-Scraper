@@ -238,17 +238,140 @@
             opacity: 0.9;
         }
         
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            padding: 10px;
+            position: absolute;
+            right: 15px;
+        }
+        
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            margin: 3px 0;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+        
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: -280px;
+            width: 280px;
+            height: 100vh;
+            background: var(--accent);
+            z-index: 2000;
+            transition: left 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            left: 0;
+        }
+        
+        .mobile-nav-header {
+            background: var(--primary);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mobile-nav-header .logo-text {
+            font-size: 20px;
+        }
+        
+        .mobile-nav-close {
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 5px 10px;
+        }
+        
+        .mobile-nav-links {
+            padding: 20px 0;
+        }
+        
+        .mobile-nav-links a {
+            display: block;
+            padding: 15px 25px;
+            color: #ccc;
+            text-decoration: none;
+            border-bottom: 1px solid #3d4e60;
+            transition: background 0.3s;
+        }
+        
+        .mobile-nav-links a:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        .mobile-nav-section {
+            padding: 10px 25px 5px;
+            color: var(--secondary);
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
         @media (max-width: 768px) {
-            .nav-main ul {
-                flex-wrap: wrap;
+            .hamburger {
+                display: flex;
             }
-            .nav-main li a {
-                padding: 10px 15px;
-                font-size: 13px;
+            
+            .nav-main {
+                display: none;
             }
+            
+            .nav-sub {
+                display: none;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+            
+            .logo {
+                position: relative;
+                left: 0;
+            }
+            
+            .header-main .container {
+                justify-content: flex-start;
+                padding-right: 60px;
+            }
+            
             .hero h1 {
-                font-size: 28px;
+                font-size: 24px;
             }
+            
+            .hero p {
+                font-size: 14px;
+            }
+            
+            .hero {
+                padding: 40px 0;
+            }
+            
             .footer-content {
                 grid-template-columns: 1fr;
             }
@@ -257,6 +380,33 @@
     {% block extra_css %}{% endblock %}
 </head>
 <body>
+    <div class="overlay" id="overlay" onclick="closeMobileNav()"></div>
+    
+    <nav class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-header">
+            <div>
+                <span class="logo-text">Cricbuzz</span>
+                <span class="logo-subtext">Live Score</span>
+            </div>
+            <span class="mobile-nav-close" onclick="closeMobileNav()">&times;</span>
+        </div>
+        <div class="mobile-nav-links">
+            <div class="mobile-nav-section">Menu</div>
+            <a href="/">Live Scores</a>
+            <a href="/teams">Teams</a>
+            <a href="/series">Series</a>
+            <div class="mobile-nav-section">Matches</div>
+            <a href="/">Home</a>
+            <a href="/match/india-vs-pakistan">IND vs PAK</a>
+            <a href="/match/india-vs-australia">IND vs AUS</a>
+            <a href="/match/india-vs-england">IND vs ENG</a>
+            <a href="/match/india-vs-new-zealand">IND vs NZ</a>
+            <div class="mobile-nav-section">Pages</div>
+            <a href="/page/about">About</a>
+            <a href="/page/contact">Contact</a>
+        </div>
+    </nav>
+    
     <header class="header">
         <div class="header-main">
             <div class="container">
@@ -271,6 +421,11 @@
                         <li><a href="/series">Series</a></li>
                     </ul>
                 </nav>
+                <div class="hamburger" onclick="openMobileNav()">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </div>
         </div>
         <nav class="nav-sub">
@@ -334,6 +489,19 @@
         </div>
     </footer>
     
+    <script>
+        function openMobileNav() {
+            document.getElementById('mobileNav').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeMobileNav() {
+            document.getElementById('mobileNav').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
