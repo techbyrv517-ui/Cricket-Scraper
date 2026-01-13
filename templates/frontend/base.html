@@ -68,13 +68,14 @@
         .header-main .container {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 50px;
+            position: relative;
         }
         
         .logo {
             text-decoration: none;
             padding: 6px 0;
+            position: absolute;
+            left: 15px;
         }
         
         .logo-text {
@@ -94,7 +95,9 @@
         }
         
         .nav-main {
+            flex: 1;
             display: flex;
+            justify-content: center;
             align-items: center;
         }
         
