@@ -64,7 +64,7 @@
             <div class="matches-list">
                 {% if recent_matches %}
                     {% for match in recent_matches %}
-                    <a href="/cricket-match/{{ match.slug }}" class="cricbuzz-card">
+                    <a href="/match-score/{{ match.match_id }}" class="cricbuzz-card">
                         <div class="card-header">
                             <span class="series-name">{{ match.series_name|upper if match.series_name else 'CRICKET MATCH' }}</span>
                             <span class="chevron">›</span>

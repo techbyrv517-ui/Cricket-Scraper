@@ -967,16 +967,26 @@ def match_score_page(slug):
     return render_template('frontend/match_score.html', scorecard=scorecard, match=match, settings=settings)
 
 @app.route('/match-score/<int:match_id>')
-def match_score_redirect(match_id):
+def match_score_by_id(match_id):
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('SELECT slug FROM matches WHERE match_id = %s', (str(match_id),))
+    
+    cur.execute('SELECT * FROM matches WHERE match_id = %s', (str(match_id),))
     match = cur.fetchone()
+    
+    scorecard = None
+    if match:
+        cur.execute('SELECT * FROM scorecards WHERE match_id = %s', (str(match_id),))
+        scorecard = cur.fetchone()
+    
     cur.close()
     conn.close()
-    if match and match.get('slug'):
-        return redirect(f"/cricket-match/{match['slug']}", code=301)
-    return "Match not found", 404
+    
+    if not match:
+        return "Match not found", 404
+    
+    settings = get_site_settings()
+    return render_template('frontend/match_score.html', scorecard=scorecard, match=match, settings=settings)
 
 @app.route('/robots.txt')
 def robots():
