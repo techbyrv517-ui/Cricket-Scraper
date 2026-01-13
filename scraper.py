@@ -443,10 +443,10 @@ def scrape_teams(team_type='international'):
     conn = get_db()
     cur = conn.cursor()
     
-    team_links = soup.find_all('a', href=re.compile(r'/cricket-team/[^/]+/\d+'))
+    team_containers = soup.find_all('a', href=re.compile(r'/cricket-team/[^/]+/\d+'))
     
-    for link in team_links:
-        href = link.get('href', '')
+    for container in team_containers:
+        href = container.get('href', '')
         if not href:
             continue
         
@@ -457,16 +457,25 @@ def scrape_teams(team_type='international'):
         team_slug = team_match.group(1)
         team_id = team_match.group(2)
         
-        team_name = link.get_text(strip=True)
+        team_name = container.get_text(strip=True)
         if not team_name or len(team_name) < 2:
             continue
         
-        img = link.find('img')
+        img = container.find('img')
         flag_url = ''
         if img and img.get('src'):
             flag_url = img.get('src')
             if flag_url.startswith('//'):
                 flag_url = 'https:' + flag_url
+        
+        if not flag_url:
+            parent = container.parent
+            if parent:
+                img = parent.find('img')
+                if img and img.get('src'):
+                    flag_url = img.get('src')
+                    if flag_url.startswith('//'):
+                        flag_url = 'https:' + flag_url
         
         short_name = team_name[:3].upper() if len(team_name) >= 3 else team_name.upper()
         
@@ -479,12 +488,16 @@ def scrape_teams(team_type='international'):
         }
         flag_color = color_map.get(team_slug.lower(), '#046A38')
         
-        cur.execute('SELECT id FROM teams WHERE slug = %s', (team_slug,))
-        if cur.fetchone() is None:
+        cur.execute('SELECT id, flag_url FROM teams WHERE slug = %s', (team_slug,))
+        existing = cur.fetchone()
+        if existing is None:
             cur.execute('''
                 INSERT INTO teams (name, short_name, slug, country, flag_color, flag_url, team_type)
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
             ''', (team_name, short_name, team_slug, team_name, flag_color, flag_url, team_type))
+            team_count += 1
+        elif flag_url and (not existing.get('flag_url')):
+            cur.execute('UPDATE teams SET flag_url = %s WHERE slug = %s', (flag_url, team_slug))
             team_count += 1
     
     conn.commit()
