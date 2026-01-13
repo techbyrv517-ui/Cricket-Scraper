@@ -159,11 +159,19 @@ def init_db():
             slug VARCHAR(100) UNIQUE NOT NULL,
             country VARCHAR(100),
             flag_color VARCHAR(20) DEFAULT '#046A38',
+            flag_url TEXT,
+            team_type VARCHAR(50) DEFAULT 'international',
             description TEXT,
             is_published BOOLEAN DEFAULT TRUE,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+    
+    try:
+        cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS team_type VARCHAR(50) DEFAULT \'international\'')
+        cur.execute('ALTER TABLE teams ADD COLUMN IF NOT EXISTS flag_url TEXT')
+    except:
+        pass
     
     conn.commit()
     cur.close()
@@ -460,6 +468,14 @@ def api_clear_all_series():
     conn.close()
     return jsonify({'success': True, 'message': 'All series and matches cleared successfully'})
 
+@app.route('/api/scrape-teams/<team_type>', methods=['POST'])
+def api_scrape_teams(team_type):
+    from scraper import scrape_teams
+    if team_type not in ['international', 'domestic', 'league', 'women']:
+        return jsonify({'success': False, 'message': 'Invalid team type'})
+    result = scrape_teams(team_type)
+    return jsonify(result)
+
 @app.route('/api/get-scorecard/<match_id>')
 def api_get_scorecard(match_id):
     conn = get_db()
@@ -702,12 +718,26 @@ def admin_delete_team(team_id):
 def teams_page():
     conn = get_db()
     cur = conn.cursor()
-    cur.execute('SELECT * FROM teams WHERE is_published = TRUE ORDER BY name')
-    teams = cur.fetchall()
+    cur.execute('SELECT * FROM teams WHERE is_published = TRUE ORDER BY team_type, name')
+    all_teams = cur.fetchall()
     cur.close()
     conn.close()
+    
+    teams_by_type = {
+        'international': [],
+        'domestic': [],
+        'league': [],
+        'women': []
+    }
+    for team in all_teams:
+        team_type = team.get('team_type') or 'international'
+        if team_type in teams_by_type:
+            teams_by_type[team_type].append(team)
+        else:
+            teams_by_type['international'].append(team)
+    
     settings = get_site_settings()
-    return render_template('frontend/teams.html', teams=teams, settings=settings)
+    return render_template('frontend/teams.html', teams_by_type=teams_by_type, settings=settings)
 
 @app.route('/robots.txt')
 def robots():

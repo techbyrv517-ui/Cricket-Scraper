@@ -410,3 +410,85 @@ def scrape_scorecard(url):
         scorecard_html = '<div class="scorecard-data">' + scorecard_html + '</div>'
     
     return {'success': True, 'html': scorecard_html}
+
+def scrape_teams(team_type='international'):
+    urls = {
+        'international': 'https://www.cricbuzz.com/cricket-team',
+        'domestic': 'https://www.cricbuzz.com/cricket-team/domestic',
+        'league': 'https://www.cricbuzz.com/cricket-team/league',
+        'women': 'https://www.cricbuzz.com/cricket-team/women'
+    }
+    
+    url = urls.get(team_type, urls['international'])
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        html = response.text
+    except Exception as e:
+        return {'success': False, 'message': f'Request error: {str(e)}'}
+    
+    if not html:
+        return {'success': False, 'message': 'Empty response from website'}
+    
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    team_count = 0
+    conn = get_db()
+    cur = conn.cursor()
+    
+    team_links = soup.find_all('a', href=re.compile(r'/cricket-team/[^/]+/\d+'))
+    
+    for link in team_links:
+        href = link.get('href', '')
+        if not href:
+            continue
+        
+        team_match = re.search(r'/cricket-team/([^/]+)/(\d+)', href)
+        if not team_match:
+            continue
+        
+        team_slug = team_match.group(1)
+        team_id = team_match.group(2)
+        
+        team_name = link.get_text(strip=True)
+        if not team_name or len(team_name) < 2:
+            continue
+        
+        img = link.find('img')
+        flag_url = ''
+        if img and img.get('src'):
+            flag_url = img.get('src')
+            if flag_url.startswith('//'):
+                flag_url = 'https:' + flag_url
+        
+        short_name = team_name[:3].upper() if len(team_name) >= 3 else team_name.upper()
+        
+        color_map = {
+            'india': '#FF9933', 'pakistan': '#01411C', 'australia': '#FFCD00',
+            'england': '#002366', 'new-zealand': '#000000', 'south-africa': '#007A4D',
+            'sri-lanka': '#0033A0', 'bangladesh': '#006A4E', 'afghanistan': '#000000',
+            'west-indies': '#7B0041', 'zimbabwe': '#FCE300', 'ireland': '#169B62',
+            'netherlands': '#FF6600', 'scotland': '#0065BF', 'nepal': '#DC143C'
+        }
+        flag_color = color_map.get(team_slug.lower(), '#046A38')
+        
+        cur.execute('SELECT id FROM teams WHERE slug = %s', (team_slug,))
+        if cur.fetchone() is None:
+            cur.execute('''
+                INSERT INTO teams (name, short_name, slug, country, flag_color, flag_url, team_type)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ''', (team_name, short_name, team_slug, team_name, flag_color, flag_url, team_type))
+            team_count += 1
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return {'success': True, 'message': f'Successfully scraped {team_count} {team_type} teams'}

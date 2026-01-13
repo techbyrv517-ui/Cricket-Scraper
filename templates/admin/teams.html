@@ -8,6 +8,15 @@
     <a href="{{ url_for('admin_add_team') }}" class="btn btn-primary">Add New Team</a>
 </div>
 
+<div class="scrape-buttons" style="margin-bottom: 25px; display: flex; gap: 10px; flex-wrap: wrap;">
+    <button class="btn btn-scrape" onclick="scrapeTeams('international')">Scrape International</button>
+    <button class="btn btn-scrape" onclick="scrapeTeams('domestic')">Scrape Domestic</button>
+    <button class="btn btn-scrape" onclick="scrapeTeams('league')">Scrape League</button>
+    <button class="btn btn-scrape" onclick="scrapeTeams('women')">Scrape Women</button>
+</div>
+
+<div id="scrapeStatus" style="margin-bottom: 15px;"></div>
+
 {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
@@ -27,6 +36,7 @@
                 <th>Short</th>
                 <th>Country</th>
                 <th>Slug</th>
+                <th>Type</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -38,6 +48,7 @@
                 <td>{{ team.short_name }}</td>
                 <td>{{ team.country }}</td>
                 <td>{{ team.slug }}</td>
+                <td>{{ team.team_type or 'international' }}</td>
                 <td>
                     <a href="{{ url_for('admin_edit_team', team_id=team.id) }}" class="btn btn-small">Edit</a>
                     <form action="{{ url_for('admin_delete_team', team_id=team.id) }}" method="POST" style="display:inline" onsubmit="return confirm('Delete this team?')">
@@ -69,5 +80,47 @@
         background: #ff6b6b !important;
         color: #fff !important;
     }
+    .btn-scrape {
+        background: #3498db;
+        color: #fff;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 500;
+    }
+    .btn-scrape:hover {
+        background: #2980b9;
+    }
+    .btn-scrape:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
 </style>
+
+<script>
+function scrapeTeams(teamType) {
+    const statusDiv = document.getElementById('scrapeStatus');
+    const buttons = document.querySelectorAll('.btn-scrape');
+    
+    buttons.forEach(btn => btn.disabled = true);
+    statusDiv.innerHTML = '<div style="color:#3498db;padding:10px;background:rgba(52,152,219,0.2);border-radius:6px;">Scraping ' + teamType + ' teams...</div>';
+    
+    fetch('/api/scrape-teams/' + teamType, { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                statusDiv.innerHTML = '<div style="color:#00d4aa;padding:10px;background:rgba(0,212,170,0.2);border-radius:6px;">' + data.message + '</div>';
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                statusDiv.innerHTML = '<div style="color:#ff6b6b;padding:10px;background:rgba(255,107,107,0.2);border-radius:6px;">Error: ' + data.message + '</div>';
+                buttons.forEach(btn => btn.disabled = false);
+            }
+        })
+        .catch(error => {
+            statusDiv.innerHTML = '<div style="color:#ff6b6b;padding:10px;background:rgba(255,107,107,0.2);border-radius:6px;">Error: ' + error + '</div>';
+            buttons.forEach(btn => btn.disabled = false);
+        });
+}
+</script>
 {% endblock %}
