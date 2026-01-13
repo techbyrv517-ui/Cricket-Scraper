@@ -30,20 +30,6 @@ def scrape_series_data():
     
     soup = BeautifulSoup(html, 'html.parser')
     
-    month_pattern = re.compile(r'w-4\/12.*?font-bold')
-    month_divs = soup.find_all('div', class_=month_pattern)
-    
-    month_positions = []
-    for div in month_divs:
-        text = div.get_text(strip=True)
-        parts = text.split()
-        if len(parts) >= 2:
-            month_positions.append({
-                'month': parts[0].capitalize(),
-                'year': parts[1],
-                'element': div
-            })
-    
     series_count = 0
     processed_urls = set()
     
@@ -54,40 +40,32 @@ def scrape_series_data():
     
     for link in series_links:
         href = link.get('href', '')
-        title = link.get('title', '')
         
         if not href or '/matches' in href:
-            base_url = re.sub(r'/matches$', '', href)
-        else:
-            base_url = href
-        
-        if base_url in processed_urls:
             continue
-        processed_urls.add(base_url)
         
-        series_url = f"https://www.cricbuzz.com{href}"
-        if '/matches' not in series_url:
-            series_url = series_url.rstrip('/') + '/matches'
+        if href in processed_urls:
+            continue
+        processed_urls.add(href)
         
-        name_div = link.find('div', class_=re.compile(r'text-ellipsis'))
-        series_name = name_div.get_text(strip=True) if name_div else title
+        series_url = f"https://www.cricbuzz.com{href}/matches"
         
-        date_div = link.find('div', class_=re.compile(r'text-cbTxtSec'))
-        date_range = date_div.get_text(strip=True) if date_div else ''
-        date_range = re.sub(r'<!--[^>]*-->', '', date_range).strip()
+        series_name = link.get_text(strip=True)
+        
+        year_match = re.search(r'20(2[4-9]|3[0-9])', href)
+        series_year = '20' + year_match.group(1) if year_match else '2026'
         
         series_month = 'January'
-        series_year = '2026'
         
         series_id_match = re.search(r'/cricket-series/(\d+)/', href)
         cricbuzz_series_id = series_id_match.group(1) if series_id_match else ''
         
-        if series_name:
+        if series_name and len(series_name) > 2:
             cur.execute('SELECT id FROM series WHERE series_url = %s', (series_url,))
             if cur.fetchone() is None:
                 cur.execute(
                     'INSERT INTO series (series_id, month, year, series_name, date_range, series_url) VALUES (%s, %s, %s, %s, %s, %s)',
-                    (cricbuzz_series_id, series_month, series_year, series_name, date_range, series_url)
+                    (cricbuzz_series_id, series_month, series_year, series_name, '', series_url)
                 )
                 series_count += 1
     
