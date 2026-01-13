@@ -311,9 +311,13 @@ def parse_match_date(date_str):
     try:
         clean_date = date_str.replace(',', '').strip()
         parts = clean_date.split()
-        if len(parts) >= 3:
+        if len(parts) >= 4:
             month_day_year = ' '.join(parts[1:])
             return datetime.strptime(month_day_year, '%b %d %Y')
+        elif len(parts) >= 3:
+            month_day = ' '.join(parts[1:])
+            current_year = datetime.now().year
+            return datetime.strptime(f"{month_day} {current_year}", '%b %d %Y')
     except:
         pass
     return None
@@ -356,6 +360,7 @@ def index():
     for row in all_matches:
         match = dict(row)
         match_date = parse_match_date(row.get('match_date'))
+        match['parsed_date'] = match_date
         
         t1_code, t1_score, t2_code, t2_score = parse_match_scores(row.get('scorecard_html'))
         match['team1_code'] = t1_code
@@ -369,11 +374,15 @@ def index():
         match['match_info'] = match_info
         
         if match_date and match_date < today:
-            if len(recent_matches) < 15:
-                recent_matches.append(match)
-        else:
-            if len(upcoming_matches) < 15:
-                upcoming_matches.append(match)
+            recent_matches.append(match)
+        elif match_date and match_date >= today:
+            upcoming_matches.append(match)
+    
+    recent_matches.sort(key=lambda x: (x.get('result') is None, -(x['parsed_date'] or datetime.min).timestamp()))
+    upcoming_matches.sort(key=lambda x: x['parsed_date'] or datetime.max)
+    
+    recent_matches = recent_matches[:15]
+    upcoming_matches = upcoming_matches[:15]
     
     cur.close()
     conn.close()
