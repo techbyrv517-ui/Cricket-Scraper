@@ -234,17 +234,33 @@ def scrape_matches_from_series(series_id):
             match_title = link.get_text(strip=True)
         
         match_date = ''
-        date_elem = link.find_previous(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*[A-Za-z]+\s*\d+'))
-        if date_elem:
-            match_date = date_elem.strip()
-        else:
-            parent = link.parent
-            while parent and parent.name != 'body':
-                date_text = parent.find(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),'))
-                if date_text:
-                    match_date = date_text.strip()
-                    break
-                parent = parent.parent
+        
+        date_pattern = re.compile(rf'{match_id}[^{{}}]{{0,500}}startDate[\\\":]+(\d{{13}})')
+        date_match = date_pattern.search(html)
+        if date_match:
+            try:
+                timestamp = int(date_match.group(1)) / 1000
+                from datetime import datetime
+                dt = datetime.fromtimestamp(timestamp)
+                match_date = dt.strftime('%a, %b %d %Y')
+            except:
+                pass
+        
+        if not match_date:
+            status_pattern = re.compile(rf'{match_id}[^{{}}]{{0,500}}status[\\\":]+([^"\'\\\\]+)')
+            status_match = status_pattern.search(html)
+            if status_match:
+                status_text = status_match.group(1)
+                date_in_status = re.search(r'(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d+)', status_text)
+                if date_in_status:
+                    month = date_in_status.group(1)
+                    day = date_in_status.group(2)
+                    match_date = f"{month} {day}, 2026"
+        
+        if not match_date:
+            date_elem = link.find_previous(string=re.compile(r'(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s*[A-Za-z]+\s*\d+'))
+            if date_elem:
+                match_date = date_elem.strip()
         
         match_url = f"https://www.cricbuzz.com{href}"
         
