@@ -36,17 +36,6 @@
                 </a>
             </nav>
             
-            <div class="sidebar-series-list">
-                <h3>Series ({{ sidebar.total_series }})</h3>
-                <div class="series-scroll">
-                    {% for s in sidebar.recent_series %}
-                    <a href="{{ url_for('view_matches', series_id=s.id) }}" class="series-item">
-                        <span class="series-name">{{ s.series_name[:35] }}{% if s.series_name|length > 35 %}...{% endif %}</span>
-                        <span class="series-badge">{{ s.match_count }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
         </aside>
         
         <main class="main-content">
