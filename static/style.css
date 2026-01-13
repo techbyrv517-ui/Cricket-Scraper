@@ -320,6 +320,50 @@ body {
     padding: 30px;
 }
 
+.scorecard-data .innings-score {
+    float: right;
+    font-size: 1rem;
+}
+
+.scorecard-data .dismissal {
+    color: #888;
+    font-size: 0.75rem;
+    max-width: 200px;
+}
+
+.scorecard-data .wickets {
+    color: #00d9ff;
+    font-weight: bold;
+}
+
+.scorecard-data .bowling-table {
+    width: 100%;
+    margin: 15px 0;
+    border-collapse: collapse;
+}
+
+.scorecard-data .bowling-table th,
+.scorecard-data .bowling-table td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.8rem;
+}
+
+.scorecard-data .bowling-table th {
+    background: rgba(255,100,100,0.1);
+    color: #ff6b6b;
+}
+
+.scorecard-data .did-not-bat {
+    background: rgba(255,255,255,0.03);
+    padding: 8px 15px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 0.8rem;
+    color: #888;
+}
+
 .sidebar-series {
     margin-bottom: 20px;
     max-height: 200px;
