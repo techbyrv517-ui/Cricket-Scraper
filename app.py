@@ -283,7 +283,30 @@ def seed_defaults():
 @app.route('/')
 def index():
     settings = get_site_settings()
-    return render_template('frontend/home.html', settings=settings)
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''SELECT m.*, s.series_name FROM matches m 
+                   LEFT JOIN series s ON m.series_id = s.id 
+                   ORDER BY m.id DESC LIMIT 10''')
+    recent_matches = cur.fetchall()
+    
+    cur.execute('''SELECT m.*, s.series_name FROM matches m 
+                   LEFT JOIN series s ON m.series_id = s.id 
+                   ORDER BY m.id ASC LIMIT 10''')
+    upcoming_matches = cur.fetchall()
+    
+    cur.close()
+    conn.close()
+    
+    live_matches = []
+    
+    return render_template('frontend/home.html', 
+                          settings=settings,
+                          live_matches=live_matches,
+                          recent_matches=recent_matches,
+                          upcoming_matches=upcoming_matches)
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
