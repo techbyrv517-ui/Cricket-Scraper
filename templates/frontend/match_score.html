@@ -102,48 +102,38 @@
         letter-spacing: 0.5px;
     }
     
-    .scorecard-container .score-row {
+    .scorecard-container .match-summary {
         display: flex;
         justify-content: space-between;
         align-items: center;
         background: linear-gradient(135deg, #2d3436 0%, #1e272e 100%);
-        padding: 12px 18px;
-        border-radius: 8px;
-        margin: 15px 0;
-        flex-wrap: wrap;
-        gap: 10px;
+        padding: 14px 20px;
+        border-radius: 10px;
+        margin: 15px 0 20px 0;
+        gap: 15px;
     }
     
-    .scorecard-container .match-status {
-        background: transparent;
-        color: #fff;
-        padding: 0;
+    .scorecard-container .match-summary-left {
+        color: #4ade80;
         font-size: 13px;
         font-weight: 600;
-        display: inline-block;
-        margin: 0;
     }
     
-    .scorecard-container .innings-header {
-        background: transparent;
+    .scorecard-container .match-summary-right {
         color: #fff;
-        padding: 0;
-        font-size: 13px;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        margin: 0;
-        border: none;
-    }
-    
-    .scorecard-container .innings-header .innings-score {
-        background: linear-gradient(135deg, #046a38 0%, #028a4a 100%);
-        padding: 4px 12px;
-        border-radius: 12px;
         font-size: 13px;
         font-weight: 700;
-        box-shadow: 0 2px 6px rgba(4, 106, 56, 0.2);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+    }
+    
+    .scorecard-container .team-score-item {
+        background: linear-gradient(135deg, #046a38 0%, #028a4a 100%);
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        box-shadow: 0 2px 6px rgba(4, 106, 56, 0.25);
     }
     
     .scorecard-container .scorecard-data {
@@ -275,24 +265,25 @@
             line-height: 1.4;
         }
         
-        .scorecard-container .match-status {
-            padding: 10px 18px;
+        .scorecard-container .match-summary {
+            flex-direction: column;
+            padding: 12px 15px;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .scorecard-container .match-summary-left {
             font-size: 12px;
         }
         
-        .scorecard-container .innings-header {
-            flex-direction: column;
-            gap: 12px;
-            text-align: center;
-            padding: 15px;
-            font-size: 15px;
-            border-radius: 8px;
-            margin: 15px 10px;
+        .scorecard-container .match-summary-right {
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
-        .scorecard-container .innings-header .innings-score {
-            font-size: 16px;
-            padding: 6px 16px;
+        .scorecard-container .team-score-item {
+            font-size: 11px;
+            padding: 4px 10px;
         }
         
         .scorecard-container .scorecard-data {

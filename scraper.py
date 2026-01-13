@@ -333,7 +333,6 @@ def scrape_scorecard(url):
     status_text = status_div.get_text(strip=True) if status_div else ''
     
     innings_divs = soup.find_all('div', id=re.compile(r'^scard-team-\d+-innings-\d+$'))
-    innings_count = 0
     
     for innings in innings_divs:
         innings_id = innings.get('id', '')
@@ -353,12 +352,6 @@ def scrape_scorecard(url):
                 score_entry = f"{team_text} {score_text}"
                 if score_entry not in team_scores:
                     team_scores.append(score_entry)
-            
-            if innings_count == 0 and status_text:
-                scorecard_html += f'<div class="score-row"><div class="match-status">{status_text}</div><div class="innings-header">{team_text} <span class="innings-score">{score_text}</span></div></div>'
-            else:
-                scorecard_html += f'<div class="score-row"><div class="innings-header">{team_text} <span class="innings-score">{score_text}</span></div></div>'
-            innings_count += 1
         
         bat_grids = innings.find_all('div', class_=re.compile(r'scorecard-bat-grid'))
         
@@ -434,12 +427,17 @@ def scrape_scorecard(url):
             
             scorecard_html += '</tbody></table>'
     
+    final_score = ' vs '.join(team_scores) if team_scores else ''
+    
+    match_summary = ''
+    if status_text or team_scores:
+        scores_html = ' | '.join([f'<span class="team-score-item">{s}</span>' for s in team_scores])
+        match_summary = f'<div class="match-summary"><div class="match-summary-left">{status_text}</div><div class="match-summary-right">{scores_html}</div></div>'
+    
     if not scorecard_html or '<table' not in scorecard_html:
         scorecard_html = '<p class="no-data">Scorecard data not available. Match may not have started yet or the page structure has changed.</p>'
     else:
-        scorecard_html = '<div class="scorecard-data">' + scorecard_html + '</div>'
-    
-    final_score = ' vs '.join(team_scores) if team_scores else ''
+        scorecard_html = match_summary + '<div class="scorecard-data">' + scorecard_html + '</div>'
     
     return {'success': True, 'html': scorecard_html, 'final_score': final_score}
 
