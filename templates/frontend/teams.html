@@ -24,7 +24,7 @@
         <div id="international" class="team-category active">
             <div class="teams-grid">
                 {% for team in teams_by_type.international %}
-                <div class="team-card">
+                <a href="/team/{{ team.slug }}" class="team-card">
                     <div class="team-flag">
                         {% if team.flag_url %}
                         <img src="{{ team.flag_url }}" alt="{{ team.name }}">
@@ -33,7 +33,7 @@
                         {% endif %}
                     </div>
                     <div class="team-name">{{ team.name }}</div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -41,7 +41,7 @@
         <div id="women" class="team-category">
             <div class="teams-grid">
                 {% for team in teams_by_type.women %}
-                <div class="team-card">
+                <a href="/team/{{ team.slug }}" class="team-card">
                     <div class="team-flag">
                         {% if team.flag_url %}
                         <img src="{{ team.flag_url }}" alt="{{ team.name }}">
@@ -50,7 +50,7 @@
                         {% endif %}
                     </div>
                     <div class="team-name">{{ team.name }}</div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -58,7 +58,7 @@
         <div id="domestic" class="team-category">
             <div class="teams-grid">
                 {% for team in teams_by_type.domestic %}
-                <div class="team-card">
+                <a href="/team/{{ team.slug }}" class="team-card">
                     <div class="team-flag">
                         {% if team.flag_url %}
                         <img src="{{ team.flag_url }}" alt="{{ team.name }}">
@@ -67,7 +67,7 @@
                         {% endif %}
                     </div>
                     <div class="team-name">{{ team.name }}</div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -75,7 +75,7 @@
         <div id="league" class="team-category">
             <div class="teams-grid">
                 {% for team in teams_by_type.league %}
-                <div class="team-card">
+                <a href="/team/{{ team.slug }}" class="team-card">
                     <div class="team-flag">
                         {% if team.flag_url %}
                         <img src="{{ team.flag_url }}" alt="{{ team.name }}">
@@ -84,7 +84,7 @@
                         {% endif %}
                     </div>
                     <div class="team-name">{{ team.name }}</div>
-                </div>
+                </a>
                 {% endfor %}
             </div>
         </div>
@@ -148,6 +148,8 @@ function showCategory(category) {
     }
     
     .team-card {
+        display: block;
+        text-decoration: none;
         background: #fff;
         border-radius: 10px;
         padding: 20px 15px;
