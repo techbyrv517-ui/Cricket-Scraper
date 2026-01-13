@@ -130,7 +130,7 @@ function scrapeMatchesFromSeries($seriesId) {
     
     $matchCount = 0;
     
-    preg_match_all('/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*>([^<]+)<\/a>/i', $html, $matches, PREG_SET_ORDER);
+    preg_match_all('/<a[^>]*href="(\/live-cricket-scores\/(\d+)\/[^"]+)"[^>]*title="([^"]+)"[^>]*>/i', $html, $matches, PREG_SET_ORDER);
     
     $processedMatchIds = [];
     
