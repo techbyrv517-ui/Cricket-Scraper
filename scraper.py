@@ -136,6 +136,61 @@ def scrape_matches_from_series(series_id):
         conn.close()
         return {'success': False, 'message': 'Empty response from website'}
     
+    country_map = {
+        'india': ['ind', 'india', 'indian'],
+        'new zealand': ['nz', 'new-zealand', 'newzealand'],
+        'australia': ['aus', 'australia', 'australian'],
+        'england': ['eng', 'england', 'english'],
+        'pakistan': ['pak', 'pakistan'],
+        'south africa': ['sa', 'south-africa', 'southafrica'],
+        'sri lanka': ['sl', 'sri-lanka', 'srilanka'],
+        'bangladesh': ['ban', 'bangladesh'],
+        'west indies': ['wi', 'west-indies', 'westindies', 'windies'],
+        'afghanistan': ['afg', 'afghanistan'],
+        'zimbabwe': ['zim', 'zimbabwe'],
+        'ireland': ['ire', 'ireland'],
+        'uae': ['uae', 'emirates'],
+        'usa': ['usa', 'united-states'],
+        'nepal': ['nep', 'nepal'],
+        'namibia': ['nam', 'namibia'],
+        'netherlands': ['ned', 'netherlands', 'dutch'],
+        'scotland': ['sco', 'scotland'],
+        'oman': ['oman'],
+        'canada': ['can', 'canada'],
+    }
+    
+    series_name_lower = series_name.lower()
+    series_teams = []
+    for country, aliases in country_map.items():
+        if country in series_name_lower:
+            series_teams.append(aliases)
+    
+    def match_belongs_to_series(match_slug):
+        match_slug_lower = match_slug.lower()
+        
+        if series_slug and series_slug.lower() in match_slug_lower:
+            return True
+        
+        if len(series_teams) >= 2:
+            teams_found = 0
+            for team_aliases in series_teams:
+                for alias in team_aliases:
+                    if alias in match_slug_lower:
+                        teams_found += 1
+                        break
+            if teams_found >= 2:
+                return True
+        
+        if len(series_teams) == 1:
+            for alias in series_teams[0]:
+                if alias in match_slug_lower:
+                    return True
+        
+        if 'icc' in series_name_lower or 'world cup' in series_name_lower or 'league' in series_name_lower:
+            return True
+        
+        return False
+    
     match_count = 0
     processed_match_ids = set()
     
@@ -150,11 +205,15 @@ def scrape_matches_from_series(series_id):
         if not href:
             continue
         
-        match_id_search = re.search(r'/live-cricket-scores/(\d+)/', href)
+        match_id_search = re.search(r'/live-cricket-scores/(\d+)/([^?]+)', href)
         if not match_id_search:
             continue
         
         match_id = match_id_search.group(1)
+        match_slug = match_id_search.group(2)
+        
+        if not match_belongs_to_series(match_slug):
+            continue
         
         if not title:
             title = link.get_text(strip=True)
