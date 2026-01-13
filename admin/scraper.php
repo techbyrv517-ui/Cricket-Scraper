@@ -114,8 +114,14 @@ function scrapeMatchesFromSeries($seriesId) {
     
     $url = $series['series_url'];
     
-    preg_match('/cricket-series\/\d+\/([^\/]+)/', $url, $seriesSlugMatch);
-    $seriesSlug = isset($seriesSlugMatch[1]) ? $seriesSlugMatch[1] : '';
+    preg_match('/cricket-series\/(\d+)\/([^\/]+)/', $url, $seriesSlugMatch);
+    $seriesId_from_url = isset($seriesSlugMatch[1]) ? $seriesSlugMatch[1] : '';
+    $seriesSlug = isset($seriesSlugMatch[2]) ? $seriesSlugMatch[2] : '';
+    
+    $slugParts = preg_split('/[-_]/', $seriesSlug);
+    $keyParts = array_filter($slugParts, function($p) {
+        return strlen($p) > 2 && !preg_match('/^\d{4}$/', $p);
+    });
     
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -156,7 +162,43 @@ function scrapeMatchesFromSeries($seriesId) {
         $matchTitle = trim($m[3][0]);
         $matchPosition = $m[0][1];
         
-        if(!empty($seriesSlug) && strpos($matchUrlPath, $seriesSlug) === false) {
+        $matchBelongsToSeries = false;
+        
+        if(strpos($matchUrlPath, $seriesSlug) !== false) {
+            $matchBelongsToSeries = true;
+        }
+        
+        if(!$matchBelongsToSeries && !empty($keyParts)) {
+            $matchCount_parts = 0;
+            foreach($keyParts as $part) {
+                if(stripos($matchUrlPath, $part) !== false) {
+                    $matchCount_parts++;
+                }
+            }
+            if($matchCount_parts >= 1) {
+                $matchBelongsToSeries = true;
+            }
+        }
+        
+        if(!$matchBelongsToSeries) {
+            preg_match('/\d+\/([^\/]+)-\d{4}/', $matchUrlPath, $matchSlugParts);
+            if(isset($matchSlugParts[1])) {
+                $seriesNameLower = strtolower($series['series_name']);
+                $matchSlugLower = strtolower($matchSlugParts[1]);
+                $words = preg_split('/[-\s]+/', $seriesNameLower);
+                $matchWords = 0;
+                foreach($words as $word) {
+                    if(strlen($word) > 2 && strpos($matchSlugLower, $word) !== false) {
+                        $matchWords++;
+                    }
+                }
+                if($matchWords >= 2) {
+                    $matchBelongsToSeries = true;
+                }
+            }
+        }
+        
+        if(!$matchBelongsToSeries) {
             continue;
         }
         
