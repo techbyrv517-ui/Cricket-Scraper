@@ -690,12 +690,14 @@ def scrape_players_from_team(team_id):
             if image_url.startswith('//'):
                 image_url = 'https:' + image_url
         
+        profile_url = f"https://www.cricbuzz.com/profiles/{cricbuzz_id}/{player_slug}"
+        
         cur.execute('SELECT id FROM players WHERE cricbuzz_id = %s AND team_id = %s', (cricbuzz_id, team_id))
         if cur.fetchone() is None:
             cur.execute('''
-                INSERT INTO players (team_id, cricbuzz_id, name, slug, image_url, role)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            ''', (team_id, cricbuzz_id, player_name, player_slug, image_url, current_role))
+                INSERT INTO players (team_id, cricbuzz_id, name, slug, image_url, role, profile_url)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ''', (team_id, cricbuzz_id, player_name, player_slug, image_url, current_role, profile_url))
             player_count += 1
     
     conn.commit()
@@ -703,3 +705,95 @@ def scrape_players_from_team(team_id):
     conn.close()
     
     return {'success': True, 'message': f'Successfully scraped {player_count} players for {team_name}'}
+
+
+def scrape_player_profile(player_id):
+    import json
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('SELECT id, name, cricbuzz_id, slug, profile_url FROM players WHERE id = %s', (player_id,))
+    player = cur.fetchone()
+    
+    if not player:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': 'Player not found'}
+    
+    profile_url = player.get('profile_url')
+    if not profile_url:
+        profile_url = f"https://www.cricbuzz.com/profiles/{player['cricbuzz_id']}/{player['slug']}"
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    }
+    
+    scraper_api_key = os.environ.get('SCRAPER_API_KEY')
+    
+    try:
+        if scraper_api_key:
+            api_url = f"http://api.scraperapi.com?api_key={scraper_api_key}&url={profile_url}"
+            response = requests.get(api_url, timeout=60)
+        else:
+            response = requests.get(profile_url, headers=headers, timeout=30)
+        response.raise_for_status()
+        html = response.text
+    except Exception as e:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': f'Request error: {str(e)}'}
+    
+    soup = BeautifulSoup(html, 'lxml')
+    
+    personal_info = {}
+    batting_stats = {}
+    bowling_stats = {}
+    
+    info_items = soup.find_all('div', class_=re.compile(r'cb-col.*cb-col-40'))
+    for item in info_items:
+        label = item.get_text(strip=True)
+        value_elem = item.find_next_sibling('div')
+        if value_elem:
+            value = value_elem.get_text(strip=True)
+            if label and value:
+                personal_info[label] = value
+    
+    tables = soup.find_all('table')
+    for table in tables:
+        rows = table.find_all('tr')
+        if not rows:
+            continue
+        
+        headers_row = rows[0].find_all(['th', 'td'])
+        headers_text = [h.get_text(strip=True) for h in headers_row]
+        
+        is_batting = any(h in ['Mat', 'Runs', 'HS', 'Avg', '100s', '50s'] for h in headers_text)
+        is_bowling = any(h in ['Wkts', 'BBI', 'Econ', '5W', '10W'] for h in headers_text)
+        
+        for row in rows[1:]:
+            cells = row.find_all('td')
+            if len(cells) >= 2:
+                format_name = cells[0].get_text(strip=True)
+                if format_name in ['Test', 'ODI', 'T20I', 'T20', 'IPL', 'FC', 'List A']:
+                    row_data = {}
+                    for i, header in enumerate(headers_text):
+                        if i < len(cells):
+                            row_data[header] = cells[i].get_text(strip=True)
+                    
+                    if is_batting and not is_bowling:
+                        batting_stats[format_name] = row_data
+                    elif is_bowling:
+                        bowling_stats[format_name] = row_data
+    
+    cur.execute('''
+        UPDATE players 
+        SET personal_info = %s, batting_stats = %s, bowling_stats = %s, profile_scraped = TRUE
+        WHERE id = %s
+    ''', (json.dumps(personal_info), json.dumps(batting_stats), json.dumps(bowling_stats), player_id))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return {'success': True, 'message': f'Profile scraped for {player["name"]}'}
