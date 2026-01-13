@@ -1,0 +1,169 @@
+   # Enable backwards compatible Server Side Include expression parser for Apache versions >= 2.4.
+    # To selectively use the newer Apache 2.4 expression parser, disable SSILegacyExprParser in
+    # the user's .htaccess file.  For more information, please read:
+    #    http://httpd.apache.org/docs/2.4/mod/mod_include.html#ssilegacyexprparser
+    <IfModule mod_include.c>
+        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+        SSILegacyExprParser On
+        </Directory>
+    </IfModule>
+
+    <Proxymatch ^https?://127\.0\.0\.1:(2082|2083|2087)/>
+    <IfModule security2_module>
+        SecRuleEngine Off
+    </IfModule>
+    </Proxymatch>
+
+    <IfModule mod_suphp.c>
+        suPHP_UserGroup digitalcash24 digitalcash24
+    </IfModule>
+    <IfModule suexec_module>
+        <IfModule !mod_ruid2.c>
+            SuexecUserGroup digitalcash24 digitalcash24
+        </IfModule>
+    </IfModule>
+    <IfModule ruid2_module>
+        RMode config
+        RUidGid digitalcash24 digitalcash24
+    </IfModule>
+    <IfModule mpm_itk.c>
+        # For more information on MPM ITK, please read:
+        #   http://mpm-itk.sesse.net/
+        AssignUserID digitalcash24 digitalcash24
+    </IfModule>
+    <IfModule mod_passenger.c>
+        PassengerUser digitalcash24
+        PassengerGroup digitalcash24
+    </IfModule>
+
+    <IfModule alias_module>
+        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+    </IfModule>
+
+    <IfModule ssl_module>
+        SSLEngine on
+
+        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+        SSLUseStapling off
+        SetEnvIf User-Agent ".*MSIE.*" nokeepalive ssl-unclean-shutdown
+        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+        SSLOptions +StdEnvVars
+        </Directory>
+    </IfModule>
+
+
+    AliasMatch "^/(\.well-known/acme-challenge)/(.*)$"   "/var/www/html/$1/$2"
+    # To customize this VirtualHost use an include file at the following location
+    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+
+    <IfModule headers_module>
+        RequestHeader set X-HTTPS 1
+    </IfModule>
+
+    RewriteEngine On
+
+    SSLProxyEngine on
+    SSLProxyVerify none
+    SSLProxyCheckPeerCN off
+    SSLProxyCheckPeerName off
+
+    # Authorization header fixed => REDIRECT_HTTP_AUTHORIZATION
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+    RewriteCond %{HTTP_HOST} ^webmail.
+    RewriteRule ^/(.*) /___proxy_subdomain_webmail/$1 [PT]
+    ProxyPass "/___proxy_subdomain_webmail" "https://127.0.0.1:2083" max=1 retry=0
+
+    RewriteCond %{HTTP_HOST} ^zeslecp.
+    RewriteRule ^/terminal-ws/(.*) "wss://127.0.0.1:2087/terminal-ws/$1" [P,L]
+
+    RewriteCond %{HTTP_HOST} ^zeslecp.
+    RewriteCond %{HTTP_HOST} !^zeslecp.com$
+    RewriteRule ^/(.*) /___proxy_subdomain_zeslecp/$1 [PT]
+    ProxyPass "/___proxy_subdomain_zeslecp" "https://127.0.0.1:2087" max=1 retry=0
+
+</VirtualHost>
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# cat /etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf | head -80
+<VirtualHost 127.0.0.1:8080>
+    ServerName _wildcard_.cricbuzz-live-score.com
+    ServerAlias *.cricbuzz-live-score.com
+    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+    ServerAdmin webmaster@cricbuzz-live-score.com
+    UseCanonicalName Off
+
+    ## User digitalcash24
+    <IfModule userdir_module>
+        <IfModule !mpm_itk.c>
+            <IfModule !ruid2_module>
+                <IfModule !mod_passenger.c>
+                    UserDir disabled
+                    UserDir enabled digitalcash24
+                </IfModule>
+            </IfModule>
+        </IfModule>
+    </IfModule>
+
+    # Enable backwards compatible Server Side Include expression parser for Apache versions >= 2.4.
+    # To selectively use the newer Apache 2.4 expression parser, disable SSILegacyExprParser in
+    # the user's .htaccess file.  For more information, please read:
+    #    http://httpd.apache.org/docs/2.4/mod/mod_include.html#ssilegacyexprparser
+    <IfModule include_module>
+        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+          SSILegacyExprParser On
+        </Directory>
+    </IfModule>
+
+    <IfModule suphp_module>
+        suPHP_UserGroup digitalcash24 digitalcash24
+    </IfModule>
+    <IfModule suexec_module>
+        <IfModule !mod_ruid2.c>
+            SuexecUserGroup digitalcash24 digitalcash24
+        </IfModule>
+    </IfModule>
+    <IfModule ruid2_module>
+        RMode config
+        RUidGid digitalcash24 digitalcash24
+    </IfModule>
+    <IfModule mpm_itk.c>
+        # For more information on MPM ITK, please read:
+        #   http://mpm-itk.sesse.net/
+        AssignUserID digitalcash24 digitalcash24
+    </IfModule>
+    <IfModule mod_passenger.c>
+        PassengerUser digitalcash24
+        PassengerGroup digitalcash24
+    </IfModule>
+
+    <IfModule alias_module>
+        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+    </IfModule>
+
+
+    # Global DCV Rewrite Exclude
+    <IfModule rewrite_module>
+        RewriteOptions Inherit
+    </IfModule>
+
+    AliasMatch "^/(\.well-known/acme-challenge)/(.*)$"   "/var/www/html/$1/$2"
+
+    RewriteEngine On
+    RewriteCond %{HTTP_HOST} ^webmail.
+    RewriteRule ^/(.*) https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+
+    # Authorization header fixed => REDIRECT_HTTP_AUTHORIZATION
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+    RewriteCond %{HTTP_HOST} ^zeslecp.
+    RewriteCond %{HTTP_HOST} !^zeslecp.com$
+    RewriteRule ^/(.*) https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+
+    RewriteCond %{SERVER_NAME} =cricbuzz-live-score.com [OR]
+    RewriteCond %{SERVER_NAME} =www.cricbuzz-live-score.com
+    RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+
+    # To customize this VirtualHost use an include file at the following location
+    # Include "/etc/apache2/conf.d/userdata/std/2_4/digitalcash24/digitalcash24.com/*.conf"
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com#
