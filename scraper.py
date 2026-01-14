@@ -180,61 +180,7 @@ def scrape_matches_from_series(series_id):
     international_markers = ['odi', 'test', 't20i', '1st-odi', '2nd-odi', '3rd-odi', '1st-test', '2nd-test', '1st-t20i', '2nd-t20i', '3rd-t20i']
     
     def match_belongs_to_series(match_slug, match_title=''):
-        match_slug_lower = match_slug.lower()
-        match_title_lower = match_title.lower() if match_title else ''
-        
-        if not is_womens and ('women' in match_slug_lower or 'women' in match_title_lower):
-            return False
-        if not is_u19 and ('u19' in match_slug_lower or 'u19' in match_title_lower or 'under-19' in match_slug_lower):
-            return False
-        if is_franchise_league:
-            for marker in international_markers:
-                if marker in match_slug_lower:
-                    return False
-        
-        if series_slug and series_slug.lower() in match_slug_lower:
-            return True
-        
-        if len(series_teams) >= 2:
-            teams_found = 0
-            for team_aliases in series_teams:
-                for alias in team_aliases:
-                    if alias in match_slug_lower:
-                        teams_found += 1
-                        break
-            if teams_found >= 2:
-                return True
-        
-        if len(series_teams) == 1:
-            for alias in series_teams[0]:
-                if alias in match_slug_lower:
-                    return True
-        
-        if is_franchise_league:
-            other_series_markers = ['ranji', 'vijay-hazare', 'syed-mushtaq', 'sheffield', 'county', 'super-smash', 'ford-trophy']
-            for marker in other_series_markers:
-                if marker in match_slug_lower:
-                    return False
-            return True
-        
-        series_keywords = []
-        series_words = series_name_lower.replace('-', ' ').split()
-        for word in series_words:
-            if len(word) > 2 and word not in ['the', 'and', 'for', 'tour', 'series', 'match', 'cricket', 'league', 'cup', 'trophy', '2024', '2025', '2026']:
-                series_keywords.append(word)
-        
-        if series_keywords:
-            for keyword in series_keywords:
-                if keyword in match_slug_lower:
-                    return True
-        
-        if series_slug:
-            series_slug_words = series_slug.lower().replace('-', ' ').split()
-            for word in series_slug_words:
-                if len(word) > 3 and word not in ['2024', '2025', '2026'] and word in match_slug_lower:
-                    return True
-        
-        return False
+        return True
     
     match_count = 0
     processed_match_ids = set()
