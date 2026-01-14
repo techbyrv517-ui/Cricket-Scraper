@@ -84,55 +84,6 @@
 }
 </style>
 
-<div class="admin-card" style="margin-bottom: 25px;">
-    <h3 style="color: var(--admin-primary); margin-bottom: 20px; font-size: 1.1rem;">Add New Live Match</h3>
-    <form action="{{ url_for('admin_add_live_match') }}" method="POST">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label>Series Name</label>
-                <input type="text" name="series_name" placeholder="e.g., India Tour of Australia 2026" required>
-            </div>
-            <div class="form-group">
-                <label>Match Info</label>
-                <input type="text" name="match_info" placeholder="e.g., 1st Test, Day 2">
-            </div>
-            <div class="form-group">
-                <label>Match Date</label>
-                <input type="text" name="match_date" placeholder="e.g., Mon, Jan 13 2026">
-            </div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label>Team 1 Name</label>
-                <input type="text" name="team1_name" placeholder="e.g., India" required>
-            </div>
-            <div class="form-group">
-                <label>Team 1 Score</label>
-                <input type="text" name="team1_score" placeholder="e.g., 250-4">
-            </div>
-            <div class="form-group">
-                <label>Team 2 Name</label>
-                <input type="text" name="team2_name" placeholder="e.g., Australia" required>
-            </div>
-            <div class="form-group">
-                <label>Team 2 Score</label>
-                <input type="text" name="team2_score" placeholder="e.g., 180-10">
-            </div>
-        </div>
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-bottom: 20px;">
-            <div class="form-group">
-                <label>Status</label>
-                <input type="text" name="status" placeholder="e.g., India need 150 runs to win">
-            </div>
-            <div class="form-group" style="display: flex; align-items: center; gap: 10px; padding-top: 25px;">
-                <input type="checkbox" name="is_live" id="is_live" checked style="width: 20px; height: 20px;">
-                <label for="is_live" style="margin: 0; cursor: pointer;">Show as Live</label>
-            </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Add Live Match</button>
-    </form>
-</div>
-
 <div class="admin-card">
     <h3 style="color: var(--admin-primary); margin-bottom: 20px; font-size: 1.1rem;">Current Live Matches ({{ live_matches|length }})</h3>
     
