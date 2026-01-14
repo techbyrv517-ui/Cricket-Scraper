@@ -1,0 +1,32 @@
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# journalctl -u cricbuzz --no-pager -n 50 | tail -30
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:     rv = self.handle_user_exception(e)
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:     rv = self.dispatch_request()
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 499, in index
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:     cur.execute('''SELECT m.*, s.series_name, sc.match_status as result, sc.scorecard_html, sc.final_score
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:     return super().execute(query, vars)
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]: psycopg2.errors.UndefinedColumn: column sc.final_score does not exist
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]: LINE 1: ...me, sc.match_status as result, sc.scorecard_html, sc.final_s...
+Jan 14 01:51:56 mail.digitalcash24.com gunicorn[3999809]:                                                              ^
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]: [2026-01-14 01:51:58,563] ERROR in app: Exception on / [GET]
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]: Traceback (most recent call last):
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:     response = self.full_dispatch_request()
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:     rv = self.handle_user_exception(e)
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:     rv = self.dispatch_request()
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 499, in index
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:     cur.execute('''SELECT m.*, s.series_name, sc.match_status as result, sc.scorecard_html, sc.final_score
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:     return super().execute(query, vars)
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]: psycopg2.errors.UndefinedColumn: column sc.final_score does not exist
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]: LINE 1: ...me, sc.match_status as result, sc.scorecard_html, sc.final_s...
+Jan 14 01:51:58 mail.digitalcash24.com gunicorn[3999807]:                                                              ^
+(v
