@@ -1,0 +1,65 @@
+
+Last login: Wed Jan 14 01:10:57 2026 from 152.59.48.5
+root@mail:~# sudo -u postgres psql cricbuzz_db << 'EOF'
+> -- Create missing post_categories table
+> CREATE TABLE IF NOT EXISTS post_categories (
+>     id SERIAL PRIMARY KEY,
+>     name VARCHAR(100) NOT NULL,
+>     slug VARCHAR(100) UNIQUE NOT NULL,
+>     short_name VARCHAR(100),
+>     description TEXT,
+>     hero_title VARCHAR(255),
+>     hero_description TEXT,
+>     content TEXT,
+>     focus_keyword VARCHAR(255),
+>     meta_title VARCHAR(255),
+>     meta_description TEXT,
+>     canonical_url TEXT,
+>     og_image TEXT,
+>     is_published BOOLEAN DEFAULT TRUE,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Add missing columns to matches
+> ALTER TABLE matches ADD COLUMN IF NOT EXISTS slug VARCHAR(500);
+>
+> -- Add missing columns to teams
+> ALTER TABLE teams ADD COLUMN IF NOT EXISTS rank INTEGER DEFAULT 0;
+> ALTER TABLE teams ADD COLUMN IF NOT EXISTS cricbuzz_team_id VARCHAR(20);
+>
+> -- Add missing columns to scorecards
+> ALTER TABLE scorecards ADD COLUMN IF NOT EXISTS is_live BOOLEAN DEFAULT FALSE;
+>
+> -- Add missing columns to players
+> ALTER TABLE players ADD COLUMN IF NOT EXISTS profile_url VARCHAR(500);
+> ALTER TABLE players ADD COLUMN IF NOT EXISTS batting_stats JSONB;
+> ALTER TABLE players ADD COLUMN IF NOT EXISTS bowling_stats JSONB;
+> ALTER TABLE players ADD COLUMN IF NOT EXISTS personal_info JSONB;
+> ALTER TABLE players ADD COLUMN IF NOT EXISTS profile_scraped BOOLEAN DEFAULT FALSE;
+> ALTER TABLE players ADD COLUMN IF NOT EXISTS career_timeline JSONB;
+>
+> -- Grant permissions
+> GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cricbuzz_user;
+> GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO cricbuzz_user;
+> EOF
+could not change directory to "/root": Permission denied
+CREATE TABLE
+NOTICE:  column "slug" of relation "matches" already exists, skipping
+ALTER TABLE
+NOTICE:  column "rank" of relation "teams" already exists, skipping
+ALTER TABLE
+NOTICE:  column "cricbuzz_team_id" of relation "teams" already exists, skipping
+ALTER TABLE
+NOTICE:  column "is_live" of relation "scorecards" already exists, skipping
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+GRANT
+GRANT
+root@mail:~# systemctl restart cricbuzz
+root@mail:~#
