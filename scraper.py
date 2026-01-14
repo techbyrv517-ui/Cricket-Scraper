@@ -502,17 +502,30 @@ def scrape_live_scores():
     live_matches = []
     processed_ids = set()
     
-    match_links = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
+    match_cards = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
     
-    for link in match_links:
+    for card in match_cards:
         try:
-            live_tag = link.find('span', class_=re.compile(r'cbPlusLiveTag'))
-            if not live_tag:
-                live_tag = link.find(string=re.compile(r'\bLIVE\b', re.I))
-                if not live_tag:
-                    continue
+            parent = card
+            for _ in range(10):
+                parent = parent.parent
+                if parent is None:
+                    break
+                if parent.find('span', class_=re.compile(r'cbPlusLiveTag')):
+                    break
             
-            href = link.get('href', '')
+            live_tag = None
+            if parent:
+                live_tag = parent.find('span', class_=re.compile(r'cbPlusLiveTag'))
+            if not live_tag:
+                live_tag = card.find('span', class_=re.compile(r'cbPlusLiveTag'))
+            if not live_tag:
+                live_tag = card.find(string=re.compile(r'\bLIVE\b', re.I))
+            
+            if not live_tag:
+                continue
+            
+            href = card.get('href', '')
             match_id_search = re.search(r'/live-cricket-scores/(\d+)/', href)
             if not match_id_search:
                 continue
@@ -522,12 +535,14 @@ def scrape_live_scores():
                 continue
             processed_ids.add(match_id)
             
-            title = link.get('title', '') or ''
-            
+            title = card.get('title', '') or ''
             team1_name = ''
             team2_name = ''
+            team1_score = ''
+            team2_score = ''
             match_info = ''
             status = ''
+            series_name = ''
             
             if ' vs ' in title:
                 parts = title.split(',')
@@ -541,105 +556,40 @@ def scrape_live_scores():
                 if ' - ' in title:
                     status = title.split(' - ')[-1].strip()
             
-            if not team1_name:
-                link_text = link.get_text(strip=True)
-                if ' vs ' in link_text.lower():
-                    team_match = re.match(r'([^v]+)\s+vs\s+([^\d,]+)', link_text, re.I)
-                    if team_match:
-                        team1_name = team_match.group(1).strip()
-                        team2_name = team_match.group(2).strip()
-            
-            parent = link.parent
-            for _ in range(5):
-                if parent is None:
+            match_container = card
+            for _ in range(8):
+                match_container = match_container.parent
+                if match_container is None:
                     break
                 
-                series_link = parent.find('a', href=re.compile(r'/cricket-series/\d+/'))
-                if series_link:
+                score_spans = match_container.find_all('span', class_=re.compile(r'truncate'))
+                if len(score_spans) >= 2:
+                    for span in score_spans:
+                        span_text = span.get_text(strip=True)
+                        if re.match(r'\d+-\d+\s*\(\d+', span_text) or re.match(r'\d+/\d+\s*\(\d+', span_text) or re.match(r'\d+-\d+$', span_text):
+                            if not team1_score:
+                                team1_score = span_text
+                            elif not team2_score:
+                                team2_score = span_text
+                    if team1_score:
+                        break
+                
+                series_link = match_container.find('a', href=re.compile(r'/cricket-series/\d+/'))
+                if series_link and not series_name:
                     series_name = series_link.get_text(strip=True)
-                    break
-                parent = parent.parent
-            else:
-                series_name = ''
-            
-            match_info_div = link.find('div', class_='text-xs')
-            if match_info_div and not match_info:
-                match_info = match_info_div.get_text(strip=True)
             
             if team1_name and team2_name:
-                match_url = f"https://www.cricbuzz.com{href}"
                 live_matches.append({
                     'match_id': match_id,
-                    'match_url': match_url,
                     'series_name': series_name[:255] if series_name else '',
                     'match_info': match_info[:255] if match_info else '',
                     'team1_name': team1_name[:100],
-                    'team1_score': '',
+                    'team1_score': team1_score[:50] if team1_score else '',
                     'team2_name': team2_name[:100],
-                    'team2_score': '',
+                    'team2_score': team2_score[:50] if team2_score else '',
                     'status': status[:100] if status else 'LIVE',
                     'is_live': True
                 })
-        except Exception as e:
-            continue
-    
-    for match in live_matches:
-        try:
-            match_url = match.get('match_url', '')
-            if not match_url:
-                continue
-            
-            time.sleep(0.3)
-            match_response = requests.get(match_url, headers=headers, timeout=15)
-            if match_response.status_code != 200:
-                continue
-            
-            match_soup = BeautifulSoup(match_response.text, 'html.parser')
-            
-            score_divs = match_soup.find_all('div', class_=re.compile(r'cb-min-bat-rw|cb-min-tm'))
-            for div in score_divs:
-                score_spans = div.find_all('span')
-                if len(score_spans) >= 2:
-                    team_text = score_spans[0].get_text(strip=True).upper() if score_spans[0] else ''
-                    score_text = ''
-                    for span in score_spans[1:]:
-                        txt = span.get_text(strip=True)
-                        if '/' in txt or txt.isdigit():
-                            score_text = txt
-                            break
-                    
-                    if score_text:
-                        t1_upper = match['team1_name'][:3].upper()
-                        t2_upper = match['team2_name'][:3].upper()
-                        
-                        if t1_upper in team_text and not match['team1_score']:
-                            match['team1_score'] = score_text
-                        elif t2_upper in team_text and not match['team2_score']:
-                            match['team2_score'] = score_text
-            
-            all_scripts = match_soup.find_all('script')
-            for script in all_scripts:
-                script_text = script.string or ''
-                if 'miniscore' not in script_text.lower() and 'batsmanStriker' not in script_text:
-                    continue
-                
-                t1_score_match = re.search(r'"batTeamScore":\s*"([^"]+)"', script_text)
-                if t1_score_match and not match['team1_score']:
-                    match['team1_score'] = t1_score_match.group(1)
-                
-                status_match = re.search(r'"matchStatus":\s*"([^"]+)"', script_text)
-                if status_match:
-                    match['status'] = status_match.group(1)
-                
-                innings_list = re.findall(r'"inngsId":\s*(\d+)[^}]*?"score":\s*(\d+)[^}]*?"wickets":\s*(\d+)', script_text)
-                if innings_list:
-                    for i, (inng_id, runs, wkts) in enumerate(innings_list[:2]):
-                        score_str = f"{runs}/{wkts}"
-                        if i == 0 and not match['team1_score']:
-                            match['team1_score'] = score_str
-                        elif i == 1 and not match['team2_score']:
-                            match['team2_score'] = score_str
-                break
         except Exception as e:
             continue
     
