@@ -2153,6 +2153,5 @@ with app.app_context():
     seed_defaults()
 
 if __name__ == '__main__':
-    if not os.environ.get('WERKZEUG_RUN_MAIN'):
-        start_scheduler()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    start_scheduler()
+    app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
