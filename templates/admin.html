@@ -129,6 +129,10 @@
                         <span class="nav-card-title">Clear Data</span>
                     </div>
                     <div class="nav-card-body">
+                        <button id="clearAllBtn" class="nav-item nav-danger" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); color: #fff; font-weight: bold;">
+                            <span class="nav-icon">⚠️</span>
+                            <span>ALL CLEAR</span>
+                        </button>
                         <button id="clearMatchesBtn" class="nav-item nav-danger">
                             <span class="nav-icon">🏏</span>
                             <span>Clear Matches</span>
@@ -416,6 +420,39 @@
                         status.className = 'status-message error';
                     }
                     btn.disabled = false;
+                });
+            });
+        }
+        
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        if(clearAllBtn) {
+            clearAllBtn.addEventListener('click', function() {
+                if(!confirm('⚠️ WARNING: This will delete ALL data including:\n\n• All Series\n• All Matches\n• All Scorecards\n• All Live Matches\n\nAre you absolutely sure?')) return;
+                if(!confirm('This action cannot be undone! Type YES in next prompt to confirm.')) return;
+                
+                const btn = this;
+                const status = document.getElementById('statusMessage');
+                btn.disabled = true;
+                btn.innerHTML = '<span class="nav-icon">⏳</span><span>Clearing...</span>';
+                
+                fetch('/api/clear-all-data', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if(status) {
+                        status.textContent = data.message;
+                        status.className = 'status-message ' + (data.success ? 'success' : 'error');
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="nav-icon">⚠️</span><span>ALL CLEAR</span>';
+                    if(data.success) setTimeout(() => location.reload(), 1500);
+                })
+                .catch(error => {
+                    if(status) {
+                        status.textContent = 'Error: ' + error;
+                        status.className = 'status-message error';
+                    }
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="nav-icon">⚠️</span><span>ALL CLEAR</span>';
                 });
             });
         }
