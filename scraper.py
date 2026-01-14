@@ -170,6 +170,37 @@ def scrape_matches_from_series(series_id):
     international_markers = ['odi', 'test', 't20i', '1st-odi', '2nd-odi', '3rd-odi', '1st-test', '2nd-test', '1st-t20i', '2nd-t20i', '3rd-t20i']
     
     def match_belongs_to_series(match_slug, match_title=''):
+        match_text = (match_slug + ' ' + match_title).lower()
+        
+        # For franchise leagues, accept all matches from that league page
+        if is_franchise_league:
+            return True
+        
+        # For U19 series, check for U19 matches
+        if is_u19:
+            if 'u19' in match_text or 'under-19' in match_text or 'under19' in match_text:
+                return True
+            return False
+        
+        # For women's series, check for women's matches
+        if is_womens:
+            if 'women' in match_text or 'wom' in match_text:
+                return True
+            return False
+        
+        # For international series with teams, check if match contains those teams
+        if series_teams:
+            for team_aliases in series_teams:
+                found = False
+                for alias in team_aliases:
+                    if alias in match_text:
+                        found = True
+                        break
+                if not found:
+                    return False
+            return True
+        
+        # Default: accept match (for domestic/league series)
         return True
     
     match_count = 0
