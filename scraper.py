@@ -102,11 +102,112 @@ def scrape_series_data():
     
     return {'success': True, 'message': f'Successfully scraped {series_count} new series'}
 
+def extract_matches_from_rsc(html, cricbuzz_series_id):
+    """Extract matches from React Server Components (RSC) data embedded in HTML"""
+    matches = []
+    
+    # Find RSC data chunks
+    rsc_chunks = re.findall(r'self\.__next_f\.push\(\[[\d]+,\"(.*?)\"\]\)', html, re.DOTALL)
+    
+    for chunk in rsc_chunks:
+        try:
+            decoded = chunk.encode().decode('unicode_escape')
+        except:
+            decoded = chunk
+        
+        # Look for matchesData containing our series
+        if 'matchesData' not in decoded:
+            continue
+        
+        # Find all matchId entries in this chunk
+        match_ids = re.findall(r'\"matchId\":(\d+)', decoded)
+        
+        for mid in set(match_ids):
+            # Find context around this match ID
+            idx_pos = decoded.find(f'"matchId":{mid}')
+            if idx_pos < 0:
+                continue
+            
+            # Get surrounding text
+            start = max(0, idx_pos - 200)
+            end = min(len(decoded), idx_pos + 800)
+            context = decoded[start:end]
+            
+            # Check if this match belongs to our series
+            series_check = re.search(r'"seriesId":(\d+)', context)
+            if series_check:
+                found_series_id = series_check.group(1)
+                if found_series_id != cricbuzz_series_id:
+                    continue
+            else:
+                # No series ID in context, skip
+                continue
+            
+            # Extract match details
+            match_data = {'id': mid}
+            
+            # Match description (1st ODI, 2nd T20I, etc.)
+            desc_match = re.search(r'"matchDesc":"([^"]+)"', context)
+            match_data['desc'] = desc_match.group(1) if desc_match else ''
+            
+            # Team names - try full name first, then short name
+            team1_full = re.search(r'"team1":\{[^}]*"teamName":"([^"]+)"', context)
+            team2_full = re.search(r'"team2":\{[^}]*"teamName":"([^"]+)"', context)
+            team1_short = re.search(r'"team1":\{[^}]*"teamSName":"([^"]+)"', context)
+            team2_short = re.search(r'"team2":\{[^}]*"teamSName":"([^"]+)"', context)
+            
+            team1 = team1_full.group(1) if team1_full else (team1_short.group(1) if team1_short else '')
+            team2 = team2_full.group(1) if team2_full else (team2_short.group(1) if team2_short else '')
+            
+            if team1 and team2:
+                match_data['title'] = f"{team1} vs {team2}, {match_data['desc']}"
+            elif match_data['desc']:
+                match_data['title'] = match_data['desc']
+            else:
+                match_data['title'] = f"Match {mid}"
+            
+            # Venue
+            venue_match = re.search(r'"venueInfo":\{[^}]*"ground":"([^"]+)"', context)
+            match_data['venue'] = venue_match.group(1) if venue_match else ''
+            
+            # Start date (Unix timestamp)
+            date_match = re.search(r'"startDate":"?(\d+)"?', context)
+            if date_match:
+                try:
+                    from datetime import datetime
+                    timestamp = int(date_match.group(1))
+                    if timestamp > 1000000000000:  # milliseconds
+                        timestamp = timestamp / 1000
+                    dt = datetime.fromtimestamp(timestamp)
+                    match_data['date'] = dt.strftime('%a, %b %d %Y')
+                except:
+                    match_data['date'] = ''
+            else:
+                match_data['date'] = ''
+            
+            # Status
+            status_match = re.search(r'"status":"([^"]+)"', context)
+            match_data['status'] = status_match.group(1) if status_match else ''
+            
+            # Match format
+            format_match = re.search(r'"matchFormat":"([^"]+)"', context)
+            match_data['format'] = format_match.group(1) if format_match else ''
+            
+            # Generate slug from match URL pattern
+            match_data['slug'] = f"{team1.lower()}-vs-{team2.lower()}-{match_data['desc'].lower().replace(' ', '-')}" if team1 and team2 else ''
+            
+            # Construct match URL
+            match_data['url'] = f"https://www.cricbuzz.com/live-cricket-scores/{mid}/{match_data['slug']}"
+            
+            matches.append(match_data)
+    
+    return matches
+
 def scrape_matches_from_series(series_id):
     conn = get_db()
     cur = conn.cursor()
     
-    cur.execute('SELECT series_url, series_name FROM series WHERE id = %s', (series_id,))
+    cur.execute('SELECT series_url, series_name, series_id as cricbuzz_series_id FROM series WHERE id = %s', (series_id,))
     series = cur.fetchone()
     
     if not series:
@@ -116,6 +217,7 @@ def scrape_matches_from_series(series_id):
     
     url = series['series_url']
     series_name = series['series_name']
+    cricbuzz_series_id = series['cricbuzz_series_id']
     
     match = re.search(r'cricket-series/(\d+)/([^/]+)', url)
     series_slug = match.group(2) if match else ''
@@ -128,6 +230,46 @@ def scrape_matches_from_series(series_id):
         html = response.text
     except Exception as e:
         return {'success': False, 'message': f'Request error: {str(e)}'}
+    
+    # Try RSC extraction first (gets all matches including upcoming)
+    rsc_matches = []
+    if cricbuzz_series_id:
+        rsc_matches = extract_matches_from_rsc(html, cricbuzz_series_id)
+    
+    match_count = 0
+    processed_match_ids = set()
+    
+    # Process RSC matches first
+    for m in rsc_matches:
+        match_id = m['id']
+        if match_id in processed_match_ids:
+            continue
+        processed_match_ids.add(match_id)
+        
+        match_title = m.get('title', '')
+        match_url = m.get('url', '')
+        match_date = m.get('date', '')
+        match_slug = m.get('slug', '')
+        
+        if not match_slug:
+            match_slug = re.sub(r'[^a-zA-Z0-9 ]', '', match_title).lower()
+            match_slug = re.sub(r' +', '-', match_slug).strip('-')
+        
+        if match_title and len(match_title) > 2:
+            cur.execute('SELECT id FROM matches WHERE match_id = %s AND series_id = %s', (match_id, series_id))
+            if cur.fetchone() is None:
+                cur.execute(
+                    'INSERT INTO matches (series_id, match_id, match_title, match_url, match_date, slug) VALUES (%s, %s, %s, %s, %s, %s)',
+                    (series_id, match_id, match_title, match_url, match_date, match_slug)
+                )
+                match_count += 1
+    
+    # If RSC extraction found matches, commit and return
+    if match_count > 0:
+        conn.commit()
+        cur.close()
+        conn.close()
+        return {'success': True, 'message': f'Successfully scraped {match_count} new matches (RSC method)'}
     
     if not html:
         cur.close()
