@@ -4,13 +4,24 @@ echo "=========================================="
 echo "  Cricbuzz Live Score - Server Setup"
 echo "=========================================="
 
-APP_DIR="/var/www/cricbuzz"
+read -p "Enter your domain name (e.g., cricbuzz-live-score.com): " DOMAIN_NAME
+read -p "Enter installation directory (e.g., /var/www/cricbuzz-live-score.com): " APP_DIR
+
+if [ -z "$APP_DIR" ]; then
+    APP_DIR="/var/www/$DOMAIN_NAME"
+fi
+
 APP_USER="www-data"
 DB_NAME="cricbuzz_db"
 DB_USER="cricbuzz_user"
 
 read -p "Enter database password: " DB_PASS
 read -p "Enter session secret key: " SESSION_SECRET
+
+echo ""
+echo "Installing to: $APP_DIR"
+echo "Domain: $DOMAIN_NAME"
+echo ""
 
 echo ""
 echo "[1/7] Installing system dependencies..."
@@ -68,32 +79,32 @@ EOF
 
 echo ""
 echo "[7/7] Creating Nginx configuration..."
-sudo tee /etc/nginx/sites-available/cricbuzz > /dev/null << 'EOF'
+sudo tee /etc/nginx/sites-available/$DOMAIN_NAME > /dev/null << EOF
 server {
     listen 80;
-    server_name _;
+    server_name $DOMAIN_NAME www.$DOMAIN_NAME;
 
     client_max_body_size 10M;
 
     location / {
         proxy_pass http://127.0.0.1:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
         proxy_connect_timeout 60s;
         proxy_read_timeout 60s;
     }
 
     location /static {
-        alias /var/www/cricbuzz/static;
+        alias $APP_DIR/static;
         expires 7d;
         add_header Cache-Control "public, immutable";
     }
 }
 EOF
 
-sudo ln -sf /etc/nginx/sites-available/cricbuzz /etc/nginx/sites-enabled/
+sudo ln -sf /etc/nginx/sites-available/$DOMAIN_NAME /etc/nginx/sites-enabled/
 sudo rm -f /etc/nginx/sites-enabled/default
 
 echo ""
@@ -108,12 +119,19 @@ echo "=========================================="
 echo "  Installation Complete!"
 echo "=========================================="
 echo ""
-echo "App running at: http://your-server-ip"
-echo "Admin panel: http://your-server-ip/admin/login"
+echo "Domain: $DOMAIN_NAME"
+echo "Directory: $APP_DIR"
+echo ""
+echo "App running at: http://$DOMAIN_NAME"
+echo "Admin panel: http://$DOMAIN_NAME/admin/login"
 echo "Default login: admin / admin123"
 echo ""
 echo "Useful commands:"
 echo "  sudo systemctl status cricbuzz    - Check app status"
 echo "  sudo systemctl restart cricbuzz   - Restart app"
 echo "  sudo journalctl -u cricbuzz -f    - View logs"
+echo ""
+echo "For SSL certificate (HTTPS):"
+echo "  sudo apt install certbot python3-certbot-nginx"
+echo "  sudo certbot --nginx -d $DOMAIN_NAME -d www.$DOMAIN_NAME"
 echo ""
