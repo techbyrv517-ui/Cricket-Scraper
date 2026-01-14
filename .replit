@@ -33,3 +33,7 @@ externalPort = 80
 [nix]
 channel = "stable-25_05"
 packages = ["freetype", "gitFull", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "playwright-driver", "tcl", "tk", "xcodebuild", "zlib"]
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind=0.0.0.0:5000", "--workers=2", "--threads=4", "app:app"]
