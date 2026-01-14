@@ -120,24 +120,14 @@ def scrape_matches_from_series(series_id):
     match = re.search(r'cricket-series/(\d+)/([^/]+)', url)
     series_slug = match.group(2) if match else ''
     
-    scraper_api_key = os.environ.get('SCRAPER_API_KEY')
-    
-    if scraper_api_key:
-        api_url = f"https://api.scraperapi.com/?api_key={scraper_api_key}&url={requests.utils.quote(url)}&render=true"
-        try:
-            response = requests.get(api_url, timeout=120)
-            html = response.text
-        except Exception as e:
-            return {'success': False, 'message': f'ScraperAPI error: {str(e)}'}
-    else:
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        }
-        try:
-            response = requests.get(url, headers=headers, timeout=30)
-            html = response.text
-        except Exception as e:
-            return {'success': False, 'message': f'Request error: {str(e)}'}
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    }
+    try:
+        response = requests.get(url, headers=headers, timeout=30)
+        html = response.text
+    except Exception as e:
+        return {'success': False, 'message': f'Request error: {str(e)}'}
     
     if not html:
         cur.close()
@@ -572,14 +562,8 @@ def scrape_players_from_team(team_id):
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     }
     
-    scraper_api_key = os.environ.get('SCRAPER_API_KEY')
-    
     try:
-        if scraper_api_key:
-            api_url = f"http://api.scraperapi.com?api_key={scraper_api_key}&url={url}"
-            response = requests.get(api_url, timeout=60)
-        else:
-            response = requests.get(url, headers=headers, timeout=30)
+        response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
         html = response.text
     except Exception as e:
@@ -685,14 +669,8 @@ def scrape_player_profile(player_id):
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
     }
     
-    scraper_api_key = os.environ.get('SCRAPER_API_KEY')
-    
     try:
-        if scraper_api_key:
-            api_url = f"http://api.scraperapi.com?api_key={scraper_api_key}&url={profile_url}"
-            response = requests.get(api_url, timeout=60)
-        else:
-            response = requests.get(profile_url, headers=headers, timeout=30)
+        response = requests.get(profile_url, headers=headers, timeout=30)
         response.raise_for_status()
         html = response.text
     except Exception as e:
