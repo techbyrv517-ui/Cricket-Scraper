@@ -1,0 +1,22 @@
+-- Logs begin at Mon 2025-11-10 12:47:14 CET, end at Wed 2026-01-14 15:33:36 CET. --
+Jan 14 15:32:30 mail.digitalcash24.com systemd[1]: Starting A high performance web server and a reverse proxy server...
+Jan 14 15:32:31 mail.digitalcash24.com nginx[14022]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:32:31 mail.digitalcash24.com nginx[14022]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:32:32 mail.digitalcash24.com nginx[14022]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:32:32 mail.digitalcash24.com nginx[14022]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:32:33 mail.digitalcash24.com nginx[14022]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:32:33 mail.digitalcash24.com nginx[14022]: nginx: [emerg] still could not bind()
+Jan 14 15:32:33 mail.digitalcash24.com systemd[1]: nginx.service: Control process exited, code=exited, status=1/FAILURE
+Jan 14 15:32:33 mail.digitalcash24.com systemd[1]: nginx.service: Failed with result 'exit-code'.
+Jan 14 15:32:33 mail.digitalcash24.com systemd[1]: Failed to start A high performance web server and a reverse proxy server.
+Jan 14 15:33:11 mail.digitalcash24.com systemd[1]: Starting A high performance web server and a reverse proxy server...
+Jan 14 15:33:11 mail.digitalcash24.com nginx[16486]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:33:12 mail.digitalcash24.com nginx[16486]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:33:12 mail.digitalcash24.com nginx[16486]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:33:13 mail.digitalcash24.com nginx[16486]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:33:13 mail.digitalcash24.com nginx[16486]: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)
+Jan 14 15:33:14 mail.digitalcash24.com nginx[16486]: nginx: [emerg] still could not bind()
+Jan 14 15:33:14 mail.digitalcash24.com systemd[1]: nginx.service: Control process exited, code=exited, status=1/FAILURE
+Jan 14 15:33:14 mail.digitalcash24.com systemd[1]: nginx.service: Failed with result 'exit-code'.
+Jan 14 15:33:14 mail.digitalcash24.com systemd[1]: Failed to start A high performance web server and a reverse proxy server.
+root@mail:~# 
