@@ -1,0 +1,16 @@
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]: [2026-01-14 01:18:28,624] ERROR in app: Exception on /api/scrape-players/1 [POST]
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]: Traceback (most recent call last):
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:     response = self.full_dispatch_request()
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:     rv = self.handle_user_exception(e)
+--
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 1734, in api_scrape_players
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:     result = scrape_players_from_team(team_id)
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:   File "/home/digitalcash24/cricbuzz-live-score.com/scraper.py", line 707, in scrape_players_from_team
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:     cur.execute('''
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:     return super().execute(query, vars)
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]: psycopg2.errors.UndefinedColumn: column "profile_url" of relation "players" does not exist
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]: LINE 2: ...eam_id, cricbuzz_id, name, slug, image_url, role, profile_ur...
+Jan 14 01:18:28 mail.digitalcash24.com gunicorn[3998021]:                                                              ^
