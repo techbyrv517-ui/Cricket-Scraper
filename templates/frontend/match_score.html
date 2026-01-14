@@ -15,6 +15,39 @@
         <div class="scorecard-container">
             {{ scorecard.scorecard_html|safe }}
         </div>
+        {% elif is_live and match %}
+        <div class="live-match-container">
+            <div class="live-match-header">
+                <span class="live-pulse"></span>
+                <span class="live-text">LIVE</span>
+                {% if match.series_name %}
+                <span class="series-name">{{ match.series_name }}</span>
+                {% endif %}
+            </div>
+            <div class="live-match-body">
+                <h2 class="match-title">{{ match.match_title }}</h2>
+                {% if match.match_info %}
+                <p class="match-info">{{ match.match_info }}</p>
+                {% endif %}
+                <div class="live-scores">
+                    <div class="team-score-row">
+                        <span class="team-name">{{ match.team1_name }}</span>
+                        <span class="score">{{ match.team1_score }}</span>
+                    </div>
+                    <div class="team-score-row">
+                        <span class="team-name">{{ match.team2_name }}</span>
+                        <span class="score bold">{{ match.team2_score }}</span>
+                    </div>
+                </div>
+                {% if match.status %}
+                <div class="match-status-live">{{ match.status }}</div>
+                {% endif %}
+                <p class="live-note">Live scorecard will be available after match completion</p>
+                <a href="https://www.cricbuzz.com/live-cricket-scores/{{ match.match_id }}" target="_blank" class="view-on-cricbuzz">
+                    View Full Commentary on Cricbuzz
+                </a>
+            </div>
+        </div>
         {% else %}
         <div class="no-scorecard">
             <div class="no-data-icon">📊</div>
@@ -30,6 +63,132 @@
 
 {% block extra_css %}
 <style>
+    .live-match-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .live-match-header {
+        background: linear-gradient(135deg, #c62828, #e53935);
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .live-pulse {
+        width: 10px;
+        height: 10px;
+        background: #fff;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    
+    .live-text {
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 1px;
+    }
+    
+    .live-match-header .series-name {
+        color: rgba(255,255,255,0.9);
+        font-size: 14px;
+        margin-left: auto;
+    }
+    
+    .live-match-body {
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .live-match-body .match-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin: 0 0 10px 0;
+    }
+    
+    .live-match-body .match-info {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 25px;
+    }
+    
+    .live-scores {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .team-score-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .team-score-row:last-child {
+        border-bottom: none;
+    }
+    
+    .team-score-row .team-name {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a2e;
+    }
+    
+    .team-score-row .score {
+        font-size: 20px;
+        font-weight: 700;
+        color: #046a38;
+    }
+    
+    .team-score-row .score.bold {
+        color: #c62828;
+    }
+    
+    .match-status-live {
+        background: linear-gradient(135deg, #c62828, #e53935);
+        color: #fff;
+        padding: 12px 24px;
+        border-radius: 25px;
+        display: inline-block;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+    
+    .live-note {
+        color: #888;
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+    
+    .view-on-cricbuzz {
+        display: inline-block;
+        background: #046a38;
+        color: #fff;
+        padding: 12px 30px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: background 0.3s;
+    }
+    
+    .view-on-cricbuzz:hover {
+        background: #034d29;
+    }
+    
     .match-status {
         background: rgba(255,255,255,0.2);
         display: inline-block;

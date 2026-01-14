@@ -25,7 +25,7 @@
                 <div class="matches-list" id="live-matches-list">
                     {% if live_matches %}
                         {% for match in live_matches %}
-                        <div class="cricbuzz-card live-card">
+                        <a href="/match-score/{{ match.match_id }}" class="cricbuzz-card live-card">
                             <div class="card-header" style="background: linear-gradient(135deg, #c62828, #e53935);">
                                 <span class="series-name">{{ match.series_name|upper if match.series_name else 'LIVE MATCH' }}</span>
                                 <span class="live-badge">LIVE</span>
@@ -49,7 +49,7 @@
                                 <div class="match-result live-status">{{ match.status }}</div>
                                 {% endif %}
                             </div>
-                        </div>
+                        </a>
                         {% endfor %}
                     {% else %}
                     <div class="no-matches" id="no-live-matches">

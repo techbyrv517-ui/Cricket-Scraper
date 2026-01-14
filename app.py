@@ -1926,9 +1926,27 @@ def match_score_by_id(match_id):
     match = cur.fetchone()
     
     scorecard = None
+    live_match = None
+    
     if match:
         cur.execute('SELECT * FROM scorecards WHERE match_id = %s', (str(match_id),))
         scorecard = cur.fetchone()
+    else:
+        cur.execute('SELECT * FROM live_matches WHERE match_id = %s', (str(match_id),))
+        live_match = cur.fetchone()
+        if live_match:
+            match = {
+                'match_id': live_match.get('match_id'),
+                'match_title': f"{live_match.get('team1_name', '')} vs {live_match.get('team2_name', '')}",
+                'series_name': live_match.get('series_name', ''),
+                'match_info': live_match.get('match_info', ''),
+                'team1_name': live_match.get('team1_name', ''),
+                'team1_score': live_match.get('team1_score', ''),
+                'team2_name': live_match.get('team2_name', ''),
+                'team2_score': live_match.get('team2_score', ''),
+                'status': live_match.get('status', 'LIVE'),
+                'is_live': True
+            }
     
     cur.close()
     conn.close()
@@ -1937,7 +1955,7 @@ def match_score_by_id(match_id):
         return "Match not found", 404
     
     settings = get_site_settings()
-    return render_template('frontend/match_score.html', scorecard=scorecard, match=match, settings=settings)
+    return render_template('frontend/match_score.html', scorecard=scorecard, match=match, settings=settings, is_live=live_match is not None)
 
 @app.route('/robots.txt')
 def robots():
