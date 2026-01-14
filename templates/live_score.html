@@ -5,7 +5,16 @@
 {% block main_content %}
 <header>
     <h1>Manage Live Matches</h1>
+    <span id="statusMessage" class="status-message"></span>
 </header>
+
+<div class="admin-card" style="margin-bottom: 25px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #4caf50;">
+    <h3 style="color: #2e7d32; margin-bottom: 15px; font-size: 1.1rem;">Scrape Live Matches from Cricbuzz</h3>
+    <p style="color: #555; margin-bottom: 15px; font-size: 0.9rem;">Click the button below to automatically fetch all currently live matches from Cricbuzz and display them on the homepage Live tab.</p>
+    <button id="scrapeLiveBtn" class="btn btn-primary" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); font-size: 1rem; padding: 12px 25px;">
+        🔄 Scrape Live Scores
+    </button>
+</div>
 
 <div class="admin-card" style="margin-bottom: 25px;">
     <h3 style="color: var(--admin-primary); margin-bottom: 20px; font-size: 1.1rem;">Add New Live Match</h3>
@@ -187,6 +196,38 @@ function closeEditModal() {
 document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) closeEditModal();
 });
+
+const scrapeLiveBtn = document.getElementById('scrapeLiveBtn');
+if(scrapeLiveBtn) {
+    scrapeLiveBtn.addEventListener('click', function() {
+        const btn = this;
+        const status = document.getElementById('statusMessage');
+        
+        btn.disabled = true;
+        btn.innerHTML = '⏳ Scraping...';
+        if(status) status.textContent = '';
+        
+        fetch('/api/scrape-live-scores', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if(status) {
+                status.textContent = data.message;
+                status.className = 'status-message ' + (data.success ? 'success' : 'error');
+            }
+            btn.disabled = false;
+            btn.innerHTML = '🔄 Scrape Live Scores';
+            if(data.success) setTimeout(() => location.reload(), 1500);
+        })
+        .catch(error => {
+            if(status) {
+                status.textContent = 'Error: ' + error;
+                status.className = 'status-message error';
+            }
+            btn.disabled = false;
+            btn.innerHTML = '🔄 Scrape Live Scores';
+        });
+    });
+}
 </script>
 
 <style>

@@ -478,6 +478,193 @@ def scrape_all_matches():
     
     return {'success': True, 'message': f'Scraped {total_matches} matches from {series_processed} series'}
 
+def scrape_live_scores():
+    """Scrape live match scores from Cricbuzz live scores page"""
+    url = "https://www.cricbuzz.com/cricket-match/live-scores"
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+    }
+    
+    try:
+        response = requests.get(url, headers=headers, timeout=30)
+        response.raise_for_status()
+        html = response.text
+    except Exception as e:
+        return {'success': False, 'message': f'Request error: {str(e)}'}
+    
+    if not html:
+        return {'success': False, 'message': 'Empty response from website'}
+    
+    soup = BeautifulSoup(html, 'html.parser')
+    live_matches = []
+    
+    match_cards = soup.find_all('div', class_=re.compile(r'cb-mtch-lst|cb-col-100|cb-col'))
+    
+    match_links = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
+    
+    processed_ids = set()
+    
+    for link in match_links:
+        try:
+            href = link.get('href', '')
+            match_id_search = re.search(r'/live-cricket-scores/(\d+)/', href)
+            if not match_id_search:
+                continue
+            
+            match_id = match_id_search.group(1)
+            if match_id in processed_ids:
+                continue
+            processed_ids.add(match_id)
+            
+            parent = link
+            for _ in range(10):
+                parent = parent.parent
+                if parent is None:
+                    break
+                parent_class = parent.get('class', [])
+                if parent_class and any('cb-mtch-lst' in c or 'cb-col-100' in c for c in parent_class):
+                    break
+            
+            if parent is None:
+                continue
+            
+            series_elem = parent.find('h2', class_=re.compile(r'cb-lv-scr-mtch-hdr'))
+            series_name = series_elem.get_text(strip=True) if series_elem else ''
+            
+            if not series_name:
+                series_elem = parent.find('a', class_=re.compile(r'cb-nav-hdr'))
+                series_name = series_elem.get_text(strip=True) if series_elem else ''
+            
+            match_info_elem = parent.find('div', class_=re.compile(r'cb-text-gray|cb-lv-scrs-hdr'))
+            match_info = match_info_elem.get_text(strip=True) if match_info_elem else ''
+            
+            title_elem = link.get('title', '') or link.get_text(strip=True)
+            
+            teams = []
+            team_divs = parent.find_all('div', class_=re.compile(r'cb-hmscg-tm-nm|cb-lv-scrs-well-live'))
+            
+            for team_div in team_divs[:2]:
+                team_name_elem = team_div.find('span', class_=re.compile(r'cb-hmscg-tm-nm'))
+                if not team_name_elem:
+                    team_name_elem = team_div.find('span')
+                
+                team_name = team_name_elem.get_text(strip=True) if team_name_elem else ''
+                
+                score_elem = team_div.find('span', class_=re.compile(r'cb-hmscg-tm-score'))
+                if not score_elem:
+                    score_elem = team_div.find_next_sibling('span')
+                team_score = score_elem.get_text(strip=True) if score_elem else ''
+                
+                if team_name:
+                    teams.append({'name': team_name, 'score': team_score})
+            
+            if len(teams) < 2 and 'vs' in title_elem.lower():
+                match = re.match(r'([^,]+)\s+vs\s+([^,]+)', title_elem, re.I)
+                if match:
+                    teams = [
+                        {'name': match.group(1).strip(), 'score': ''},
+                        {'name': match.group(2).strip(), 'score': ''}
+                    ]
+            
+            status_elem = parent.find('div', class_=re.compile(r'cb-text-live|cb-text-complete|cb-text-inprogress'))
+            status = status_elem.get_text(strip=True) if status_elem else ''
+            
+            if not status:
+                status_elem = parent.find('span', class_=re.compile(r'cb-text-live|cb-lv-scrs-well-live'))
+                status = status_elem.get_text(strip=True) if status_elem else ''
+            
+            if len(teams) >= 2:
+                live_matches.append({
+                    'match_id': match_id,
+                    'series_name': series_name[:255] if series_name else '',
+                    'match_info': match_info[:255] if match_info else '',
+                    'team1_name': teams[0]['name'][:100] if teams[0]['name'] else '',
+                    'team1_score': teams[0]['score'][:50] if teams[0]['score'] else '',
+                    'team2_name': teams[1]['name'][:100] if teams[1]['name'] else '',
+                    'team2_score': teams[1]['score'][:50] if teams[1]['score'] else '',
+                    'status': status[:100] if status else '',
+                    'is_live': True
+                })
+        except Exception as e:
+            continue
+    
+    if not live_matches:
+        all_scripts = soup.find_all('script')
+        for script in all_scripts:
+            script_text = script.string or ''
+            
+            match_ids = re.findall(r'"matchId":(\d+)', script_text)
+            for mid in set(match_ids):
+                if mid in processed_ids:
+                    continue
+                processed_ids.add(mid)
+                
+                idx = script_text.find(f'"matchId":{mid}')
+                if idx < 0:
+                    continue
+                
+                context = script_text[max(0, idx-500):min(len(script_text), idx+1000)]
+                
+                team1_match = re.search(r'"team1":\{[^}]*"teamSName":"([^"]+)"', context)
+                team2_match = re.search(r'"team2":\{[^}]*"teamSName":"([^"]+)"', context)
+                
+                team1 = team1_match.group(1) if team1_match else ''
+                team2 = team2_match.group(1) if team2_match else ''
+                
+                if team1 and team2:
+                    series_match = re.search(r'"seriesName":"([^"]+)"', context)
+                    series = series_match.group(1) if series_match else ''
+                    
+                    desc_match = re.search(r'"matchDesc":"([^"]+)"', context)
+                    desc = desc_match.group(1) if desc_match else ''
+                    
+                    status_match = re.search(r'"status":"([^"]+)"', context)
+                    status = status_match.group(1) if status_match else ''
+                    
+                    t1_score_match = re.search(r'"team1Score":\{[^}]*"inngs1":\{[^}]*"runs":(\d+)[^}]*"wkts":(\d+)', context)
+                    t1_score = f"{t1_score_match.group(1)}/{t1_score_match.group(2)}" if t1_score_match else ''
+                    
+                    t2_score_match = re.search(r'"team2Score":\{[^}]*"inngs1":\{[^}]*"runs":(\d+)[^}]*"wkts":(\d+)', context)
+                    t2_score = f"{t2_score_match.group(1)}/{t2_score_match.group(2)}" if t2_score_match else ''
+                    
+                    live_matches.append({
+                        'match_id': mid,
+                        'series_name': series[:255],
+                        'match_info': desc[:255],
+                        'team1_name': team1[:100],
+                        'team1_score': t1_score[:50],
+                        'team2_name': team2[:100],
+                        'team2_score': t2_score[:50],
+                        'status': status[:100],
+                        'is_live': True
+                    })
+    
+    if not live_matches:
+        return {'success': True, 'message': 'No live matches found at the moment', 'count': 0}
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('DELETE FROM live_matches')
+    
+    for idx, match in enumerate(live_matches):
+        cur.execute('''
+            INSERT INTO live_matches (match_id, series_name, match_info, team1_name, team1_score, 
+                                       team2_name, team2_score, status, is_live, display_order)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (match['match_id'], match['series_name'], match['match_info'],
+              match['team1_name'], match['team1_score'], match['team2_name'], match['team2_score'],
+              match['status'], match['is_live'], idx))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    return {'success': True, 'message': f'Successfully scraped {len(live_matches)} live matches', 'count': len(live_matches)}
+
 def scrape_scorecard(url):
     if not url or 'cricbuzz.com/live-cricket-scorecard' not in url:
         return {'success': False, 'message': 'Invalid scorecard URL'}

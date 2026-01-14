@@ -1089,6 +1089,13 @@ def api_clear_all_data():
         cur.close()
         conn.close()
 
+@app.route('/api/scrape-live-scores', methods=['POST'])
+@login_required
+def api_scrape_live_scores():
+    from scraper import scrape_live_scores
+    result = scrape_live_scores()
+    return jsonify(result)
+
 @app.route('/api/scrape-teams/<team_type>', methods=['POST'])
 def api_scrape_teams(team_type):
     from scraper import scrape_teams
