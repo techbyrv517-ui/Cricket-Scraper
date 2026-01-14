@@ -1,0 +1,31 @@
+an 14 10:25:34 mail.digitalcash24.com gunicorn[4016811]: psycopg2.errors.InvalidColumnReference: there is no unique or exclusion constraint matching the ON CONFLICT specification
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]: [2026-01-14 10:26:01,125] ERROR in app: Exception on /api/scrape-scorecard [POST]
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]: Traceback (most recent call last):
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:     response = self.full_dispatch_request()
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:     rv = self.handle_user_exception(e)
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:     rv = self.dispatch_request()
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 914, in api_scrape_scorecard
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:     cur.execute('''
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]:     return super().execute(query, vars)
+Jan 14 10:26:01 mail.digitalcash24.com gunicorn[4016810]: psycopg2.errors.InvalidColumnReference: there is no unique or exclusion constraint matching the ON CONFLICT specification
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]: [2026-01-14 10:28:23,227] ERROR in app: Exception on /api/scrape-scorecard [POST]
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]: Traceback (most recent call last):
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:     response = self.full_dispatch_request()
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:     rv = self.handle_user_exception(e)
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:     rv = self.dispatch_request()
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 914, in api_scrape_scorecard
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:     cur.execute('''
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]:     return super().execute(query, vars)
+Jan 14 10:28:23 mail.digitalcash24.com gunicorn[4016811]: psycopg2.errors.InvalidColumnReference: there is no unique or exclusion constraint matching the ON CONFLICT specification
