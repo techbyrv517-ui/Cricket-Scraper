@@ -1,0 +1,145 @@
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+root@mail:~# grep -A 80 "def scrape_matches_from_series" /home/digitalcash24/cricbuzz-live-score.com/scraper.py | tail -60
+        api_url = f"https://api.scraperapi.com/?api_key={scraper_api_key}&url={requests.utils.quote(url)}&render=true"
+        try:
+            response = requests.get(api_url, timeout=120)
+            html = response.text
+        except Exception as e:
+            return {'success': False, 'message': f'ScraperAPI error: {str(e)}'}
+    else:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            html = response.text
+        except Exception as e:
+            return {'success': False, 'message': f'Request error: {str(e)}'}
+
+    if not html:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': 'Empty response from website'}
+
+    country_map = {
+        'india': ['ind', 'india', 'indian'],
+        'new zealand': ['nz', 'new-zealand', 'newzealand'],
+        'australia': ['aus', 'australia', 'australian'],
+        'england': ['eng', 'england', 'english'],
+        'pakistan': ['pak', 'pakistan'],
+        'south africa': ['sa', 'south-africa', 'southafrica'],
+        'sri lanka': ['sl', 'sri-lanka', 'srilanka'],
+        'bangladesh': ['ban', 'bangladesh'],
+        'west indies': ['wi', 'west-indies', 'westindies', 'windies'],
+        'afghanistan': ['afg', 'afghanistan'],
+        'zimbabwe': ['zim', 'zimbabwe'],
+        'ireland': ['ire', 'ireland'],
+        'uae': ['uae', 'emirates'],
+        'usa': ['usa', 'united-states'],
+        'nepal': ['nep', 'nepal'],
+        'namibia': ['nam', 'namibia'],
+        'netherlands': ['ned', 'netherlands', 'dutch'],
+        'scotland': ['sco', 'scotland'],
+        'oman': ['oman'],
+        'canada': ['can', 'canada'],
+    }
+
+    series_name_lower = series_name.lower()
+    series_teams = []
+    for country, aliases in country_map.items():
+        if country in series_name_lower:
+            series_teams.append(aliases)
+
+    is_franchise_league = any(x in series_name_lower for x in ['big bash', 'bbl', 'ipl', 'psl', 'cpl', 'bpl', 'sa20', 't20 league', 'hundred', 'wpl', 'major league'])
+    is_womens = 'women' in series_name_lower or 'wpl' in series_name_lower
+    is_u19 = 'u19' in series_name_lower or 'under-19' in series_name_lower or 'under 19' in series_name_lower
+
+    international_markers = ['odi', 'test', 't20i', '1st-odi', '2nd-odi', '3rd-odi', '1st-test', '2nd-test', '1st-t20i', '2nd-t20i', '3rd-t20i']
+
+    def match_belongs_to_series(match_slug, match_title=''):
+        match_slug_lower = match_slug.lower()
+        match_title_lower = match_title.lower() if match_title else ''
+
+root@mail:~# grep -A 150 "def scrape_matches_from_series" /home/digitalcash24/cricbuzz-live-score.com/scraper.py | tail -80
+    is_franchise_league = any(x in series_name_lower for x in ['big bash', 'bbl', 'ipl', 'psl', 'cpl', 'bpl', 'sa20', 't20 league', 'hundred', 'wpl', 'major league'])
+    is_womens = 'women' in series_name_lower or 'wpl' in series_name_lower
+    is_u19 = 'u19' in series_name_lower or 'under-19' in series_name_lower or 'under 19' in series_name_lower
+
+    international_markers = ['odi', 'test', 't20i', '1st-odi', '2nd-odi', '3rd-odi', '1st-test', '2nd-test', '1st-t20i', '2nd-t20i', '3rd-t20i']
+
+    def match_belongs_to_series(match_slug, match_title=''):
+        match_slug_lower = match_slug.lower()
+        match_title_lower = match_title.lower() if match_title else ''
+
+        if not is_womens and ('women' in match_slug_lower or 'women' in match_title_lower):
+            return False
+        if not is_u19 and ('u19' in match_slug_lower or 'u19' in match_title_lower or 'under-19' in match_slug_lower):
+            return False
+        if is_franchise_league:
+            for marker in international_markers:
+                if marker in match_slug_lower:
+                    return False
+
+        if series_slug and series_slug.lower() in match_slug_lower:
+            return True
+
+        if len(series_teams) >= 2:
+            teams_found = 0
+            for team_aliases in series_teams:
+                for alias in team_aliases:
+                    if alias in match_slug_lower:
+                        teams_found += 1
+                        break
+            if teams_found >= 2:
+                return True
+
+        if len(series_teams) == 1:
+            for alias in series_teams[0]:
+                if alias in match_slug_lower:
+                    return True
+
+        if is_franchise_league:
+            other_series_markers = ['ranji', 'vijay-hazare', 'syed-mushtaq', 'sheffield', 'county', 'super-smash', 'ford-trophy']
+            for marker in other_series_markers:
+                if marker in match_slug_lower:
+                    return False
+            return True
+
+        series_keywords = []
+        series_words = series_name_lower.replace('-', ' ').split()
+        for word in series_words:
+            if len(word) > 2 and word not in ['the', 'and', 'for', 'tour', 'series', 'match', 'cricket', 'league', 'cup', 'trophy', '2024', '2025', '2026']:
+                series_keywords.append(word)
+
+        if series_keywords:
+            for keyword in series_keywords:
+                if keyword in match_slug_lower:
+                    return True
+
+        if series_slug:
+            series_slug_words = series_slug.lower().replace('-', ' ').split()
+            for word in series_slug_words:
+                if len(word) > 3 and word not in ['2024', '2025', '2026'] and word in match_slug_lower:
+                    return True
+
+        return False
+
+    match_count = 0
+    processed_match_ids = set()
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    match_links = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
+
+    for link in match_links:
+        href = link.get('href', '')
+        title = link.get('title', '')
+
+        if not href:
+            continue
+
+        match_id_search = re.search(r'/live-cricket-scores/(\d+)/([^?]+)', href)
+        if not match_id_search:
+            continue
+root@mail:~#
