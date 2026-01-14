@@ -1,0 +1,101 @@
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    ServerName cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    ServerAlias www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    RewriteCond %{SERVER_NAME} =cricbuzz-live-score.com [OR]
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    RewriteCond %{SERVER_NAME} =www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    ServerName cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    ServerAlias www.cricbuzz-live-score.com webmail.cricbuzz-live-score.com zeslecp.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf:    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerName _wildcard_.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAlias *.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    RewriteCond %{SERVER_NAME} =cricbuzz-live-score.com [OR]
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    RewriteCond %{SERVER_NAME} =www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerName _wildcard_.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAlias *.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerName cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAlias www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    RewriteCond %{SERVER_NAME} =cricbuzz-live-score.com [OR]
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    RewriteCond %{SERVER_NAME} =www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerName cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAlias www.cricbuzz-live-score.com webmail.cricbuzz-live-score.com zeslecp.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.bak:    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerName _wildcard_.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAlias *.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    RewriteCond %{SERVER_NAME} =cricbuzz-live-score.com [OR]
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    RewriteCond %{SERVER_NAME} =www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerName _wildcard_.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAlias *.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerName cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAlias www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    RewriteCond %{SERVER_NAME} =cricbuzz-live-score.com [OR]
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    RewriteCond %{SERVER_NAME} =www.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerName cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAlias www.cricbuzz-live-score.com webmail.cricbuzz-live-score.com zeslecp.cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    DocumentRoot /home/digitalcash24/cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    ServerAdmin webmaster@cricbuzz-live-score.com
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        <Directory "/home/digitalcash24/cricbuzz-live-score.com">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        ScriptAlias /cgi-bin/ /home/digitalcash24/cricbuzz-live-score.com/cgi-bin/
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        SSLCertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/cert.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        SSLCertificateKeyFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/privkey.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        SSLCACertificateFile /var/zesle/ssl/letsencrypt/cricbuzz-live-score.com/chain.pem
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:        <Directory "/home/digitalcash24/cricbuzz-live-score.com/cgi-bin">
+/etc/apache2/conf.d/domains/004-cricbuzz-live-score.com.conf.disabled:    # Include "/etc/apache2/conf.d/userdata/ssl/2_4/digitalcash24/cricbuzz-live-score.com/*.conf"
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com#
