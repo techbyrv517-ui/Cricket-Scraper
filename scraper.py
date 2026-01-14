@@ -479,7 +479,7 @@ def scrape_all_matches():
     return {'success': True, 'message': f'Scraped {total_matches} matches from {series_processed} series'}
 
 def scrape_live_scores():
-    """Scrape live match scores from Cricbuzz live scores page"""
+    """Scrape ONLY live match scores from Cricbuzz live scores page"""
     url = "https://www.cricbuzz.com/cricket-match/live-scores"
     
     headers = {
@@ -500,15 +500,18 @@ def scrape_live_scores():
     
     soup = BeautifulSoup(html, 'html.parser')
     live_matches = []
-    
-    match_cards = soup.find_all('div', class_=re.compile(r'cb-mtch-lst|cb-col-100|cb-col'))
+    processed_ids = set()
     
     match_links = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
     
-    processed_ids = set()
-    
     for link in match_links:
         try:
+            live_tag = link.find('span', class_=re.compile(r'cbPlusLiveTag'))
+            if not live_tag:
+                live_tag = link.find(string=re.compile(r'\bLIVE\b', re.I))
+                if not live_tag:
+                    continue
+            
             href = link.get('href', '')
             match_id_search = re.search(r'/live-cricket-scores/(\d+)/', href)
             if not match_id_search:
@@ -519,73 +522,60 @@ def scrape_live_scores():
                 continue
             processed_ids.add(match_id)
             
-            parent = link
-            for _ in range(10):
-                parent = parent.parent
+            title = link.get('title', '') or ''
+            
+            team1_name = ''
+            team2_name = ''
+            match_info = ''
+            status = ''
+            
+            if ' vs ' in title:
+                parts = title.split(',')
+                teams_part = parts[0].strip()
+                if ' vs ' in teams_part:
+                    team_split = teams_part.split(' vs ')
+                    team1_name = team_split[0].strip()
+                    team2_name = team_split[1].strip()
+                if len(parts) > 1:
+                    match_info = parts[1].strip()
+                if ' - ' in title:
+                    status = title.split(' - ')[-1].strip()
+            
+            if not team1_name:
+                link_text = link.get_text(strip=True)
+                if ' vs ' in link_text.lower():
+                    team_match = re.match(r'([^v]+)\s+vs\s+([^\d,]+)', link_text, re.I)
+                    if team_match:
+                        team1_name = team_match.group(1).strip()
+                        team2_name = team_match.group(2).strip()
+            
+            parent = link.parent
+            for _ in range(5):
                 if parent is None:
                     break
-                parent_class = parent.get('class', [])
-                if parent_class and any('cb-mtch-lst' in c or 'cb-col-100' in c for c in parent_class):
+                
+                series_link = parent.find('a', href=re.compile(r'/cricket-series/\d+/'))
+                if series_link:
+                    series_name = series_link.get_text(strip=True)
                     break
+                parent = parent.parent
+            else:
+                series_name = ''
             
-            if parent is None:
-                continue
+            match_info_div = link.find('div', class_='text-xs')
+            if match_info_div and not match_info:
+                match_info = match_info_div.get_text(strip=True)
             
-            series_elem = parent.find('h2', class_=re.compile(r'cb-lv-scr-mtch-hdr'))
-            series_name = series_elem.get_text(strip=True) if series_elem else ''
-            
-            if not series_name:
-                series_elem = parent.find('a', class_=re.compile(r'cb-nav-hdr'))
-                series_name = series_elem.get_text(strip=True) if series_elem else ''
-            
-            match_info_elem = parent.find('div', class_=re.compile(r'cb-text-gray|cb-lv-scrs-hdr'))
-            match_info = match_info_elem.get_text(strip=True) if match_info_elem else ''
-            
-            title_elem = link.get('title', '') or link.get_text(strip=True)
-            
-            teams = []
-            team_divs = parent.find_all('div', class_=re.compile(r'cb-hmscg-tm-nm|cb-lv-scrs-well-live'))
-            
-            for team_div in team_divs[:2]:
-                team_name_elem = team_div.find('span', class_=re.compile(r'cb-hmscg-tm-nm'))
-                if not team_name_elem:
-                    team_name_elem = team_div.find('span')
-                
-                team_name = team_name_elem.get_text(strip=True) if team_name_elem else ''
-                
-                score_elem = team_div.find('span', class_=re.compile(r'cb-hmscg-tm-score'))
-                if not score_elem:
-                    score_elem = team_div.find_next_sibling('span')
-                team_score = score_elem.get_text(strip=True) if score_elem else ''
-                
-                if team_name:
-                    teams.append({'name': team_name, 'score': team_score})
-            
-            if len(teams) < 2 and 'vs' in title_elem.lower():
-                match = re.match(r'([^,]+)\s+vs\s+([^,]+)', title_elem, re.I)
-                if match:
-                    teams = [
-                        {'name': match.group(1).strip(), 'score': ''},
-                        {'name': match.group(2).strip(), 'score': ''}
-                    ]
-            
-            status_elem = parent.find('div', class_=re.compile(r'cb-text-live|cb-text-complete|cb-text-inprogress'))
-            status = status_elem.get_text(strip=True) if status_elem else ''
-            
-            if not status:
-                status_elem = parent.find('span', class_=re.compile(r'cb-text-live|cb-lv-scrs-well-live'))
-                status = status_elem.get_text(strip=True) if status_elem else ''
-            
-            if len(teams) >= 2:
+            if team1_name and team2_name:
                 live_matches.append({
                     'match_id': match_id,
                     'series_name': series_name[:255] if series_name else '',
                     'match_info': match_info[:255] if match_info else '',
-                    'team1_name': teams[0]['name'][:100] if teams[0]['name'] else '',
-                    'team1_score': teams[0]['score'][:50] if teams[0]['score'] else '',
-                    'team2_name': teams[1]['name'][:100] if teams[1]['name'] else '',
-                    'team2_score': teams[1]['score'][:50] if teams[1]['score'] else '',
-                    'status': status[:100] if status else '',
+                    'team1_name': team1_name[:100],
+                    'team1_score': '',
+                    'team2_name': team2_name[:100],
+                    'team2_score': '',
+                    'status': status[:100] if status else 'LIVE',
                     'is_live': True
                 })
         except Exception as e:
@@ -595,9 +585,18 @@ def scrape_live_scores():
         all_scripts = soup.find_all('script')
         for script in all_scripts:
             script_text = script.string or ''
+            if 'matchState' not in script_text:
+                continue
             
-            match_ids = re.findall(r'"matchId":(\d+)', script_text)
-            for mid in set(match_ids):
+            match_blocks = re.finditer(r'"matchId":(\d+)[^}]*?"matchState":"([^"]*)"', script_text)
+            
+            for match_block in match_blocks:
+                mid = match_block.group(1)
+                state = match_block.group(2)
+                
+                if state.lower() not in ['inprogress', 'live', 'in progress']:
+                    continue
+                
                 if mid in processed_ids:
                     continue
                 processed_ids.add(mid)
@@ -606,7 +605,7 @@ def scrape_live_scores():
                 if idx < 0:
                     continue
                 
-                context = script_text[max(0, idx-500):min(len(script_text), idx+1000)]
+                context = script_text[max(0, idx-200):min(len(script_text), idx+1500)]
                 
                 team1_match = re.search(r'"team1":\{[^}]*"teamSName":"([^"]+)"', context)
                 team2_match = re.search(r'"team2":\{[^}]*"teamSName":"([^"]+)"', context)
@@ -622,13 +621,17 @@ def scrape_live_scores():
                     desc = desc_match.group(1) if desc_match else ''
                     
                     status_match = re.search(r'"status":"([^"]+)"', context)
-                    status = status_match.group(1) if status_match else ''
+                    status = status_match.group(1) if status_match else 'LIVE'
                     
-                    t1_score_match = re.search(r'"team1Score":\{[^}]*"inngs1":\{[^}]*"runs":(\d+)[^}]*"wkts":(\d+)', context)
-                    t1_score = f"{t1_score_match.group(1)}/{t1_score_match.group(2)}" if t1_score_match else ''
+                    t1_score = ''
+                    t2_score = ''
+                    t1_score_match = re.search(r'"team1Score":\{[^}]*?"inngs1":\{[^}]*?"runs":(\d+)[^}]*?"wkts":(\d+)', context)
+                    if t1_score_match:
+                        t1_score = f"{t1_score_match.group(1)}/{t1_score_match.group(2)}"
                     
-                    t2_score_match = re.search(r'"team2Score":\{[^}]*"inngs1":\{[^}]*"runs":(\d+)[^}]*"wkts":(\d+)', context)
-                    t2_score = f"{t2_score_match.group(1)}/{t2_score_match.group(2)}" if t2_score_match else ''
+                    t2_score_match = re.search(r'"team2Score":\{[^}]*?"inngs1":\{[^}]*?"runs":(\d+)[^}]*?"wkts":(\d+)', context)
+                    if t2_score_match:
+                        t2_score = f"{t2_score_match.group(1)}/{t2_score_match.group(2)}"
                     
                     live_matches.append({
                         'match_id': mid,
