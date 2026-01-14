@@ -729,78 +729,28 @@ def api_live_matches():
     conn = get_db()
     cur = conn.cursor()
     
-    cur.execute('''
-        SELECT sc.*, m.match_title as m_title, m.match_url, s.series_name
-        FROM scorecards sc
-        LEFT JOIN matches m ON sc.match_id::text = m.match_id::text
-        LEFT JOIN series s ON m.series_id = s.id
-        WHERE sc.is_live = TRUE
-        ORDER BY sc.last_updated DESC
-    ''')
-    live_scorecards = cur.fetchall()
+    cur.execute('SELECT * FROM live_matches WHERE is_live = TRUE ORDER BY display_order ASC, id DESC')
+    live_matches_data = cur.fetchall()
     
     matches_data = []
-    for row in live_scorecards:
+    for row in live_matches_data:
         match = dict(row)
-        team1_name, team2_name, match_info = parse_team_names(match.get('match_title') or match.get('m_title'))
-        
-        team1_flag = get_team_flag(team1_name, cur)
-        team2_flag = get_team_flag(team2_name, cur)
-        
-        final_score = match.get('final_score', '')
-        team1_score = ''
-        team2_score = ''
-        
-        if final_score:
-            if ' vs ' in final_score:
-                score_parts = final_score.split(' vs ')
-                if len(score_parts) >= 2:
-                    t1_parts = score_parts[0].strip().rsplit(' ', 1)
-                    t2_parts = score_parts[1].strip().rsplit(' ', 1)
-                    team1_score = t1_parts[1] if len(t1_parts) > 1 else ''
-                    team2_score = t2_parts[1] if len(t2_parts) > 1 else ''
-            else:
-                import re
-                score_match = re.search(r'(\d+[-/]\d+|\d+)', final_score)
-                if score_match:
-                    score_val = score_match.group(1)
-                    fs_upper = final_score.upper()
-                    
-                    def get_team_abbrs(name):
-                        if not name:
-                            return []
-                        words = name.split()
-                        abbrs = [name[:3].upper()]
-                        if len(words) > 1:
-                            abbrs.append(''.join(w[0] for w in words).upper())
-                        return abbrs
-                    
-                    t1_abbrs = get_team_abbrs(team1_name)
-                    t2_abbrs = get_team_abbrs(team2_name)
-                    
-                    matched_t1 = any(abbr in fs_upper for abbr in t1_abbrs)
-                    matched_t2 = any(abbr in fs_upper for abbr in t2_abbrs)
-                    
-                    if matched_t1 and not matched_t2:
-                        team1_score = score_val
-                    elif matched_t2 and not matched_t1:
-                        team2_score = score_val
-                    else:
-                        team1_score = score_val
+        team1_flag = get_team_flag(match.get('team1_name'), cur)
+        team2_flag = get_team_flag(match.get('team2_name'), cur)
         
         matches_data.append({
             'match_id': match.get('match_id'),
-            'match_title': match.get('match_title') or match.get('m_title'),
+            'match_title': f"{match.get('team1_name', '')} vs {match.get('team2_name', '')}",
             'series_name': match.get('series_name', 'LIVE MATCH'),
-            'match_info': match_info or '',
-            'team1_name': team1_name or '',
-            'team2_name': team2_name or '',
+            'match_info': match.get('match_info', ''),
+            'team1_name': match.get('team1_name', ''),
+            'team2_name': match.get('team2_name', ''),
             'team1_flag': team1_flag,
             'team2_flag': team2_flag,
-            'team1_score': team1_score,
-            'team2_score': team2_score,
-            'match_status': match.get('match_status', ''),
-            'last_updated': match.get('last_updated').isoformat() if match.get('last_updated') else ''
+            'team1_score': match.get('team1_score', ''),
+            'team2_score': match.get('team2_score', ''),
+            'match_status': match.get('status', ''),
+            'last_updated': match.get('updated_at').isoformat() if match.get('updated_at') else ''
         })
     
     cur.close()
