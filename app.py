@@ -1883,6 +1883,7 @@ def series_page():
     return render_template('frontend/series.html', series_by_year=series_by_year, settings=settings)
 
 @app.route('/cricket-series/<slug>')
+@app.route('/series/<slug>')
 def series_detail_page(slug):
     conn = get_db()
     cur = conn.cursor()
