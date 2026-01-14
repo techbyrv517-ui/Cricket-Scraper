@@ -564,6 +564,12 @@ def scrape_live_scores():
                     elif not team2_score:
                         team2_score = span_text
             
+            live_status_span = match_container.find('span', class_=re.compile(r'text-cbLive\b'))
+            if live_status_span:
+                live_status_text = live_status_span.get_text(strip=True)
+                if live_status_text and 'need' in live_status_text.lower() or 'trail' in live_status_text.lower() or 'lead' in live_status_text.lower() or 'won' in live_status_text.lower():
+                    status = live_status_text
+            
             series_container = match_container
             for _ in range(5):
                 series_container = series_container.parent
