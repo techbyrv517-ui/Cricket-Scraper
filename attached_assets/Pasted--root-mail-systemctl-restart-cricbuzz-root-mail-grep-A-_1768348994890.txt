@@ -1,0 +1,95 @@
+
+root@mail:~# systemctl restart cricbuzz
+root@mail:~# grep -A 30 "def scrape_matches" /home/digitalcash24/cricbuzz-live-score.com/scraper.py | head -40
+def scrape_matches_from_series(series_id):
+    conn = get_db()
+    cur = conn.cursor()
+
+    cur.execute('SELECT series_url, series_name FROM series WHERE id = %s', (series_id,))
+    series = cur.fetchone()
+
+    if not series:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': 'Series not found'}
+
+    url = series['series_url']
+    series_name = series['series_name']
+
+    match = re.search(r'cricket-series/(\d+)/([^/]+)', url)
+    series_slug = match.group(2) if match else ''
+
+    scraper_api_key = os.environ.get('SCRAPER_API_KEY')
+
+    if scraper_api_key:
+        api_url = f"https://api.scraperapi.com/?api_key={scraper_api_key}&url={requests.utils.quote(url)}&render=true"
+        try:
+            response = requests.get(api_url, timeout=120)
+            html = response.text
+        except Exception as e:
+            return {'success': False, 'message': f'ScraperAPI error: {str(e)}'}
+    else:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+root@mail:~# grep -A 80 "def scrape_matches_from_series" /home/digitalcash24/cricbuzz-live-score.com/scraper.py | tail -60
+        api_url = f"https://api.scraperapi.com/?api_key={scraper_api_key}&url={requests.utils.quote(url)}&render=true"
+        try:
+            response = requests.get(api_url, timeout=120)
+            html = response.text
+        except Exception as e:
+            return {'success': False, 'message': f'ScraperAPI error: {str(e)}'}
+    else:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }
+        try:
+            response = requests.get(url, headers=headers, timeout=30)
+            html = response.text
+        except Exception as e:
+            return {'success': False, 'message': f'Request error: {str(e)}'}
+
+    if not html:
+        cur.close()
+        conn.close()
+        return {'success': False, 'message': 'Empty response from website'}
+
+    country_map = {
+        'india': ['ind', 'india', 'indian'],
+        'new zealand': ['nz', 'new-zealand', 'newzealand'],
+        'australia': ['aus', 'australia', 'australian'],
+        'england': ['eng', 'england', 'english'],
+        'pakistan': ['pak', 'pakistan'],
+        'south africa': ['sa', 'south-africa', 'southafrica'],
+        'sri lanka': ['sl', 'sri-lanka', 'srilanka'],
+        'bangladesh': ['ban', 'bangladesh'],
+        'west indies': ['wi', 'west-indies', 'westindies', 'windies'],
+        'afghanistan': ['afg', 'afghanistan'],
+        'zimbabwe': ['zim', 'zimbabwe'],
+        'ireland': ['ire', 'ireland'],
+        'uae': ['uae', 'emirates'],
+        'usa': ['usa', 'united-states'],
+        'nepal': ['nep', 'nepal'],
+        'namibia': ['nam', 'namibia'],
+        'netherlands': ['ned', 'netherlands', 'dutch'],
+        'scotland': ['sco', 'scotland'],
+        'oman': ['oman'],
+        'canada': ['can', 'canada'],
+    }
+
+    series_name_lower = series_name.lower()
+    series_teams = []
+    for country, aliases in country_map.items():
+        if country in series_name_lower:
+            series_teams.append(aliases)
+
+    is_franchise_league = any(x in series_name_lower for x in ['big bash', 'bbl', 'ipl', 'psl', 'cpl', 'bpl', 'sa20', 't20 league', 'hundred', 'wpl', 'major league'])
+    is_womens = 'women' in series_name_lower or 'wpl' in series_name_lower
+    is_u19 = 'u19' in series_name_lower or 'under-19' in series_name_lower or 'under 19' in series_name_lower
+
+    international_markers = ['odi', 'test', 't20i', '1st-odi', '2nd-odi', '3rd-odi', '1st-test', '2nd-test', '1st-t20i', '2nd-t20i', '3rd-t20i']
+
+    def match_belongs_to_series(match_slug, match_title=''):
+        match_slug_lower = match_slug.lower()
+        match_title_lower = match_title.lower() if match_title else ''
+
