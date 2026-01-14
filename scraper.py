@@ -504,25 +504,23 @@ def scrape_live_scores():
     
     match_cards = soup.find_all('a', href=re.compile(r'/live-cricket-scores/\d+/'))
     
-    for card in match_cards:
+    live_containers = soup.find_all('span', class_=re.compile(r'cbLive\b'))
+    
+    for live_tag in live_containers:
         try:
-            live_tag = None
-            parent = card
-            for _ in range(10):
-                parent = parent.parent
-                if parent is None:
+            match_container = live_tag
+            for _ in range(15):
+                match_container = match_container.parent
+                if match_container is None:
                     break
-                live_tag = parent.find('span', class_=re.compile(r'cbLive\b'))
-                if live_tag:
+                match_link = match_container.find('a', href=re.compile(r'/live-cricket-scores/\d+/'))
+                if match_link:
                     break
             
-            if not live_tag:
-                live_tag = card.find('span', class_=re.compile(r'cbLive\b'))
-            
-            if not live_tag:
+            if not match_link:
                 continue
             
-            href = card.get('href', '')
+            href = match_link.get('href', '')
             match_id_search = re.search(r'/live-cricket-scores/(\d+)/', href)
             if not match_id_search:
                 continue
@@ -532,7 +530,7 @@ def scrape_live_scores():
                 continue
             processed_ids.add(match_id)
             
-            title = card.get('title', '') or ''
+            title = match_link.get('title', '') or ''
             team1_name = ''
             team2_name = ''
             team1_score = ''
@@ -551,29 +549,30 @@ def scrape_live_scores():
                 if len(parts) > 1:
                     match_info = parts[1].strip()
                 if ' - ' in title:
-                    status = title.split(' - ')[-1].strip()
+                    status_part = title.split(' - ')[-1].strip()
+                    if 'live' in status_part.lower():
+                        status = 'LIVE'
+                    else:
+                        status = status_part
             
-            match_container = card
-            for _ in range(8):
-                match_container = match_container.parent
-                if match_container is None:
+            score_spans = match_container.find_all('span', class_=re.compile(r'truncate'))
+            for span in score_spans:
+                span_text = span.get_text(strip=True)
+                if re.match(r'\d+-\d+\s*\(\d+', span_text) or re.match(r'\d+/\d+\s*\(\d+', span_text):
+                    if not team1_score:
+                        team1_score = span_text
+                    elif not team2_score:
+                        team2_score = span_text
+            
+            series_container = match_container
+            for _ in range(5):
+                series_container = series_container.parent
+                if series_container is None:
                     break
-                
-                score_spans = match_container.find_all('span', class_=re.compile(r'truncate'))
-                if len(score_spans) >= 2:
-                    for span in score_spans:
-                        span_text = span.get_text(strip=True)
-                        if re.match(r'\d+-\d+\s*\(\d+', span_text) or re.match(r'\d+/\d+\s*\(\d+', span_text) or re.match(r'\d+-\d+$', span_text):
-                            if not team1_score:
-                                team1_score = span_text
-                            elif not team2_score:
-                                team2_score = span_text
-                    if team1_score:
-                        break
-                
-                series_link = match_container.find('a', href=re.compile(r'/cricket-series/\d+/'))
-                if series_link and not series_name:
+                series_link = series_container.find('a', href=re.compile(r'/cricket-series/\d+/'))
+                if series_link:
                     series_name = series_link.get_text(strip=True)
+                    break
             
             if team1_name and team2_name:
                 live_matches.append({
