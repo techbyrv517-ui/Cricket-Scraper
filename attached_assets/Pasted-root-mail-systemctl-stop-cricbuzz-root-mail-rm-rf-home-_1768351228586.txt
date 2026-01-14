@@ -1,0 +1,214 @@
+root@mail:~# systemctl stop cricbuzz
+root@mail:~# rm -rf /home/digitalcash24/cricbuzz-live-score.com/*
+root@mail:~# sudo -u postgres psql << 'EOF'
+> DROP DATABASE IF EXISTS cricbuzz_db;
+> DROP USER IF EXISTS cricbuzz_user;
+> CREATE USER cricbuzz_user WITH PASSWORD 'CricBuzz@2026#Secure';
+> CREATE DATABASE cricbuzz_db OWNER cricbuzz_user;
+> GRANT ALL PRIVILEGES ON DATABASE cricbuzz_db TO cricbuzz_user;
+> \c cricbuzz_db
+> GRANT ALL ON SCHEMA public TO cricbuzz_user;
+> EOF
+could not change directory to "/root": Permission denied
+DROP DATABASE
+DROP ROLE
+CREATE ROLE
+CREATE DATABASE
+GRANT
+You are now connected to database "cricbuzz_db" as user "postgres".
+GRANT
+root@mail:~# sudo -u postgres psql cricbuzz_db << 'EOF'
+>
+> -- Users table
+ps > CREATE TABLE users (
+>     id SERIAL PRIMARY KEY,
+>     username VARCHAR(50) UNIQUE NOT NULL,
+>     password_hash VARCHAR(255) NOT NULL,
+>     role VARCHAR(20) DEFAULT 'admin',
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     last_login TIMESTAMP
+k> );
+ IN>
+> -- Site Settings
+> CREATE TABLE site_settings (
+>     id SERIAL PRIMARY KEY,
+->     setting_key VARCHAR(100) UNIQUE NOT NULL,
+>     setting_value TEXT,
+>     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+U> );
+>
+E> -- Pages (AdSense)
+> CREATE TABLE pages (
+>     id SERIAL PRIMARY KEY,
+>     slug VARCHAR(100) UNIQUE NOT NULL,
+>     title VARCHAR(255) NOT NULL,
+V>     content TEXT,
+ '>     meta_title VARCHAR(255),
+>     meta_description TEXT,
+>     is_published BOOLEAN DEFAULT TRUE,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Keyword Pages (SEO)
+> CREATE TABLE keyword_pages (
+>     id SERIAL PRIMARY KEY,
+>     keyword VARCHAR(255) NOT NULL,
+>     short_keyword VARCHAR(50),
+>     slug VARCHAR(100) UNIQUE NOT NULL,
+>     hero_title VARCHAR(255),
+>     hero_description TEXT,
+>     content TEXT,
+>     meta_title VARCHAR(255),
+>     meta_description TEXT,
+>     is_published BOOLEAN DEFAULT TRUE,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Series
+> CREATE TABLE series (
+>     id SERIAL PRIMARY KEY,
+>     series_id VARCHAR(50),
+>     month VARCHAR(20),
+>     year VARCHAR(10),
+>     series_name VARCHAR(255),
+>     date_range VARCHAR(100),
+>     series_url TEXT,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Matches
+> CREATE TABLE matches (
+>     id SERIAL PRIMARY KEY,
+>     series_id INTEGER REFERENCES series(id) ON DELETE CASCADE,
+>     match_id VARCHAR(50),
+>     match_title VARCHAR(255),
+>     match_url TEXT,
+>     match_date VARCHAR(100),
+>     slug VARCHAR(255),
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Scorecards
+> CREATE TABLE scorecards (
+>     id SERIAL PRIMARY KEY,
+>     match_id VARCHAR(50),
+>     match_title VARCHAR(255),
+>     match_status VARCHAR(255),
+>     scorecard_html TEXT,
+>     is_live BOOLEAN DEFAULT FALSE,
+>     scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Teams
+> CREATE TABLE teams (
+>     id SERIAL PRIMARY KEY,
+>     name VARCHAR(100) NOT NULL,
+>     short_name VARCHAR(10),
+>     slug VARCHAR(100) UNIQUE,
+>     country VARCHAR(100),
+>     flag_color VARCHAR(20),
+>     flag_url TEXT,
+>     team_type VARCHAR(50) DEFAULT 'international',
+>     cricbuzz_team_id VARCHAR(50),
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Players
+> CREATE TABLE players (
+>     id SERIAL PRIMARY KEY,
+>     team_id INTEGER REFERENCES teams(id) ON DELETE CASCADE,
+>     cricbuzz_id VARCHAR(50),
+>     name VARCHAR(100) NOT NULL,
+>     slug VARCHAR(100),
+>     image_url TEXT,
+>     role VARCHAR(50),
+>     profile_url TEXT,
+>     personal_info JSONB,
+>     batting_stats JSONB,
+>     bowling_stats JSONB,
+>     career_timeline JSONB,
+>     profile_scraped BOOLEAN DEFAULT FALSE,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Post Categories
+> CREATE TABLE post_categories (
+>     id SERIAL PRIMARY KEY,
+>     name VARCHAR(100) NOT NULL,
+>     slug VARCHAR(100) UNIQUE NOT NULL,
+>     short_name VARCHAR(50),
+>     description TEXT,
+>     hero_title VARCHAR(255),
+>     hero_description TEXT,
+>     content TEXT,
+>     focus_keyword VARCHAR(255),
+>     meta_title VARCHAR(255),
+>     meta_description TEXT,
+>     canonical_url TEXT,
+>     og_image TEXT,
+>     is_published BOOLEAN DEFAULT TRUE,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Posts
+> CREATE TABLE posts (
+>     id SERIAL PRIMARY KEY,
+>     title VARCHAR(255) NOT NULL,
+>     slug VARCHAR(255) UNIQUE NOT NULL,
+>     featured_image TEXT,
+>     excerpt TEXT,
+>     content TEXT,
+>     category_id INTEGER REFERENCES post_categories(id) ON DELETE SET NULL,
+>     focus_keyword VARCHAR(255),
+>     meta_title VARCHAR(255),
+>     meta_description TEXT,
+>     canonical_url TEXT,
+>     og_image TEXT,
+>     is_published BOOLEAN DEFAULT TRUE,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+>     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Matchups (Popular)
+> CREATE TABLE matchups (
+>     id SERIAL PRIMARY KEY,
+>     name VARCHAR(100) NOT NULL,
+>     slug VARCHAR(100) UNIQUE NOT NULL,
+>     short_name VARCHAR(50),
+>     description TEXT,
+>     image_url TEXT,
+>     is_active BOOLEAN DEFAULT TRUE,
+>     rank INTEGER DEFAULT 0,
+>     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+> );
+>
+> -- Grant permissions
+> GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO cricbuzz_user;
+> GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO cricbuzz_user;
+>
+> -- Insert default admin user (password: admin123)
+> INSERT INTO users (username, password_hash, role) VALUES
+> ('admin', 'pbkdf2:sha256:600000$salt$hash', 'admin');
+>
+> EOF
+could not change directory to "/root": Permission denied
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+GRANT
+GRANT
+INSERT 0 1
+root@mail:~#
