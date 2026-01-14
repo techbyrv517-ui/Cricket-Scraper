@@ -567,8 +567,10 @@ def scrape_live_scores():
                 match_info = match_info_div.get_text(strip=True)
             
             if team1_name and team2_name:
+                match_url = f"https://www.cricbuzz.com{href}"
                 live_matches.append({
                     'match_id': match_id,
+                    'match_url': match_url,
                     'series_name': series_name[:255] if series_name else '',
                     'match_info': match_info[:255] if match_info else '',
                     'team1_name': team1_name[:100],
@@ -578,6 +580,66 @@ def scrape_live_scores():
                     'status': status[:100] if status else 'LIVE',
                     'is_live': True
                 })
+        except Exception as e:
+            continue
+    
+    for match in live_matches:
+        try:
+            match_url = match.get('match_url', '')
+            if not match_url:
+                continue
+            
+            time.sleep(0.3)
+            match_response = requests.get(match_url, headers=headers, timeout=15)
+            if match_response.status_code != 200:
+                continue
+            
+            match_soup = BeautifulSoup(match_response.text, 'html.parser')
+            
+            score_divs = match_soup.find_all('div', class_=re.compile(r'cb-min-bat-rw|cb-min-tm'))
+            for div in score_divs:
+                score_spans = div.find_all('span')
+                if len(score_spans) >= 2:
+                    team_text = score_spans[0].get_text(strip=True).upper() if score_spans[0] else ''
+                    score_text = ''
+                    for span in score_spans[1:]:
+                        txt = span.get_text(strip=True)
+                        if '/' in txt or txt.isdigit():
+                            score_text = txt
+                            break
+                    
+                    if score_text:
+                        t1_upper = match['team1_name'][:3].upper()
+                        t2_upper = match['team2_name'][:3].upper()
+                        
+                        if t1_upper in team_text and not match['team1_score']:
+                            match['team1_score'] = score_text
+                        elif t2_upper in team_text and not match['team2_score']:
+                            match['team2_score'] = score_text
+            
+            all_scripts = match_soup.find_all('script')
+            for script in all_scripts:
+                script_text = script.string or ''
+                if 'miniscore' not in script_text.lower() and 'batsmanStriker' not in script_text:
+                    continue
+                
+                t1_score_match = re.search(r'"batTeamScore":\s*"([^"]+)"', script_text)
+                if t1_score_match and not match['team1_score']:
+                    match['team1_score'] = t1_score_match.group(1)
+                
+                status_match = re.search(r'"matchStatus":\s*"([^"]+)"', script_text)
+                if status_match:
+                    match['status'] = status_match.group(1)
+                
+                innings_list = re.findall(r'"inngsId":\s*(\d+)[^}]*?"score":\s*(\d+)[^}]*?"wickets":\s*(\d+)', script_text)
+                if innings_list:
+                    for i, (inng_id, runs, wkts) in enumerate(innings_list[:2]):
+                        score_str = f"{runs}/{wkts}"
+                        if i == 0 and not match['team1_score']:
+                            match['team1_score'] = score_str
+                        elif i == 1 and not match['team2_score']:
+                            match['team2_score'] = score_str
+                break
         except Exception as e:
             continue
     
