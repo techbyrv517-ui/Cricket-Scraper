@@ -169,12 +169,39 @@ def scrape_matches_from_series(series_id):
     
     international_markers = ['odi', 'test', 't20i', '1st-odi', '2nd-odi', '3rd-odi', '1st-test', '2nd-test', '1st-t20i', '2nd-t20i', '3rd-t20i']
     
-    def match_belongs_to_series(match_slug, match_title=''):
+    def match_belongs_to_series(match_slug, match_title='', match_href=''):
         match_text = (match_slug + ' ' + match_title).lower()
+        match_href_lower = match_href.lower()
         
-        # For franchise leagues, accept all matches from that league page
-        if is_franchise_league:
+        # Primary check: if series_slug is in the match URL, it belongs to this series
+        if series_slug and series_slug in match_href_lower:
             return True
+        
+        # Secondary check: series slug variations in URL
+        series_slug_parts = series_slug.replace('-', ' ').split() if series_slug else []
+        if len(series_slug_parts) >= 2:
+            # Check if major parts of series slug are in URL
+            matches_found = sum(1 for part in series_slug_parts if len(part) > 2 and part in match_href_lower)
+            if matches_found >= 2:
+                return True
+        
+        # For franchise leagues, also check common abbreviations
+        if is_franchise_league:
+            league_markers = {
+                'big bash': ['bbl'],
+                'ipl': ['ipl', 'indian-premier-league'],
+                'psl': ['psl', 'pakistan-super-league'],
+                'cpl': ['cpl', 'caribbean-premier-league'],
+                'sa20': ['sa20'],
+                'wpl': ['wpl', 'womens-premier-league'],
+                'hundred': ['hundred'],
+            }
+            for league, markers in league_markers.items():
+                if league in series_name_lower:
+                    for marker in markers:
+                        if marker in match_href_lower:
+                            return True
+            return False
         
         # For U19 series, check for U19 matches
         if is_u19:
@@ -200,8 +227,8 @@ def scrape_matches_from_series(series_id):
                     return False
             return True
         
-        # Default: accept match (for domestic/league series)
-        return True
+        # Default: reject if no match found
+        return False
     
     match_count = 0
     processed_match_ids = set()
@@ -224,7 +251,7 @@ def scrape_matches_from_series(series_id):
         match_id = match_id_search.group(1)
         match_slug = match_id_search.group(2)
         
-        if not match_belongs_to_series(match_slug, title):
+        if not match_belongs_to_series(match_slug, title, href):
             continue
         
         if not match_id or match_id in processed_match_ids:
