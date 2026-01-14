@@ -506,21 +506,18 @@ def scrape_live_scores():
     
     for card in match_cards:
         try:
+            live_tag = None
             parent = card
             for _ in range(10):
                 parent = parent.parent
                 if parent is None:
                     break
-                if parent.find('span', class_=re.compile(r'cbPlusLiveTag')):
+                live_tag = parent.find('span', class_=re.compile(r'cbLive\b'))
+                if live_tag:
                     break
             
-            live_tag = None
-            if parent:
-                live_tag = parent.find('span', class_=re.compile(r'cbPlusLiveTag'))
             if not live_tag:
-                live_tag = card.find('span', class_=re.compile(r'cbPlusLiveTag'))
-            if not live_tag:
-                live_tag = card.find(string=re.compile(r'\bLIVE\b', re.I))
+                live_tag = card.find('span', class_=re.compile(r'cbLive\b'))
             
             if not live_tag:
                 continue
