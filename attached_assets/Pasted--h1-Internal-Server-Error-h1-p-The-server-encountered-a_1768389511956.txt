@@ -1,0 +1,56 @@
+
+<h1>Internal Server Error</h1>
+<p>The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.</p>
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# sudo journalctl -u cricbuzz --no-pager -n 50
+-- Logs begin at Mon 2025-11-10 12:47:14 CET, end at Wed 2026-01-14 12:18:16 CET. --
+Jan 14 11:32:48 mail.digitalcash24.com gunicorn[4020071]: [2026-01-14 11:32:48 +0100] [4020071] [INFO] Worker exiting (pid: 4020071)
+Jan 14 11:32:48 mail.digitalcash24.com gunicorn[4020057]: [2026-01-14 11:32:48 +0100] [4020057] [INFO] Handling signal: term
+Jan 14 11:32:48 mail.digitalcash24.com gunicorn[4020057]: [2026-01-14 11:32:48 +0100] [4020057] [ERROR] Worker (pid:4020070) was sent SIGTERM!
+Jan 14 11:32:48 mail.digitalcash24.com gunicorn[4020057]: [2026-01-14 11:32:48 +0100] [4020057] [ERROR] Worker (pid:4020072) was sent SIGTERM!
+Jan 14 11:32:48 mail.digitalcash24.com gunicorn[4020057]: [2026-01-14 11:32:48 +0100] [4020057] [ERROR] Worker (pid:4020071) was sent SIGTERM!
+Jan 14 11:32:48 mail.digitalcash24.com gunicorn[4020057]: [2026-01-14 11:32:48 +0100] [4020057] [INFO] Shutting down: Master
+Jan 14 11:32:49 mail.digitalcash24.com systemd[1]: cricbuzz.service: Succeeded.
+Jan 14 11:32:49 mail.digitalcash24.com systemd[1]: Stopped Cricbuzz Live Score Flask App.
+Jan 14 11:32:49 mail.digitalcash24.com systemd[1]: Started Cricbuzz Live Score Flask App.
+Jan 14 11:32:49 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:32:49 +0100] [4020535] [INFO] Starting gunicorn 23.0.0
+Jan 14 11:32:49 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:32:49 +0100] [4020535] [INFO] Listening at: http://127.0.0.1:5000 (4020535)
+Jan 14 11:32:49 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:32:49 +0100] [4020535] [INFO] Using worker: sync
+Jan 14 11:32:49 mail.digitalcash24.com gunicorn[4020553]: [2026-01-14 11:32:49 +0100] [4020553] [INFO] Booting worker with pid: 4020553
+Jan 14 11:32:49 mail.digitalcash24.com gunicorn[4020554]: [2026-01-14 11:32:49 +0100] [4020554] [INFO] Booting worker with pid: 4020554
+Jan 14 11:32:49 mail.digitalcash24.com gunicorn[4020555]: [2026-01-14 11:32:49 +0100] [4020555] [INFO] Booting worker with pid: 4020555
+Jan 14 11:42:17 mail.digitalcash24.com systemd[1]: Stopping Cricbuzz Live Score Flask App...
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020553]: [2026-01-14 11:42:17 +0100] [4020553] [INFO] Worker exiting (pid: 4020553)
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020555]: [2026-01-14 11:42:17 +0100] [4020555] [INFO] Worker exiting (pid: 4020555)
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020554]: [2026-01-14 11:42:17 +0100] [4020554] [INFO] Worker exiting (pid: 4020554)
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:42:17 +0100] [4020535] [INFO] Handling signal: term
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:42:17 +0100] [4020535] [ERROR] Worker (pid:4020553) was sent SIGTERM!
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:42:17 +0100] [4020535] [ERROR] Worker (pid:4020555) was sent SIGTERM!
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:42:17 +0100] [4020535] [ERROR] Worker (pid:4020554) was sent SIGTERM!
+Jan 14 11:42:17 mail.digitalcash24.com gunicorn[4020535]: [2026-01-14 11:42:17 +0100] [4020535] [INFO] Shutting down: Master
+Jan 14 11:42:17 mail.digitalcash24.com systemd[1]: cricbuzz.service: Succeeded.
+Jan 14 11:42:17 mail.digitalcash24.com systemd[1]: Stopped Cricbuzz Live Score Flask App.
+Jan 14 12:02:09 mail.digitalcash24.com systemd[1]: Started Cricbuzz Live Score Flask App.
+Jan 14 12:02:09 mail.digitalcash24.com gunicorn[4021729]: [2026-01-14 12:02:09 +0100] [4021729] [INFO] Starting gunicorn 23.0.0
+Jan 14 12:02:09 mail.digitalcash24.com gunicorn[4021729]: [2026-01-14 12:02:09 +0100] [4021729] [INFO] Listening at: http://127.0.0.1:5000 (4021729)
+Jan 14 12:02:09 mail.digitalcash24.com gunicorn[4021729]: [2026-01-14 12:02:09 +0100] [4021729] [INFO] Using worker: sync
+Jan 14 12:02:09 mail.digitalcash24.com gunicorn[4021741]: [2026-01-14 12:02:09 +0100] [4021741] [INFO] Booting worker with pid: 4021741
+Jan 14 12:02:09 mail.digitalcash24.com gunicorn[4021742]: [2026-01-14 12:02:09 +0100] [4021742] [INFO] Booting worker with pid: 4021742
+Jan 14 12:02:09 mail.digitalcash24.com gunicorn[4021745]: [2026-01-14 12:02:09 +0100] [4021745] [INFO] Booting worker with pid: 4021745
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]: [2026-01-14 12:17:29,633] ERROR in app: Exception on / [GET]
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]: Traceback (most recent call last):
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:     response = self.full_dispatch_request()
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:     rv = self.handle_user_exception(e)
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:     rv = self.dispatch_request()
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 555, in index
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:     cur.execute('SELECT * FROM matchups WHERE is_published = TRUE ORDER BY display_order ASC, id ASC')
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:     return super().execute(query, vars)
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]: psycopg2.errors.UndefinedColumn: column "is_published" does not exist
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]: LINE 1: SELECT * FROM matchups WHERE is_published = TRUE ORDER BY di...
+Jan 14 12:17:29 mail.digitalcash24.com gunicorn[4021741]:                                      ^
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com#
