@@ -1,0 +1,34 @@
+root@mail:~# sudo nginx -t
+nginx: [emerg] "proxy_cache" zone "zeslecp_static" is unknown in /etc/nginx/nginx.conf:64
+nginx: configuration file /etc/nginx/nginx.conf test failed
+root@mail:~# grep -r "keys_zone\|proxy_cache\|fastcgi_cache" /etc/nginx/ | grep -v ".bak"
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache_bypass             $CACHE_BYPASS_FOR_DYNAMIC;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache                    zeslecp_dynamic;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:#proxy_cache_background_update on;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache_key                "$MOBILE$scheme$host$request_uri";
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache_lock               on;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache_methods            GET HEAD;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache_use_stale          error timeout invalid_header updating http_429 http_500 http_502 http_503 http_504; # Additional options: http_403 http_404
+/etc/nginx/conf.d/includes-optional/zesle-proxy_dynamic.conf:proxy_cache_valid              200 20s;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_bypass             $CACHE_BYPASS_FOR_STATIC;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache                    zeslecp_static;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_background_update  on;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_key                "$host$request_uri";
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_lock               on;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_methods            GET HEAD;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_min_uses           1;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_revalidate         on;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_use_stale          error timeout updating http_429 http_500 http_502 http_503 http_504;
+/etc/nginx/conf.d/includes-optional/zesle-proxy_static.conf:proxy_cache_valid              10s;
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache_bypass             $CACHE_BYPASS_FOR_DYNAMIC;
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache                    zeslecp_dynamic;
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:#fastcgi_cache_background_update on;
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache_key                "$MOBILE$scheme$host$request_uri";
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache_lock               on;
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache_methods            GET HEAD;
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache_use_stale          error timeout invalid_header updating http_429 http_500 http_503; # Additional options: http_403 http_404
+/etc/nginx/conf.d/includes-optional/zesle-fastcgi_dynamic.conf:fastcgi_cache_valid              200 20s;
+/etc/nginx/nginx.conf:    proxy_cache_path /var/cache/nginx/zeslecp_dynamic levels=1:2 keys_zone=zeslecp_dynamic:10m max_size=100m inactive=60m;
+/etc/nginx/sites-available/voiceforge:        proxy_cache_bypass $http_upgrade;
+/etc/nginx/sites-available/codinghunt.in.save:    proxy_cache_bypass $http_upgrade;
+root@mail:~# 
