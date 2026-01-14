@@ -10,11 +10,79 @@
 
 <div class="admin-card" style="margin-bottom: 25px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border: 2px solid #4caf50;">
     <h3 style="color: #2e7d32; margin-bottom: 15px; font-size: 1.1rem;">Scrape Live Matches from Cricbuzz</h3>
-    <p style="color: #555; margin-bottom: 15px; font-size: 0.9rem;">Click the button below to automatically fetch all currently live matches from Cricbuzz and display them on the homepage Live tab.</p>
+    <p style="color: #555; margin-bottom: 15px; font-size: 0.9rem;">Click the button below to manually fetch all currently live matches from Cricbuzz.</p>
     <button id="scrapeLiveBtn" class="btn btn-primary" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); font-size: 1rem; padding: 12px 25px;">
         🔄 Scrape Live Scores
     </button>
 </div>
+
+<div class="admin-card" style="margin-bottom: 25px; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 2px solid #ff9800;">
+    <h3 style="color: #e65100; margin-bottom: 15px; font-size: 1.1rem;">Auto Scrape Settings</h3>
+    <p style="color: #555; margin-bottom: 15px; font-size: 0.9rem;">Enable automatic scraping to keep live scores updated without manual intervention.</p>
+    
+    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-bottom: 15px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label class="toggle-switch">
+                <input type="checkbox" id="autoScrapeEnabled">
+                <span class="toggle-slider"></span>
+            </label>
+            <span id="autoScrapeStatus" style="font-weight: 600; color: #888;">Disabled</span>
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <label style="color: #555; font-size: 0.9rem;">Interval (seconds):</label>
+            <input type="number" id="autoScrapeInterval" min="10" max="3600" value="60" style="width: 80px; padding: 8px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 1rem; text-align: center;">
+        </div>
+        
+        <button id="saveAutoScrapeBtn" class="btn btn-primary" style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); padding: 10px 20px;">
+            Save Settings
+        </button>
+    </div>
+    
+    <p id="autoScrapeMessage" style="color: #666; font-size: 0.85rem; margin: 0;"></p>
+</div>
+
+<style>
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 26px;
+}
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+.toggle-switch input:checked + .toggle-slider {
+    background-color: #4caf50;
+}
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
+</style>
 
 <div class="admin-card" style="margin-bottom: 25px;">
     <h3 style="color: var(--admin-primary); margin-bottom: 20px; font-size: 1.1rem;">Add New Live Match</h3>
@@ -228,6 +296,83 @@ if(scrapeLiveBtn) {
         });
     });
 }
+
+// Auto Scrape Settings
+const autoScrapeEnabled = document.getElementById('autoScrapeEnabled');
+const autoScrapeInterval = document.getElementById('autoScrapeInterval');
+const autoScrapeStatus = document.getElementById('autoScrapeStatus');
+const autoScrapeMessage = document.getElementById('autoScrapeMessage');
+const saveAutoScrapeBtn = document.getElementById('saveAutoScrapeBtn');
+
+function updateStatusDisplay(enabled) {
+    if (enabled) {
+        autoScrapeStatus.textContent = 'Enabled';
+        autoScrapeStatus.style.color = '#4caf50';
+    } else {
+        autoScrapeStatus.textContent = 'Disabled';
+        autoScrapeStatus.style.color = '#888';
+    }
+}
+
+// Load current settings
+fetch('/api/auto-scrape-settings')
+    .then(response => response.json())
+    .then(data => {
+        autoScrapeEnabled.checked = data.enabled;
+        autoScrapeInterval.value = data.interval;
+        updateStatusDisplay(data.enabled);
+        if (data.enabled) {
+            autoScrapeMessage.textContent = `Auto scraping every ${data.interval} seconds`;
+        }
+    })
+    .catch(error => {
+        console.error('Error loading auto scrape settings:', error);
+    });
+
+// Toggle change
+autoScrapeEnabled.addEventListener('change', function() {
+    updateStatusDisplay(this.checked);
+});
+
+// Save settings
+saveAutoScrapeBtn.addEventListener('click', function() {
+    const enabled = autoScrapeEnabled.checked;
+    const interval = parseInt(autoScrapeInterval.value) || 60;
+    
+    if (interval < 10 || interval > 3600) {
+        autoScrapeMessage.textContent = 'Interval must be between 10 and 3600 seconds';
+        autoScrapeMessage.style.color = '#e53935';
+        return;
+    }
+    
+    saveAutoScrapeBtn.disabled = true;
+    saveAutoScrapeBtn.textContent = 'Saving...';
+    
+    fetch('/api/auto-scrape-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, interval })
+    })
+    .then(response => response.json())
+    .then(data => {
+        saveAutoScrapeBtn.disabled = false;
+        saveAutoScrapeBtn.textContent = 'Save Settings';
+        
+        if (data.success) {
+            autoScrapeMessage.textContent = data.message;
+            autoScrapeMessage.style.color = '#4caf50';
+        } else {
+            autoScrapeMessage.textContent = 'Error saving settings';
+            autoScrapeMessage.style.color = '#e53935';
+        }
+    })
+    .catch(error => {
+        saveAutoScrapeBtn.disabled = false;
+        saveAutoScrapeBtn.textContent = 'Save Settings';
+        autoScrapeMessage.textContent = 'Error: ' + error;
+        autoScrapeMessage.style.color = '#e53935';
+    });
+});
 </script>
 
 <style>

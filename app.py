@@ -8,10 +8,60 @@ from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv()
 
 scheduler_started = False
+scheduler = None
+live_scrape_job_id = 'auto_scrape_live_scores'
+
+def auto_scrape_live_scores():
+    """Background job to automatically scrape live scores"""
+    try:
+        from scraper import scrape_live_scores
+        result = scrape_live_scores()
+        print(f"Auto scrape: {result.get('message', 'Unknown')}")
+    except Exception as e:
+        print(f"Auto scrape error: {e}")
+
+def get_auto_scrape_settings():
+    """Get auto scrape settings from database"""
+    try:
+        with psycopg2.connect(os.environ.get('DATABASE_URL'), cursor_factory=RealDictCursor) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT setting_key, setting_value FROM site_settings WHERE setting_key IN ('auto_scrape_enabled', 'auto_scrape_interval')")
+                rows = cur.fetchall()
+                settings = {row['setting_key']: row['setting_value'] for row in rows}
+                return {
+                    'enabled': settings.get('auto_scrape_enabled', 'false') == 'true',
+                    'interval': int(settings.get('auto_scrape_interval', '60'))
+                }
+    except:
+        return {'enabled': False, 'interval': 60}
+
+def update_auto_scrape_job(enabled, interval_seconds):
+    """Update or remove the auto scrape job"""
+    global scheduler
+    if scheduler is None:
+        return
+    
+    try:
+        scheduler.remove_job(live_scrape_job_id)
+    except:
+        pass
+    
+    if enabled and interval_seconds >= 10:
+        scheduler.add_job(
+            func=auto_scrape_live_scores,
+            trigger="interval",
+            seconds=interval_seconds,
+            id=live_scrape_job_id,
+            replace_existing=True
+        )
+        print(f"Auto scrape enabled: every {interval_seconds} seconds")
+    else:
+        print("Auto scrape disabled")
 
 def refresh_live_matches():
     """Background job to refresh live match scores"""
@@ -62,17 +112,20 @@ def refresh_live_matches():
         print(f"Error refreshing live matches: {e}")
 
 def start_scheduler():
-    global scheduler_started
+    global scheduler_started, scheduler
     if scheduler_started:
         return
     
     import atexit
-    from apscheduler.schedulers.background import BackgroundScheduler
     
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func=refresh_live_matches, trigger="interval", seconds=90, id='refresh_live_matches', replace_existing=True)
     scheduler.start()
     scheduler_started = True
+    
+    settings = get_auto_scrape_settings()
+    if settings['enabled']:
+        update_auto_scrape_job(True, settings['interval'])
+    
     atexit.register(lambda: scheduler.shutdown(wait=False))
 
 def slugify(text):
@@ -622,6 +675,7 @@ def admin():
     return render_template('admin.html', series=series, sidebar=sidebar)
 
 @app.route('/live-score')
+@login_required
 def live_score():
     conn = get_db()
     cur = conn.cursor()
@@ -1045,6 +1099,52 @@ def api_scrape_live_scores():
     from scraper import scrape_live_scores
     result = scrape_live_scores()
     return jsonify(result)
+
+@app.route('/api/auto-scrape-settings', methods=['GET'])
+@login_required
+def api_get_auto_scrape_settings():
+    settings = get_auto_scrape_settings()
+    return jsonify(settings)
+
+@app.route('/api/auto-scrape-settings', methods=['POST'])
+@login_required
+def api_update_auto_scrape_settings():
+    data = request.get_json()
+    enabled = data.get('enabled', False)
+    interval = int(data.get('interval', 60))
+    
+    if interval < 10:
+        interval = 10
+    if interval > 3600:
+        interval = 3600
+    
+    conn = get_db()
+    cur = conn.cursor()
+    
+    cur.execute('''
+        INSERT INTO site_settings (setting_key, setting_value, updated_at)
+        VALUES ('auto_scrape_enabled', %s, CURRENT_TIMESTAMP)
+        ON CONFLICT (setting_key) DO UPDATE SET setting_value = %s, updated_at = CURRENT_TIMESTAMP
+    ''', ('true' if enabled else 'false', 'true' if enabled else 'false'))
+    
+    cur.execute('''
+        INSERT INTO site_settings (setting_key, setting_value, updated_at)
+        VALUES ('auto_scrape_interval', %s, CURRENT_TIMESTAMP)
+        ON CONFLICT (setting_key) DO UPDATE SET setting_value = %s, updated_at = CURRENT_TIMESTAMP
+    ''', (str(interval), str(interval)))
+    
+    conn.commit()
+    cur.close()
+    conn.close()
+    
+    update_auto_scrape_job(enabled, interval)
+    
+    return jsonify({
+        'success': True,
+        'enabled': enabled,
+        'interval': interval,
+        'message': f"Auto scrape {'enabled' if enabled else 'disabled'}" + (f" (every {interval}s)" if enabled else "")
+    })
 
 @app.route('/api/scrape-teams/<team_type>', methods=['POST'])
 def api_scrape_teams(team_type):
