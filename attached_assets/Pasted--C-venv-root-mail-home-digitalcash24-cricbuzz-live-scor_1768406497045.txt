@@ -1,0 +1,25 @@
+^C(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# nano /etc/systemd/system/cricbuzz.service
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# chown -R www-data:www-data /home/digitalcash24/cricbuzz-live-score.com
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# chmod -R 755 /home/digitalcash24/cricbuzz-live-score.com
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# systemctl daemon-reload
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# systemctl enable cricbuzz
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# systemctl start cricbuzz
+(venv) root@mail:/home/digitalcash24/cricbuzz-live-score.com# systemctl status cricbuzz
+● cricbuzz.service - Cricbuzz Live Score
+     Loaded: loaded (/etc/systemd/system/cricbuzz.service; enabled; vendor preset: enabled)
+     Active: active (running) since Wed 2026-01-14 17:01:13 CET; 2s ago
+   Main PID: 305293 (gunicorn)
+      Tasks: 3 (limit: 9493)
+     Memory: 50.7M
+     CGroup: /system.slice/cricbuzz.service
+             ├─305293 /home/digitalcash24/cricbuzz-live-score.com/venv/bin/python3 /home/digitalcash24/cricbuzz-live-score.com/venv/bin/gunicorn --wo>
+             ├─305323 /home/digitalcash24/cricbuzz-live-score.com/venv/bin/python3 /home/digitalcash24/cricbuzz-live-score.com/venv/bin/gunicorn --wo>
+             └─305330 /home/digitalcash24/cricbuzz-live-score.com/venv/bin/python3 /home/digitalcash24/cricbuzz-live-score.com/venv/bin/gunicorn --wo>
+
+Jan 14 17:01:13 mail.digitalcash24.com systemd[1]: Started Cricbuzz Live Score.
+Jan 14 17:01:13 mail.digitalcash24.com gunicorn[305293]: [2026-01-14 17:01:13 +0100] [305293] [INFO] Starting gunicorn 23.0.0
+Jan 14 17:01:13 mail.digitalcash24.com gunicorn[305293]: [2026-01-14 17:01:13 +0100] [305293] [INFO] Listening at: http://127.0.0.1:5000 (305293)
+Jan 14 17:01:13 mail.digitalcash24.com gunicorn[305293]: [2026-01-14 17:01:13 +0100] [305293] [INFO] Using worker: gthread
+Jan 14 17:01:13 mail.digitalcash24.com gunicorn[305323]: [2026-01-14 17:01:13 +0100] [305323] [INFO] Booting worker with pid: 305323
+Jan 14 17:01:13 mail.digitalcash24.com gunicorn[305330]: [2026-01-14 17:01:13 +0100] [305330] [INFO] Booting worker with pid: 305330
+lines 1-17/17 (END)
