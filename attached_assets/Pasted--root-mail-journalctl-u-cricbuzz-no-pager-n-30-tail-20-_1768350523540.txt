@@ -1,0 +1,22 @@
+
+root@mail:~# journalctl -u cricbuzz --no-pager -n 30 | tail -20
+Jan 14 01:26:43 mail.digitalcash24.com gunicorn[3998550]: psycopg2.errors.UndefinedColumn: column sc.last_updated does not exist
+Jan 14 01:26:43 mail.digitalcash24.com gunicorn[3998550]: LINE 7:         ORDER BY sc.last_updated DESC
+Jan 14 01:26:43 mail.digitalcash24.com gunicorn[3998550]:                          ^
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]: [2026-01-14 01:26:49,180] ERROR in app: Exception on /api/live-matches [GET]
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]: Traceback (most recent call last):
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 1473, in wsgi_app
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:     response = self.full_dispatch_request()
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 882, in full_dispatch_request
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:     rv = self.handle_user_exception(e)
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 880, in full_dispatch_request
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:     rv = self.dispatch_request()
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/flask/app.py", line 865, in dispatch_request
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:   File "/home/digitalcash24/cricbuzz-live-score.com/app.py", line 732, in api_live_matches
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:     cur.execute('''
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:   File "/home/digitalcash24/cricbuzz-live-score.com/venv/lib/python3.8/site-packages/psycopg2/extras.py", line 236, in execute
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:     return super().execute(query, vars)
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]: psycopg2.errors.UndefinedColumn: column sc.last_updated does not exist
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]: LINE 7:         ORDER BY sc.last_updated DESC
+Jan 14 01:26:49 mail.digitalcash24.com gunicorn[3998551]:  
